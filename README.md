@@ -16,5 +16,7 @@ provide  an overview of the code and how it all fits together.  The scripts shou
 MATLAB’s “help” function. 
 
 Version history:
+
 AMPLE     - original AMPLE release
+
 AMPLE_1.1 - version 1.1, released August 2020 - focused on runtime improvement
