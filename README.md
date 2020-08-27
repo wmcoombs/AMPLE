@@ -14,3 +14,7 @@ It is suggested that users start by looking at the “index.html” file within 
 The html files were complied with M2HTML (https://www.artefact.tk/software/matlab/m2html/) and they should 
 provide  an overview of the code and how it all fits together.  The scripts should also be compatible with 
 MATLAB’s “help” function. 
+
+Version history:
+AMPLE     - original AMPLE release
+AMPLE_1.1 - version 1.1, released August 2020 - focused on runtime improvement
