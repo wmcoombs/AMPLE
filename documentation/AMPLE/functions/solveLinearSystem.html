@@ -1,0 +1,119 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
+                "http://www.w3.org/TR/REC-html40/loose.dtd">
+<html>
+<head>
+  <title>Description of solveLinearSystem</title>
+  <meta name="keywords" content="solveLinearSystem">
+  <meta name="description" content="Linear solver">
+  <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+  <meta name="generator" content="m2html v1.5 &copy; 2003-2005 Guillaume Flandin">
+  <meta name="robots" content="index, follow">
+  <link type="text/css" rel="stylesheet" href="../../m2html.css">
+</head>
+<body>
+<a name="_top"></a>
+<div><a href="../../index.html">Home</a> &gt;  <a href="../index.html">AMPLE</a> &gt; <a href="index.html">functions</a> &gt; solveLinearSystem.m</div>
+
+<!--<table width="100%"><tr><td align="left"><a href="../../index.html"><img alt="<" border="0" src="../../left.png">&nbsp;Master index</a></td>
+<td align="right"><a href="index.html">Index for AMPLE/functions&nbsp;<img alt=">" border="0" src="../../right.png"></a></td></tr></table>-->
+
+<h1>solveLinearSystem
+</h1>
+
+<h2><a name="_name"></a>PURPOSE <a href="#_top"><img alt="^" border="0" src="../../up.png"></a></h2>
+<div class="box"><strong>Linear solver</strong></div>
+
+<h2><a name="_synopsis"></a>SYNOPSIS <a href="#_top"><img alt="^" border="0" src="../../up.png"></a></h2>
+<div class="box"><strong>function [duvw,drct] = solveLinearSystem(bc,Kt,oobf,NRit,fd) </strong></div>
+
+<h2><a name="_description"></a>DESCRIPTION <a href="#_top"><img alt="^" border="0" src="../../up.png"></a></h2>
+<div class="fragment"><pre class="comment">Linear solver
+--------------------------------------------------------------------------
+ Author: William Coombs
+ Date:   23/01/2019
+ Description:
+ Function to solve the linear system of equations for the increment in
+ displacements and reaction forces.  The linear system is only solved for
+ the first Newton-Raphson iteration (NRit&gt;0) onwards as the zeroth
+ iteration is required to construct the stiffness matrix based on the
+ positions of the material points at the start of the loadstep.  This is
+ different from the finite element method where the stiffness matrix from
+ the last iteration from the previous loadstep can be used for the zeroth
+ iteration. 
+
+--------------------------------------------------------------------------
+ [duvw,drct] = SOLVELINEARSYSTSEM(bc,Kt,oobf,NRit,fd)
+--------------------------------------------------------------------------
+ Input(s):
+ bc    - boundary conditions (*,2)
+ Kt    - global stiffness matrix (nDoF,nDoF)
+ oobf  - out of balance force vector (nDoF,1)
+ NRit  - Newton-Raphson iteration counter (1)
+ fd    - free degrees of freedom (*,1)
+--------------------------------------------------------------------------
+ Ouput(s);
+ duvw  - displacement increment (nDoF,1)
+ drct  - reaction force increment (nDoF,1)
+--------------------------------------------------------------------------
+ See also:
+
+--------------------------------------------------------------------------</pre></div>
+
+<!-- crossreference -->
+<h2><a name="_cross"></a>CROSS-REFERENCE INFORMATION <a href="#_top"><img alt="^" border="0" src="../../up.png"></a></h2>
+This function calls:
+<ul style="list-style-image:url(../../matlabicon.gif)">
+</ul>
+This function is called by:
+<ul style="list-style-image:url(../../matlabicon.gif)">
+<li><a href="../../AMPLE/ample.html" class="code" title="">ample</a>	AMPLE: A Material Point Learning Environment</li></ul>
+<!-- crossreference -->
+
+
+
+<h2><a name="_source"></a>SOURCE CODE <a href="#_top"><img alt="^" border="0" src="../../up.png"></a></h2>
+<div class="fragment"><pre>0001 <a name="_sub0" href="#_subfunctions" class="code">function [duvw,drct] = solveLinearSystem(bc,Kt,oobf,NRit,fd)</a>
+0002 
+0003 <span class="comment">%Linear solver</span>
+0004 <span class="comment">%--------------------------------------------------------------------------</span>
+0005 <span class="comment">% Author: William Coombs</span>
+0006 <span class="comment">% Date:   23/01/2019</span>
+0007 <span class="comment">% Description:</span>
+0008 <span class="comment">% Function to solve the linear system of equations for the increment in</span>
+0009 <span class="comment">% displacements and reaction forces.  The linear system is only solved for</span>
+0010 <span class="comment">% the first Newton-Raphson iteration (NRit&gt;0) onwards as the zeroth</span>
+0011 <span class="comment">% iteration is required to construct the stiffness matrix based on the</span>
+0012 <span class="comment">% positions of the material points at the start of the loadstep.  This is</span>
+0013 <span class="comment">% different from the finite element method where the stiffness matrix from</span>
+0014 <span class="comment">% the last iteration from the previous loadstep can be used for the zeroth</span>
+0015 <span class="comment">% iteration.</span>
+0016 <span class="comment">%</span>
+0017 <span class="comment">%--------------------------------------------------------------------------</span>
+0018 <span class="comment">% [duvw,drct] = SOLVELINEARSYSTSEM(bc,Kt,oobf,NRit,fd)</span>
+0019 <span class="comment">%--------------------------------------------------------------------------</span>
+0020 <span class="comment">% Input(s):</span>
+0021 <span class="comment">% bc    - boundary conditions (*,2)</span>
+0022 <span class="comment">% Kt    - global stiffness matrix (nDoF,nDoF)</span>
+0023 <span class="comment">% oobf  - out of balance force vector (nDoF,1)</span>
+0024 <span class="comment">% NRit  - Newton-Raphson iteration counter (1)</span>
+0025 <span class="comment">% fd    - free degrees of freedom (*,1)</span>
+0026 <span class="comment">%--------------------------------------------------------------------------</span>
+0027 <span class="comment">% Ouput(s);</span>
+0028 <span class="comment">% duvw  - displacement increment (nDoF,1)</span>
+0029 <span class="comment">% drct  - reaction force increment (nDoF,1)</span>
+0030 <span class="comment">%--------------------------------------------------------------------------</span>
+0031 <span class="comment">% See also:</span>
+0032 <span class="comment">%</span>
+0033 <span class="comment">%--------------------------------------------------------------------------</span>
+0034 
+0035 nDoF = length(oobf);                                                        <span class="comment">% number of degrees of freedom</span>
+0036 duvw = zeros(nDoF,1);                                                       <span class="comment">% zero displacement increment</span>
+0037 drct = zeros(nDoF,1);                                                       <span class="comment">% zero reaction increment</span>
+0038 <span class="keyword">if</span> (NRit)&gt;0                                                             
+0039     duvw(bc(:,1))=(1+sign(1-NRit))*bc(:,2);                                 <span class="comment">% apply non-zero boundary conditions</span>
+0040     duvw(fd)=Kt(fd,fd)\(oobf(fd)-Kt(fd,bc(:,1))*duvw(bc(:,1)));             <span class="comment">% solve for displacements</span>
+0041     drct(bc(:,1))=Kt(bc(:,1),:)*duvw-oobf(bc(:,1));                         <span class="comment">% determine reaction forces</span>
+0042 <span class="keyword">end</span></pre></div>
+<hr><address>Generated on Thu 07-Feb-2019 12:51:30 by <strong><a href="http://www.artefact.tk/software/matlab/m2html/" title="Matlab Documentation in HTML">m2html</a></strong> &copy; 2005</address>
+</body>
+</html>

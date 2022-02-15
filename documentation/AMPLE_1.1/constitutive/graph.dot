@@ -1,0 +1,6 @@
+/* Created by mdot for Matlab */
+digraph m2html {
+
+  Hooke3d [URL="Hooke3d.html"];
+  VMconst [URL="VMconst.html"];
+}

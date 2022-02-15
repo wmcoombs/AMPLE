@@ -1,0 +1,153 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
+                "http://www.w3.org/TR/REC-html40/loose.dtd">
+<html>
+<head>
+  <title>Description of elemMPinfo</title>
+  <meta name="keywords" content="elemMPinfo">
+  <meta name="description" content="Determine the basis functions for material points">
+  <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+  <meta name="generator" content="m2html v1.5 &copy; 2003-2005 Guillaume Flandin">
+  <meta name="robots" content="index, follow">
+  <link type="text/css" rel="stylesheet" href="../../m2html.css">
+</head>
+<body>
+<a name="_top"></a>
+<div><a href="../../index.html">Home</a> &gt;  <a href="../index.html">AMPLE</a> &gt; <a href="index.html">functions</a> &gt; elemMPinfo.m</div>
+
+<!--<table width="100%"><tr><td align="left"><a href="../../index.html"><img alt="<" border="0" src="../../left.png">&nbsp;Master index</a></td>
+<td align="right"><a href="index.html">Index for AMPLE/functions&nbsp;<img alt=">" border="0" src="../../right.png"></a></td></tr></table>-->
+
+<h1>elemMPinfo
+</h1>
+
+<h2><a name="_name"></a>PURPOSE <a href="#_top"><img alt="^" border="0" src="../../up.png"></a></h2>
+<div class="box"><strong>Determine the basis functions for material points</strong></div>
+
+<h2><a name="_synopsis"></a>SYNOPSIS <a href="#_top"><img alt="^" border="0" src="../../up.png"></a></h2>
+<div class="box"><strong>function [mesh,mpData] = elemMPinfo(mesh,mpData) </strong></div>
+
+<h2><a name="_description"></a>DESCRIPTION <a href="#_top"><img alt="^" border="0" src="../../up.png"></a></h2>
+<div class="fragment"><pre class="comment">Determine the basis functions for material points 
+--------------------------------------------------------------------------
+ Author: William Coombs
+ Date:   29/01/2019
+ Description:
+ Function to determine the basis functions and spatial derivatives of each
+ material point.  The function works for regular background meshes with
+ both the standard and generalised interpolation material point methods.
+ The function also determines, and stores, the elements associated with
+ the material point and a unique list of nodes that the material point
+ influences.  The number of stiffness matrix entries for each material
+ point is determined and stored. 
+
+--------------------------------------------------------------------------
+ [fbdy,mpData] = ELEMMPINFO(mesh,mpData)
+--------------------------------------------------------------------------
+ Input(s):
+ mesh   - mesh structured array. Function requires: 
+           - coord : coordinates of the grid nodes (nodes,nD)
+           - etpl  : element topology (nels,nen) 
+           - h     : background mesh size (nD,1)
+ mpData - material point structured array.  Function requires:
+           - mpC   : material point coordinates
+--------------------------------------------------------------------------
+ Ouput(s);
+ mesh   - mesh structured array. Function modifies:
+           - eInA  : elements in the analysis 
+ mpData - material point structured array. Function modifies:
+           - nIN   : nodes linked to the material point
+           - eIN   : element associated with the material point
+           - Svp   : basis functions for the material point
+           - dSvp  : basis function derivatives (at start of lstp)
+           - nSMe  : number stiffness matrix entries for the MP
+--------------------------------------------------------------------------
+ See also:
+ <a href="elemForMP.html" class="code" title="function [eIN] = elemForMP(coord,etpl,mpC,lp)">ELEMFORMP</a>         - find elements for material point
+ <a href="nodesForMP.html" class="code" title="function [nodes] = nodesForMP(etpl,elems)">NODESFORMP</a>        - nodes associated with a material point
+ <a href="MPMbasis.html" class="code" title="function [Svp,dSvp] = MPMbasis(mesh,mpData,node)">MPMBASIS</a>          - MPM basis functions
+--------------------------------------------------------------------------</pre></div>
+
+<!-- crossreference -->
+<h2><a name="_cross"></a>CROSS-REFERENCE INFORMATION <a href="#_top"><img alt="^" border="0" src="../../up.png"></a></h2>
+This function calls:
+<ul style="list-style-image:url(../../matlabicon.gif)">
+<li><a href="MPMbasis.html" class="code" title="function [Svp,dSvp] = MPMbasis(mesh,mpData,node)">MPMbasis</a>	Basis functions for the material point method</li><li><a href="elemForMP.html" class="code" title="function [eIN] = elemForMP(coord,etpl,mpC,lp)">elemForMP</a>	Find elements associated with the material point</li><li><a href="nodesForMP.html" class="code" title="function [nodes] = nodesForMP(etpl,elems)">nodesForMP</a>	Unqiue list of nodes associated with a material point</li></ul>
+This function is called by:
+<ul style="list-style-image:url(../../matlabicon.gif)">
+<li><a href="../../AMPLE/ample.html" class="code" title="">ample</a>	AMPLE: A Material Point Learning Environment</li></ul>
+<!-- crossreference -->
+
+
+
+<h2><a name="_source"></a>SOURCE CODE <a href="#_top"><img alt="^" border="0" src="../../up.png"></a></h2>
+<div class="fragment"><pre>0001 <a name="_sub0" href="#_subfunctions" class="code">function [mesh,mpData] = elemMPinfo(mesh,mpData)</a>
+0002 
+0003 <span class="comment">%Determine the basis functions for material points</span>
+0004 <span class="comment">%--------------------------------------------------------------------------</span>
+0005 <span class="comment">% Author: William Coombs</span>
+0006 <span class="comment">% Date:   29/01/2019</span>
+0007 <span class="comment">% Description:</span>
+0008 <span class="comment">% Function to determine the basis functions and spatial derivatives of each</span>
+0009 <span class="comment">% material point.  The function works for regular background meshes with</span>
+0010 <span class="comment">% both the standard and generalised interpolation material point methods.</span>
+0011 <span class="comment">% The function also determines, and stores, the elements associated with</span>
+0012 <span class="comment">% the material point and a unique list of nodes that the material point</span>
+0013 <span class="comment">% influences.  The number of stiffness matrix entries for each material</span>
+0014 <span class="comment">% point is determined and stored.</span>
+0015 <span class="comment">%</span>
+0016 <span class="comment">%--------------------------------------------------------------------------</span>
+0017 <span class="comment">% [fbdy,mpData] = ELEMMPINFO(mesh,mpData)</span>
+0018 <span class="comment">%--------------------------------------------------------------------------</span>
+0019 <span class="comment">% Input(s):</span>
+0020 <span class="comment">% mesh   - mesh structured array. Function requires:</span>
+0021 <span class="comment">%           - coord : coordinates of the grid nodes (nodes,nD)</span>
+0022 <span class="comment">%           - etpl  : element topology (nels,nen)</span>
+0023 <span class="comment">%           - h     : background mesh size (nD,1)</span>
+0024 <span class="comment">% mpData - material point structured array.  Function requires:</span>
+0025 <span class="comment">%           - mpC   : material point coordinates</span>
+0026 <span class="comment">%--------------------------------------------------------------------------</span>
+0027 <span class="comment">% Ouput(s);</span>
+0028 <span class="comment">% mesh   - mesh structured array. Function modifies:</span>
+0029 <span class="comment">%           - eInA  : elements in the analysis</span>
+0030 <span class="comment">% mpData - material point structured array. Function modifies:</span>
+0031 <span class="comment">%           - nIN   : nodes linked to the material point</span>
+0032 <span class="comment">%           - eIN   : element associated with the material point</span>
+0033 <span class="comment">%           - Svp   : basis functions for the material point</span>
+0034 <span class="comment">%           - dSvp  : basis function derivatives (at start of lstp)</span>
+0035 <span class="comment">%           - nSMe  : number stiffness matrix entries for the MP</span>
+0036 <span class="comment">%--------------------------------------------------------------------------</span>
+0037 <span class="comment">% See also:</span>
+0038 <span class="comment">% ELEMFORMP         - find elements for material point</span>
+0039 <span class="comment">% NODESFORMP        - nodes associated with a material point</span>
+0040 <span class="comment">% MPMBASIS          - MPM basis functions</span>
+0041 <span class="comment">%--------------------------------------------------------------------------</span>
+0042 
+0043 nmp      = size(mpData,2);                                                  <span class="comment">% number of material points &amp; dimensions</span>
+0044 [~,nD]   = size(mesh.coord);                                                <span class="comment">% number of nodes (total in mesh)</span>
+0045 [nels,~] = size(mesh.etpl);                                                 <span class="comment">% numerb of elements in mesh</span>
+0046 mpC  = reshape([mpData.mpC],nD,nmp)';                                       <span class="comment">% all material point coordinates (nmp,nD)</span>
+0047 lp   = reshape([mpData.lp] ,nD,nmp)';                                       <span class="comment">% all domain lengths</span>
+0048 eInA = zeros(nels,1);                                                       <span class="comment">% zero elements taking part in the analysis</span>
+0049 <span class="keyword">for</span> mp = 1:nmp
+0050     eIN  = <a href="elemForMP.html" class="code" title="function [eIN] = elemForMP(coord,etpl,mpC,lp)">elemForMP</a>(mesh.coord,mesh.etpl,mpC(mp,:),lp(mp,:));              <span class="comment">% elements connected to the material point</span>
+0051     nIN  = <a href="nodesForMP.html" class="code" title="function [nodes] = nodesForMP(etpl,elems)">nodesForMP</a>(mesh.etpl,eIN).';                                     <span class="comment">% unique list of nodes associated with elements</span>
+0052     nn   = length(nIN);                                                     <span class="comment">% number of nodes influencing the MP</span>
+0053     Svp  = zeros(1,nn);                                                     <span class="comment">% zero basis functions</span>
+0054     dSvp = zeros(nD,nn);                                                    <span class="comment">% zero basis function derivatives</span>
+0055     <span class="keyword">for</span> i = 1:nn
+0056         node = nIN(i);                                                      <span class="comment">% current node</span>
+0057         [S,dS] = <a href="MPMbasis.html" class="code" title="function [Svp,dSvp] = MPMbasis(mesh,mpData,node)">MPMbasis</a>(mesh,mpData(mp),node);                            <span class="comment">% basis function and spatial derivatives</span>
+0058         Svp(i) = Svp(i) + S;                                                <span class="comment">% basis functions for all nodes</span>
+0059         dSvp(:,i) = dSvp(:,i) + dS;                                         <span class="comment">% basis function derivatives</span>
+0060     <span class="keyword">end</span>  
+0061     mpData(mp).nIN  = nIN;                                                  <span class="comment">% nodes associated with material point</span>
+0062     mpData(mp).eIN  = eIN;                                                  <span class="comment">% elements associated with material point</span>
+0063     mpData(mp).Svp  = Svp;                                                  <span class="comment">% basis functions</span>
+0064     mpData(mp).dSvp = dSvp;                                                 <span class="comment">% basis function derivatives</span>
+0065     mpData(mp).nSMe = (nn*nD)^2;                                            <span class="comment">% number stiffness matrix components</span>
+0066     eInA(eIN) = 1;                                                          <span class="comment">% identify elements in the analysis</span>
+0067 <span class="keyword">end</span>
+0068 mesh.eInA = eInA;                                                           <span class="comment">% store eInA to mesh structured array</span></pre></div>
+<hr><address>Generated on Fri 17-May-2019 08:05:05 by <strong><a href="http://www.artefact.tk/software/matlab/m2html/" title="Matlab Documentation in HTML">m2html</a></strong> &copy; 2005</address>
+</body>
+</html>

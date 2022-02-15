@@ -1,0 +1,135 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
+                "http://www.w3.org/TR/REC-html40/loose.dtd">
+<html>
+<head>
+  <title>Description of shapefunc</title>
+  <meta name="keywords" content="shapefunc">
+  <meta name="description" content="Finite element basis functions">
+  <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+  <meta name="generator" content="m2html v1.5 &copy; 2003-2005 Guillaume Flandin">
+  <meta name="robots" content="index, follow">
+  <link type="text/css" rel="stylesheet" href="../../m2html.css">
+</head>
+<body>
+<a name="_top"></a>
+<div><a href="../../menu.html">Home</a> &gt;  <a href="../menu.html">AMPLE_1.1</a> &gt; <a href="menu.html">setup</a> &gt; shapefunc.m</div>
+
+<!--<table width="100%"><tr><td align="left"><a href="../../menu.html"><img alt="<" border="0" src="../../left.png">&nbsp;Master index</a></td>
+<td align="right"><a href="menu.html">Index for AMPLE_1.1/setup&nbsp;<img alt=">" border="0" src="../../right.png"></a></td></tr></table>-->
+
+<h1>shapefunc
+</h1>
+
+<h2><a name="_name"></a>PURPOSE <a href="#_top"><img alt="^" border="0" src="../../up.png"></a></h2>
+<div class="box"><strong>Finite element basis functions</strong></div>
+
+<h2><a name="_synopsis"></a>SYNOPSIS <a href="#_top"><img alt="^" border="0" src="../../up.png"></a></h2>
+<div class="box"><strong>function [N] = shapefunc(nen,GpLoc,nD) </strong></div>
+
+<h2><a name="_description"></a>DESCRIPTION <a href="#_top"><img alt="^" border="0" src="../../up.png"></a></h2>
+<div class="fragment"><pre class="comment">Finite element basis functions
+--------------------------------------------------------------------------
+ Author: William Coombs
+ Date:   29/01/2019
+ Description:
+ Function to provide finite element shapefunctions in 1D, 2D and 3D.  The
+ function includes the following elements:
+ nen = 8, nD = 3 : tri-linear eight noded hexahedral
+ nen = 4, nD = 2 : bi-linear four noded quadrilateral
+ nen = 2, nD = 1 : linear two noded line
+
+ The function is vectorised so will return the basis functions for any
+ number of points.
+
+--------------------------------------------------------------------------
+ [N] = SHAPEFUNC(nen,GpLoc,nD)
+--------------------------------------------------------------------------
+ Input(s):
+ nen    - number of nodes associated with the element
+ GpLoc  - local position within the finite element (n,nD)
+ nD     - number of dimensions
+--------------------------------------------------------------------------
+ Ouput(s);
+ N      - shape function matrix (n,nen)
+--------------------------------------------------------------------------
+ See also:
+
+--------------------------------------------------------------------------</pre></div>
+
+<!-- crossreference -->
+<h2><a name="_cross"></a>CROSS-REFERENCE INFORMATION <a href="#_top"><img alt="^" border="0" src="../../up.png"></a></h2>
+This function calls:
+<ul style="list-style-image:url(../../matlabicon.gif)">
+</ul>
+This function is called by:
+<ul style="list-style-image:url(../../matlabicon.gif)">
+<li><a href="setupGrid.html" class="code" title="function [lstps,g,mpData,mesh] = setupGrid">setupGrid</a>	Problem setup information</li><li><a href="setupGrid_beam.html" class="code" title="function [lstps,g,mpData,mesh] = setupGrid_beam">setupGrid_beam</a>	Problem setup information</li><li><a href="setupGrid_collapse.html" class="code" title="function [lstps,g,mpData,mesh] = setupGrid_collapse">setupGrid_collapse</a>	Problem setup information</li></ul>
+<!-- crossreference -->
+
+
+
+<h2><a name="_source"></a>SOURCE CODE <a href="#_top"><img alt="^" border="0" src="../../up.png"></a></h2>
+<div class="fragment"><pre>0001 <a name="_sub0" href="#_subfunctions" class="code">function [N] = shapefunc(nen,GpLoc,nD)</a>
+0002 
+0003 <span class="comment">%Finite element basis functions</span>
+0004 <span class="comment">%--------------------------------------------------------------------------</span>
+0005 <span class="comment">% Author: William Coombs</span>
+0006 <span class="comment">% Date:   29/01/2019</span>
+0007 <span class="comment">% Description:</span>
+0008 <span class="comment">% Function to provide finite element shapefunctions in 1D, 2D and 3D.  The</span>
+0009 <span class="comment">% function includes the following elements:</span>
+0010 <span class="comment">% nen = 8, nD = 3 : tri-linear eight noded hexahedral</span>
+0011 <span class="comment">% nen = 4, nD = 2 : bi-linear four noded quadrilateral</span>
+0012 <span class="comment">% nen = 2, nD = 1 : linear two noded line</span>
+0013 <span class="comment">%</span>
+0014 <span class="comment">% The function is vectorised so will return the basis functions for any</span>
+0015 <span class="comment">% number of points.</span>
+0016 <span class="comment">%</span>
+0017 <span class="comment">%--------------------------------------------------------------------------</span>
+0018 <span class="comment">% [N] = SHAPEFUNC(nen,GpLoc,nD)</span>
+0019 <span class="comment">%--------------------------------------------------------------------------</span>
+0020 <span class="comment">% Input(s):</span>
+0021 <span class="comment">% nen    - number of nodes associated with the element</span>
+0022 <span class="comment">% GpLoc  - local position within the finite element (n,nD)</span>
+0023 <span class="comment">% nD     - number of dimensions</span>
+0024 <span class="comment">%--------------------------------------------------------------------------</span>
+0025 <span class="comment">% Ouput(s);</span>
+0026 <span class="comment">% N      - shape function matrix (n,nen)</span>
+0027 <span class="comment">%--------------------------------------------------------------------------</span>
+0028 <span class="comment">% See also:</span>
+0029 <span class="comment">%</span>
+0030 <span class="comment">%--------------------------------------------------------------------------</span>
+0031 
+0032 n=size(GpLoc,1);                                                            <span class="comment">% number of points</span>
+0033 N=zeros(n,nen);                                                             <span class="comment">% zero shape function matrix</span>
+0034 <span class="keyword">if</span> nD==3                                                                    <span class="comment">% 3D</span>
+0035   xsi=GpLoc(:,1); eta=GpLoc(:,2); zet=GpLoc(:,3);                           <span class="comment">% local position</span>
+0036   <span class="keyword">if</span> nen==8                                                                 <span class="comment">% 8-noded hexahedral</span>
+0037     N(:,1)=(1-xsi).*(1-eta).*(1-zet)/8;
+0038     N(:,2)=(1-xsi).*(1-eta).*(1+zet)/8;
+0039     N(:,3)=(1+xsi).*(1-eta).*(1+zet)/8;
+0040     N(:,4)=(1+xsi).*(1-eta).*(1-zet)/8;
+0041     N(:,5)=(1-xsi).*(1+eta).*(1-zet)/8;
+0042     N(:,6)=(1-xsi).*(1+eta).*(1+zet)/8;
+0043     N(:,7)=(1+xsi).*(1+eta).*(1+zet)/8;
+0044     N(:,8)=(1+xsi).*(1+eta).*(1-zet)/8;  
+0045   <span class="keyword">end</span>
+0046 <span class="keyword">elseif</span> nD==2                                                                <span class="comment">% 2D</span>
+0047   xsi=GpLoc(:,1); eta=GpLoc(:,2);                                           <span class="comment">% local positions</span>
+0048   <span class="keyword">if</span> nen==4                                                                 <span class="comment">% 4-noded quadrilateral</span>
+0049     N(:,1)=0.25*(1-xsi).*(1-eta);
+0050     N(:,2)=0.25*(1-xsi).*(1+eta);
+0051     N(:,3)=0.25*(1+xsi).*(1+eta);
+0052     N(:,4)=0.25*(1+xsi).*(1-eta);
+0053   <span class="keyword">end</span>
+0054 <span class="keyword">else</span>                                                                        <span class="comment">% 1D</span>
+0055   xsi=GpLoc;                                                                <span class="comment">% local positions</span>
+0056   <span class="keyword">if</span> nen==2                                                                 <span class="comment">% 2-noded line</span>
+0057     N(:,1)=0.5*(1-xsi);
+0058     N(:,2)=0.5*(1+xsi);  
+0059   <span class="keyword">end</span>
+0060 <span class="keyword">end</span>
+0061 <span class="keyword">end</span></pre></div>
+<hr><address>Generated on Thu 27-Aug-2020 08:13:21 by <strong><a href="http://www.artefact.tk/software/matlab/m2html/" title="Matlab Documentation in HTML">m2html</a></strong> &copy; 2005</address>
+</body>
+</html>

@@ -1,0 +1,234 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
+                "http://www.w3.org/TR/REC-html40/loose.dtd">
+<html>
+<head>
+  <title>Description of setupGrid_collapse</title>
+  <meta name="keywords" content="setupGrid_collapse">
+  <meta name="description" content="Problem setup information">
+  <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+  <meta name="generator" content="m2html v1.5 &copy; 2003-2005 Guillaume Flandin">
+  <meta name="robots" content="index, follow">
+  <link type="text/css" rel="stylesheet" href="../../m2html.css">
+</head>
+<body>
+<a name="_top"></a>
+<div><a href="../../index.html">Home</a> &gt;  <a href="../index.html">AMPLE</a> &gt; <a href="index.html">setup</a> &gt; setupGrid_collapse.m</div>
+
+<!--<table width="100%"><tr><td align="left"><a href="../../index.html"><img alt="<" border="0" src="../../left.png">&nbsp;Master index</a></td>
+<td align="right"><a href="index.html">Index for AMPLE/setup&nbsp;<img alt=">" border="0" src="../../right.png"></a></td></tr></table>-->
+
+<h1>setupGrid_collapse
+</h1>
+
+<h2><a name="_name"></a>PURPOSE <a href="#_top"><img alt="^" border="0" src="../../up.png"></a></h2>
+<div class="box"><strong>Problem setup information</strong></div>
+
+<h2><a name="_synopsis"></a>SYNOPSIS <a href="#_top"><img alt="^" border="0" src="../../up.png"></a></h2>
+<div class="box"><strong>function [lstps,g,mpData,mesh] = setupGrid_collapse </strong></div>
+
+<h2><a name="_description"></a>DESCRIPTION <a href="#_top"><img alt="^" border="0" src="../../up.png"></a></h2>
+<div class="fragment"><pre class="comment">Problem setup information
+--------------------------------------------------------------------------
+ Author: William Coombs
+ Date:   29/01/2019
+ Description:
+ Problem setup for a large deformation elasto-plastic collapse.
+
+--------------------------------------------------------------------------
+ [lstps,g,mpData,mesh] = SETUPGRID2D
+--------------------------------------------------------------------------
+ Input(s):
+ 
+--------------------------------------------------------------------------
+ Ouput(s);
+ lstps  - number of loadsteps (1)
+ g      - gravity (1)
+ mpData - structured array with the following fields:
+           - mpType : material point type (1 = MPM, 2 = GIMPM)
+           - cmType : constitutive model type (1 = elastic, 2 = vM)
+           - mpC    : material point coordinates
+           - vp     : material point volume
+           - vp0    : initial material point volume
+           - mpM    : material point mass
+           - nIN    : nodes linked to the material point
+           - eIN    : element associated with the material point
+           - Svp    : basis functions for the material point
+           - dSvp   : basis function derivatives (at start of lstp)
+           - Fn     : previous deformation gradient
+           - F      : deformation gradient
+           - sig    : Cauchy stress
+           - epsEn  : previous logarithmic elastic strain
+           - epsE   : logarithmic elastic strain
+           - mCst   : material constants (or internal state parameters)
+           - fp     : force at the material point
+           - u      : material point displacement
+           - lp     : material point domain lengths
+           - lp0    : initial material point domain lengths
+
+ mesh   - structured array with the following fields
+           - coord : mesh nodal coordinates (nodes,nD)
+           - etpl  : element topology (nels,nen)
+           - bc    : boundary conditions (*,2)
+           - h     : background mesh size (nD,1)
+--------------------------------------------------------------------------
+ See also:
+ <a href="formCoord2D.html" class="code" title="function [etpl,coord] = formCoord2D(nelsx,nelsy,lx,ly)">FORMCOORD2D</a> - background mesh generation
+ <a href="detMpPos.html" class="code" title="function [mpPos] = detMpPos(mp,nD)">DETMPPOS</a>    - local material point positions
+ <a href="shapefunc.html" class="code" title="function [N] = shapefunc(nen,GpLoc,nD)">SHAPEFUNC</a>   - background grid basis functions
+--------------------------------------------------------------------------</pre></div>
+
+<!-- crossreference -->
+<h2><a name="_cross"></a>CROSS-REFERENCE INFORMATION <a href="#_top"><img alt="^" border="0" src="../../up.png"></a></h2>
+This function calls:
+<ul style="list-style-image:url(../../matlabicon.gif)">
+<li><a href="detMpPos.html" class="code" title="function [mpPos] = detMpPos(mp,nD)">detMpPos</a>	Material point local positions for point generation</li><li><a href="formCoord2D.html" class="code" title="function [etpl,coord] = formCoord2D(nelsx,nelsy,lx,ly)">formCoord2D</a>	Two dimensional finite element grid generation</li><li><a href="shapefunc.html" class="code" title="function [N] = shapefunc(nen,GpLoc,nD)">shapefunc</a>	Finite element basis functions</li></ul>
+This function is called by:
+<ul style="list-style-image:url(../../matlabicon.gif)">
+</ul>
+<!-- crossreference -->
+
+
+
+<h2><a name="_source"></a>SOURCE CODE <a href="#_top"><img alt="^" border="0" src="../../up.png"></a></h2>
+<div class="fragment"><pre>0001 <a name="_sub0" href="#_subfunctions" class="code">function [lstps,g,mpData,mesh] = setupGrid_collapse</a>
+0002 
+0003 <span class="comment">%Problem setup information</span>
+0004 <span class="comment">%--------------------------------------------------------------------------</span>
+0005 <span class="comment">% Author: William Coombs</span>
+0006 <span class="comment">% Date:   29/01/2019</span>
+0007 <span class="comment">% Description:</span>
+0008 <span class="comment">% Problem setup for a large deformation elasto-plastic collapse.</span>
+0009 <span class="comment">%</span>
+0010 <span class="comment">%--------------------------------------------------------------------------</span>
+0011 <span class="comment">% [lstps,g,mpData,mesh] = SETUPGRID2D</span>
+0012 <span class="comment">%--------------------------------------------------------------------------</span>
+0013 <span class="comment">% Input(s):</span>
+0014 <span class="comment">%</span>
+0015 <span class="comment">%--------------------------------------------------------------------------</span>
+0016 <span class="comment">% Ouput(s);</span>
+0017 <span class="comment">% lstps  - number of loadsteps (1)</span>
+0018 <span class="comment">% g      - gravity (1)</span>
+0019 <span class="comment">% mpData - structured array with the following fields:</span>
+0020 <span class="comment">%           - mpType : material point type (1 = MPM, 2 = GIMPM)</span>
+0021 <span class="comment">%           - cmType : constitutive model type (1 = elastic, 2 = vM)</span>
+0022 <span class="comment">%           - mpC    : material point coordinates</span>
+0023 <span class="comment">%           - vp     : material point volume</span>
+0024 <span class="comment">%           - vp0    : initial material point volume</span>
+0025 <span class="comment">%           - mpM    : material point mass</span>
+0026 <span class="comment">%           - nIN    : nodes linked to the material point</span>
+0027 <span class="comment">%           - eIN    : element associated with the material point</span>
+0028 <span class="comment">%           - Svp    : basis functions for the material point</span>
+0029 <span class="comment">%           - dSvp   : basis function derivatives (at start of lstp)</span>
+0030 <span class="comment">%           - Fn     : previous deformation gradient</span>
+0031 <span class="comment">%           - F      : deformation gradient</span>
+0032 <span class="comment">%           - sig    : Cauchy stress</span>
+0033 <span class="comment">%           - epsEn  : previous logarithmic elastic strain</span>
+0034 <span class="comment">%           - epsE   : logarithmic elastic strain</span>
+0035 <span class="comment">%           - mCst   : material constants (or internal state parameters)</span>
+0036 <span class="comment">%           - fp     : force at the material point</span>
+0037 <span class="comment">%           - u      : material point displacement</span>
+0038 <span class="comment">%           - lp     : material point domain lengths</span>
+0039 <span class="comment">%           - lp0    : initial material point domain lengths</span>
+0040 <span class="comment">%</span>
+0041 <span class="comment">% mesh   - structured array with the following fields</span>
+0042 <span class="comment">%           - coord : mesh nodal coordinates (nodes,nD)</span>
+0043 <span class="comment">%           - etpl  : element topology (nels,nen)</span>
+0044 <span class="comment">%           - bc    : boundary conditions (*,2)</span>
+0045 <span class="comment">%           - h     : background mesh size (nD,1)</span>
+0046 <span class="comment">%--------------------------------------------------------------------------</span>
+0047 <span class="comment">% See also:</span>
+0048 <span class="comment">% FORMCOORD2D - background mesh generation</span>
+0049 <span class="comment">% DETMPPOS    - local material point positions</span>
+0050 <span class="comment">% SHAPEFUNC   - background grid basis functions</span>
+0051 <span class="comment">%--------------------------------------------------------------------------</span>
+0052 
+0053 <span class="comment">%% Analysis parameters</span>
+0054 E=1e6;   v=0.3;   fc=20e3;                                                  <span class="comment">% Young's modulus, Poisson's ratio, yield strength</span>
+0055 phi=20*pi/180; psi=20*pi/180; c=1e3;                                        <span class="comment">% Mohr-Coulomb parameters</span>
+0056 mCst=[E v fc phi psi c];                                                    <span class="comment">% material constants</span>
+0057 g=10;                                                                       <span class="comment">% gravity</span>
+0058 rho=1000;                                                                   <span class="comment">% material density</span>
+0059 lstps=40;                                                                   <span class="comment">% number of loadsteps</span>
+0060 a = 2;                                                                      <span class="comment">% element multiplier</span>
+0061 nelsx=4*a;                                                                  <span class="comment">% number of elements in the x direction</span>
+0062 nelsy=4*a;                                                                  <span class="comment">% number of elements in the y direction</span>
+0063 ly=8;  lx=8;                                                                <span class="comment">% domain dimensions</span>
+0064 mp=6;                                                                       <span class="comment">% number of material points in each direction per element</span>
+0065 mpType = 2;                                                                 <span class="comment">% material point type: 1 = MPM, 2 = GIMP</span>
+0066 cmType = 2;                                                                 <span class="comment">% constitutive model: 1 = elastic, 2 = vM plasticity</span>
+0067 
+0068 <span class="comment">%% Mesh generation</span>
+0069 [etpl,coord] = <a href="formCoord2D.html" class="code" title="function [etpl,coord] = formCoord2D(nelsx,nelsy,lx,ly)">formCoord2D</a>(2*nelsx,nelsy,2*lx,ly);                          <span class="comment">% background mesh generation</span>
+0070 [~,nen]      = size(etpl);                                                  <span class="comment">% number of element nodes</span>
+0071 [nodes,nD]   = size(coord);                                                 <span class="comment">% number of nodes and dimensions</span>
+0072 h            = [lx ly]./[nelsx nelsy];                                      <span class="comment">% element lengths in each direction</span>
+0073 
+0074 <span class="comment">%% Boundary conditions on backgroun mesh</span>
+0075 bc = zeros(nodes*nD,2);                                                     <span class="comment">% generate empty bc matrix</span>
+0076 <span class="keyword">for</span> node=1:nodes                                                            <span class="comment">% loop over nodes</span>
+0077   <span class="keyword">if</span> coord(node,1)==0                                                       <span class="comment">% roller (x=0)</span>
+0078     bc(node*2-1,:)=[node*2-1 0];    
+0079   <span class="keyword">end</span>
+0080   <span class="keyword">if</span> coord(node,2)==0                                                       <span class="comment">% roller (y=0)</span>
+0081     bc(node*2  ,:)=[node*2   0];
+0082   <span class="keyword">end</span>
+0083 <span class="keyword">end</span>
+0084 bc = bc(bc(:,1)&gt;0,:);                                                       <span class="comment">% remove empty part of bc</span>
+0085 
+0086 <span class="comment">%% Mesh data structure generation</span>
+0087 mesh.etpl  = etpl;                                                          <span class="comment">% element topology</span>
+0088 mesh.coord = coord;                                                         <span class="comment">% nodal coordinates</span>
+0089 mesh.bc    = bc;                                                            <span class="comment">% boundary conditions</span>
+0090 mesh.h     = h;                                                             <span class="comment">% mesh size</span>
+0091 
+0092 <span class="comment">%% Material point generation</span>
+0093 ngp    = mp^nD;                                                             <span class="comment">% number of material points per element</span>
+0094 GpLoc  = <a href="detMpPos.html" class="code" title="function [mpPos] = detMpPos(mp,nD)">detMpPos</a>(mp,nD);                                                   <span class="comment">% local MP locations</span>
+0095 N      = <a href="shapefunc.html" class="code" title="function [N] = shapefunc(nen,GpLoc,nD)">shapefunc</a>(nen,GpLoc,nD);                                           <span class="comment">% basis functions for the material points</span>
+0096 [etplmp,coordmp] = <a href="formCoord2D.html" class="code" title="function [etpl,coord] = formCoord2D(nelsx,nelsy,lx,ly)">formCoord2D</a>(nelsx,nelsy,lx,ly);                          <span class="comment">% mesh for MP generation</span>
+0097 nelsmp = size(etplmp,1);                                                    <span class="comment">% no. elements populated with material points</span>
+0098 nmp    = ngp*nelsmp;                                                        <span class="comment">% total number of mterial points</span>
+0099 
+0100 mpC=zeros(nmp,nD);                                                          <span class="comment">% zero MP coordinates</span>
+0101 <span class="keyword">for</span> nel=1:nelsmp
+0102   indx=(nel-1)*ngp+1:nel*ngp;                                               <span class="comment">% MP locations within mpC</span>
+0103   eC=coordmp(etplmp(nel,:),:);                                              <span class="comment">% element coordinates</span>
+0104   mpPos=N*eC;                                                               <span class="comment">% global MP coordinates</span>
+0105   mpC(indx,:)=mpPos;                                                        <span class="comment">% store MP positions</span>
+0106 <span class="keyword">end</span>
+0107 lp = zeros(nmp,2);                                                          <span class="comment">% zero domain lengths</span>
+0108 lp(:,1) = h(1)/(2*mp);                                                      <span class="comment">% domain half length x-direction</span>
+0109 lp(:,2) = h(2)/(2*mp);                                                      <span class="comment">% domain half length y-direction</span>
+0110 vp      = 2^nD*lp(:,1).*lp(:,2);                                            <span class="comment">% volume associated with each material point</span>
+0111 
+0112 <span class="comment">%% Material point structure generation</span>
+0113 <span class="keyword">for</span> mp = nmp:-1:1                                                           <span class="comment">% loop backwards over MPs so array doesn't change size</span>
+0114   mpData(mp).mpType = mpType;                                               <span class="comment">% material point type: 1 = MPM, 2 = GIMP</span>
+0115   mpData(mp).cmType = cmType;                                               <span class="comment">% constitutive model: 1 = elastic, 2 = vM plasticity</span>
+0116   mpData(mp).mpC    = mpC(mp,:);                                            <span class="comment">% material point coordinates</span>
+0117   mpData(mp).vp     = vp(mp);                                               <span class="comment">% material point volume</span>
+0118   mpData(mp).vp0    = vp(mp);                                               <span class="comment">% material point initial volume</span>
+0119   mpData(mp).mpM    = vp(mp)*rho;                                           <span class="comment">% material point mass</span>
+0120   mpData(mp).nIN    = zeros(nen,1);                                         <span class="comment">% nodes associated with the material point</span>
+0121   mpData(mp).eIN    = 0;                                                    <span class="comment">% element associated with the material point</span>
+0122   mpData(mp).Svp    = zeros(1,nen);                                         <span class="comment">% material point basis functions</span>
+0123   mpData(mp).dSvp   = zeros(nD,nen);                                        <span class="comment">% derivative of the basis functions</span>
+0124   mpData(mp).Fn     = eye(3);                                               <span class="comment">% previous deformation gradient</span>
+0125   mpData(mp).F      = eye(3);                                               <span class="comment">% deformation gradient</span>
+0126   mpData(mp).sig    = zeros(6,1);                                           <span class="comment">% Cauchy stress</span>
+0127   mpData(mp).epsEn  = zeros(6,1);                                           <span class="comment">% previous elastic strain (logarithmic)</span>
+0128   mpData(mp).epsE   = zeros(6,1);                                           <span class="comment">% elastic strain (logarithmic)</span>
+0129   mpData(mp).mCst   = mCst;                                                 <span class="comment">% material constants (or internal variables) for constitutive model</span>
+0130   mpData(mp).fp     = zeros(nD,1);                                          <span class="comment">% point forces at material points</span>
+0131   mpData(mp).u      = zeros(nD,1);                                          <span class="comment">% material point displacements</span>
+0132   <span class="keyword">if</span> mpData(mp).mpType == 2
+0133     mpData(mp).lp     = lp(mp,:);                                           <span class="comment">% material point domain lengths (GIMP)</span>
+0134     mpData(mp).lp0    = lp(mp,:);                                           <span class="comment">% initial material point domain lengths (GIMP)</span>
+0135   <span class="keyword">else</span>
+0136     mpData(mp).lp     = zeros(1,nD);                                        <span class="comment">% material point domain lengths (MPM)</span>
+0137     mpData(mp).lp0    = zeros(1,nD);                                        <span class="comment">% initial material point domain lengths (MPM)</span>
+0138   <span class="keyword">end</span>
+0139 <span class="keyword">end</span></pre></div>
+<hr><address>Generated on Fri 17-May-2019 08:05:05 by <strong><a href="http://www.artefact.tk/software/matlab/m2html/" title="Matlab Documentation in HTML">m2html</a></strong> &copy; 2005</address>
+</body>
+</html>

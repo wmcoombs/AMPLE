@@ -1,0 +1,153 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
+                "http://www.w3.org/TR/REC-html40/loose.dtd">
+<html>
+<head>
+  <title>Description of makeVtk</title>
+  <meta name="keywords" content="makeVtk">
+  <meta name="description" content="VTK output file generation: mesh data">
+  <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+  <meta name="generator" content="m2html v1.5 &copy; 2003-2005 Guillaume Flandin">
+  <meta name="robots" content="index, follow">
+  <link type="text/css" rel="stylesheet" href="../../m2html.css">
+</head>
+<body>
+<a name="_top"></a>
+<div><a href="../../menu.html">Home</a> &gt;  <a href="../menu.html">AMPLE_1.1</a> &gt; <a href="menu.html">plotting</a> &gt; makeVtk.m</div>
+
+<!--<table width="100%"><tr><td align="left"><a href="../../menu.html"><img alt="<" border="0" src="../../left.png">&nbsp;Master index</a></td>
+<td align="right"><a href="menu.html">Index for AMPLE_1.1/plotting&nbsp;<img alt=">" border="0" src="../../right.png"></a></td></tr></table>-->
+
+<h1>makeVtk
+</h1>
+
+<h2><a name="_name"></a>PURPOSE <a href="#_top"><img alt="^" border="0" src="../../up.png"></a></h2>
+<div class="box"><strong>VTK output file generation: mesh data</strong></div>
+
+<h2><a name="_synopsis"></a>SYNOPSIS <a href="#_top"><img alt="^" border="0" src="../../up.png"></a></h2>
+<div class="box"><strong>function makeVtk(coord,etpl,meshName) </strong></div>
+
+<h2><a name="_description"></a>DESCRIPTION <a href="#_top"><img alt="^" border="0" src="../../up.png"></a></h2>
+<div class="fragment"><pre class="comment">VTK output file generation: mesh data
+--------------------------------------------------------------------------
+ Author: William Coombs
+ Date:   03/04/2020
+ Description:
+ Function to generate a VTK file containing the background mesh data.
+
+--------------------------------------------------------------------------
+ MAKEVTK(coord,etpl,meshName)
+--------------------------------------------------------------------------
+ Input(s):
+ coord    - coordinates of the grid nodes (nodes,nD)
+ etpl     - element topology (nels,nen) 
+ meshName - VTK file name, for example 'mesh.vtk'  
+--------------------------------------------------------------------------
+ See also:
+
+--------------------------------------------------------------------------</pre></div>
+
+<!-- crossreference -->
+<h2><a name="_cross"></a>CROSS-REFERENCE INFORMATION <a href="#_top"><img alt="^" border="0" src="../../up.png"></a></h2>
+This function calls:
+<ul style="list-style-image:url(../../matlabicon.gif)">
+</ul>
+This function is called by:
+<ul style="list-style-image:url(../../matlabicon.gif)">
+<li><a href="postPro.html" class="code" title="">postPro</a>	Post processing script for the AMPLE code</li></ul>
+<!-- crossreference -->
+
+
+
+<h2><a name="_source"></a>SOURCE CODE <a href="#_top"><img alt="^" border="0" src="../../up.png"></a></h2>
+<div class="fragment"><pre>0001 <a name="_sub0" href="#_subfunctions" class="code">function makeVtk(coord,etpl,meshName)</a>
+0002 
+0003 <span class="comment">%VTK output file generation: mesh data</span>
+0004 <span class="comment">%--------------------------------------------------------------------------</span>
+0005 <span class="comment">% Author: William Coombs</span>
+0006 <span class="comment">% Date:   03/04/2020</span>
+0007 <span class="comment">% Description:</span>
+0008 <span class="comment">% Function to generate a VTK file containing the background mesh data.</span>
+0009 <span class="comment">%</span>
+0010 <span class="comment">%--------------------------------------------------------------------------</span>
+0011 <span class="comment">% MAKEVTK(coord,etpl,meshName)</span>
+0012 <span class="comment">%--------------------------------------------------------------------------</span>
+0013 <span class="comment">% Input(s):</span>
+0014 <span class="comment">% coord    - coordinates of the grid nodes (nodes,nD)</span>
+0015 <span class="comment">% etpl     - element topology (nels,nen)</span>
+0016 <span class="comment">% meshName - VTK file name, for example 'mesh.vtk'</span>
+0017 <span class="comment">%--------------------------------------------------------------------------</span>
+0018 <span class="comment">% See also:</span>
+0019 <span class="comment">%</span>
+0020 <span class="comment">%--------------------------------------------------------------------------</span>
+0021 
+0022 [nodes,nD]=size(coord);
+0023 [nels,nen]=size(etpl);
+0024 
+0025 <span class="comment">%% FEM etpl to VTK format</span>
+0026 <span class="keyword">if</span> nD ==3
+0027     <span class="keyword">if</span> nen==20
+0028         tvtk=[1 7 19 13 3 5 17 15 8 12 20 9 4 11 16 10 2 6 18 14];
+0029         elemId=25;
+0030         elemFormat=<span class="string">'%i %i %i %i %i %i %i %i %i %i %i %i %i %i %i %i %i %i %i %i %i\n'</span>;
+0031     <span class="keyword">elseif</span> nen==8
+0032         tvtk=[1 4 8 5 2 3 7 6];
+0033         elemId=12;
+0034         elemFormat=<span class="string">'%i %i %i %i %i %i %i %i %i\n'</span>;
+0035     <span class="keyword">elseif</span> nen==10
+0036         tvtk=[1 2 3 4 5 6 7 8 10 9];
+0037         elemId=24;
+0038         elemFormat=<span class="string">'%i %i %i %i %i %i %i %i %i %i %i\n'</span>;
+0039     <span class="keyword">elseif</span> nen==4
+0040         tvtk=[1 3 2 4];
+0041         elemId=10;
+0042         elemFormat=<span class="string">'%i %i %i %i %i\n'</span>;
+0043     <span class="keyword">elseif</span> nen==9
+0044         tvtk=[3 1 7 5 2 8 6 4 9];
+0045         elemId=10;
+0046         elemFormat=<span class="string">'%i %i %i %i %i %i %i %i %i %i\n'</span>;
+0047     <span class="keyword">end</span>
+0048 <span class="keyword">elseif</span> nD==2
+0049     <span class="keyword">if</span> nen==3
+0050         tvtk=[1 3 2];
+0051         elemId=5;
+0052         elemFormat=<span class="string">'%i %i %i %i\n'</span>;
+0053     <span class="keyword">elseif</span> nen==4
+0054         tvtk=[1 4 2 3];
+0055         elemId=8;
+0056         elemFormat=<span class="string">'%i %i %i %i %i\n'</span>;
+0057     <span class="keyword">elseif</span> nen==8
+0058         tvtk=[1 7 5 3 8 6 4 2];
+0059         elemId=23;
+0060         elemFormat=<span class="string">'%i %i %i %i %i %i %i %i %i\n'</span>;
+0061     <span class="keyword">end</span>
+0062 <span class="keyword">end</span>
+0063 
+0064 <span class="comment">%% Generation of vtk file</span>
+0065 fid=fopen(meshName,<span class="string">'wt'</span>);
+0066 fprintf(fid,<span class="string">'# vtk DataFile Version 2.0\n'</span>);
+0067 fprintf(fid,<span class="string">'MATLAB generated vtk file, WMC\n'</span>);
+0068 fprintf(fid,<span class="string">'ASCII\n'</span>);
+0069 fprintf(fid,<span class="string">'DATASET UNSTRUCTURED_GRID\n'</span>);
+0070 fprintf(fid,<span class="string">'POINTS %i double\n'</span>,nodes);
+0071 
+0072 <span class="comment">%% nodal coordinates</span>
+0073 <span class="keyword">if</span> nD&lt;3
+0074     coord = [coord zeros(nodes,3-nD)];  
+0075 <span class="keyword">end</span>
+0076 fprintf(fid,<span class="string">'%f %f %f \n'</span>,coord');
+0077 fprintf(fid,<span class="string">'\n'</span>);
+0078 
+0079 <span class="comment">%% element topology</span>
+0080 fprintf(fid,<span class="string">'CELLS %i %i\n'</span>,nels,(nen+1)*nels);
+0081 etplOutput = [nen*ones(nels,1) (etpl(:,tvtk)-1)];
+0082 fprintf(fid,elemFormat,etplOutput');       
+0083 fprintf(fid,<span class="string">'\n'</span>);
+0084 
+0085 <span class="comment">%% element types</span>
+0086 fprintf(fid,<span class="string">'CELL_TYPES %i\n'</span>,nels);
+0087 fprintf(fid,<span class="string">'%i\n'</span>,elemId*ones(nels,1));       
+0088 fprintf(fid,<span class="string">'\n'</span>);
+0089 <span class="keyword">end</span></pre></div>
+<hr><address>Generated on Thu 27-Aug-2020 08:13:21 by <strong><a href="http://www.artefact.tk/software/matlab/m2html/" title="Matlab Documentation in HTML">m2html</a></strong> &copy; 2005</address>
+</body>
+</html>

@@ -1,0 +1,81 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
+                "http://www.w3.org/TR/REC-html40/loose.dtd">
+<html>
+<head>
+  <title>Description of amplePostPro</title>
+  <meta name="keywords" content="amplePostPro">
+  <meta name="description" content="Post processing script for the AMPLE code">
+  <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+  <meta name="generator" content="m2html v1.5 &copy; 2003-2005 Guillaume Flandin">
+  <meta name="robots" content="index, follow">
+  <link type="text/css" rel="stylesheet" href="../../m2html.css">
+</head>
+<body>
+<a name="_top"></a>
+<div><a href="../../index.html">Home</a> &gt;  <a href="../index.html">AMPLE</a> &gt; <a href="index.html">plotting</a> &gt; amplePostPro.m</div>
+
+<!--<table width="100%"><tr><td align="left"><a href="../../index.html"><img alt="<" border="0" src="../../left.png">&nbsp;Master index</a></td>
+<td align="right"><a href="index.html">Index for AMPLE/plotting&nbsp;<img alt=">" border="0" src="../../right.png"></a></td></tr></table>-->
+
+<h1>amplePostPro
+</h1>
+
+<h2><a name="_name"></a>PURPOSE <a href="#_top"><img alt="^" border="0" src="../../up.png"></a></h2>
+<div class="box"><strong>Post processing script for the AMPLE code</strong></div>
+
+<h2><a name="_synopsis"></a>SYNOPSIS <a href="#_top"><img alt="^" border="0" src="../../up.png"></a></h2>
+<div class="box"><strong>This is a script file. </strong></div>
+
+<h2><a name="_description"></a>DESCRIPTION <a href="#_top"><img alt="^" border="0" src="../../up.png"></a></h2>
+<div class="fragment"><pre class="comment">Post processing script for the AMPLE code
+--------------------------------------------------------------------------
+ Author: William Coombs
+ Date:   29/01/2019
+ Description:
+ The script produces VTK output files based on the background mesh and
+ material point data.  
+
+--------------------------------------------------------------------------
+ See also:
+ <a href="makeVtk.html" class="code" title="function makeVtk(coord,etpl,meshName)">MAKEVTK</a>           - VTK file for background mesh
+ <a href="makeVtkMP.html" class="code" title="function makeVtkMP(mpC,sig,uvw,mpFileName)">MAKEVTKMP</a>         - VTK file for MP data
+--------------------------------------------------------------------------</pre></div>
+
+<!-- crossreference -->
+<h2><a name="_cross"></a>CROSS-REFERENCE INFORMATION <a href="#_top"><img alt="^" border="0" src="../../up.png"></a></h2>
+This function calls:
+<ul style="list-style-image:url(../../matlabicon.gif)">
+<li><a href="makeVtk.html" class="code" title="function makeVtk(coord,etpl,meshName)">makeVtk</a>	VTK output file generation: mesh data</li><li><a href="makeVtkMP.html" class="code" title="function makeVtkMP(mpC,sig,uvw,mpFileName)">makeVtkMP</a>	VTK output file generation: material point data</li></ul>
+This function is called by:
+<ul style="list-style-image:url(../../matlabicon.gif)">
+<li><a href="../../AMPLE/ample.html" class="code" title="">ample</a>	AMPLE: A Material Point Learning Environment</li></ul>
+<!-- crossreference -->
+
+
+
+<h2><a name="_source"></a>SOURCE CODE <a href="#_top"><img alt="^" border="0" src="../../up.png"></a></h2>
+<div class="fragment"><pre>0001 <span class="comment">%Post processing script for the AMPLE code</span>
+0002 <span class="comment">%--------------------------------------------------------------------------</span>
+0003 <span class="comment">% Author: William Coombs</span>
+0004 <span class="comment">% Date:   29/01/2019</span>
+0005 <span class="comment">% Description:</span>
+0006 <span class="comment">% The script produces VTK output files based on the background mesh and</span>
+0007 <span class="comment">% material point data.</span>
+0008 <span class="comment">%</span>
+0009 <span class="comment">%--------------------------------------------------------------------------</span>
+0010 <span class="comment">% See also:</span>
+0011 <span class="comment">% MAKEVTK           - VTK file for background mesh</span>
+0012 <span class="comment">% MAKEVTKMP         - VTK file for MP data</span>
+0013 <span class="comment">%--------------------------------------------------------------------------</span>
+0014 
+0015 mpDataName = sprintf(<span class="string">'output/mpData_%i.vtk'</span>,lstp);                          <span class="comment">% MP output data file name</span>
+0016 sig = reshape([mpData.sig],6,nmp)';                                         <span class="comment">% all material point stresses (nmp,6)</span>
+0017 mpC = reshape([mpData.mpC],nD,nmp)';                                        <span class="comment">% all material point coordinates (nmp,nD)</span>
+0018 mpU = [mpData.u]';                                                          <span class="comment">% all material point displacements</span>
+0019 <a href="makeVtkMP.html" class="code" title="function makeVtkMP(mpC,sig,uvw,mpFileName)">makeVtkMP</a>(mpC,sig,mpU,mpDataName);                                          <span class="comment">% generate material point VTK file</span>
+0020 <span class="keyword">if</span> lstp==0
+0021   <a href="makeVtk.html" class="code" title="function makeVtk(coord,etpl,meshName)">makeVtk</a>(mesh.coord,mesh.etpl,<span class="string">'output/mesh.vtk'</span>)                           <span class="comment">% generate mesh VTK file</span>
+0022 <span class="keyword">end</span></pre></div>
+<hr><address>Generated on Thu 07-Feb-2019 20:30:03 by <strong><a href="http://www.artefact.tk/software/matlab/m2html/" title="Matlab Documentation in HTML">m2html</a></strong> &copy; 2005</address>
+</body>
+</html>

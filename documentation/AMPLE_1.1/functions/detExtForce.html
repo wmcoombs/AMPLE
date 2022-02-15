@@ -1,0 +1,115 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
+                "http://www.w3.org/TR/REC-html40/loose.dtd">
+<html>
+<head>
+  <title>Description of detExtForce</title>
+  <meta name="keywords" content="detExtForce">
+  <meta name="description" content="Global external force determination">
+  <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+  <meta name="generator" content="m2html v1.5 &copy; 2003-2005 Guillaume Flandin">
+  <meta name="robots" content="index, follow">
+  <link type="text/css" rel="stylesheet" href="../../m2html.css">
+</head>
+<body>
+<a name="_top"></a>
+<div><a href="../../menu.html">Home</a> &gt;  <a href="../menu.html">AMPLE_1.1</a> &gt; <a href="menu.html">functions</a> &gt; detExtForce.m</div>
+
+<!--<table width="100%"><tr><td align="left"><a href="../../menu.html"><img alt="<" border="0" src="../../left.png">&nbsp;Master index</a></td>
+<td align="right"><a href="menu.html">Index for AMPLE_1.1/functions&nbsp;<img alt=">" border="0" src="../../right.png"></a></td></tr></table>-->
+
+<h1>detExtForce
+</h1>
+
+<h2><a name="_name"></a>PURPOSE <a href="#_top"><img alt="^" border="0" src="../../up.png"></a></h2>
+<div class="box"><strong>Global external force determination</strong></div>
+
+<h2><a name="_synopsis"></a>SYNOPSIS <a href="#_top"><img alt="^" border="0" src="../../up.png"></a></h2>
+<div class="box"><strong>function [fext] = detExtForce(nodes,nD,g,mpData) </strong></div>
+
+<h2><a name="_description"></a>DESCRIPTION <a href="#_top"><img alt="^" border="0" src="../../up.png"></a></h2>
+<div class="fragment"><pre class="comment">Global external force determination  
+--------------------------------------------------------------------------
+ Author: William Coombs
+ Date:   23/01/2019
+ Description:
+ Function to determine the external forces at nodes based on body forces
+ and point forces at material points.
+
+--------------------------------------------------------------------------
+ [fbdy,mpData] = DETEXTFORCE(coord,etpl,g,eIN,mpData)
+--------------------------------------------------------------------------
+ Input(s):
+ nodes  - number of nodes (total in mesh)
+ nD     - number of dimensions
+ g      - gravity
+ mpData - material point structured array. Function requires:
+           mpM   : material point mass
+           nIN   : nodes linked to the material point
+           Svp   : basis functions for the material point
+           fp    : point forces at material points
+--------------------------------------------------------------------------
+ Ouput(s);
+ fext   - external force vector (nodes*nD,1)
+--------------------------------------------------------------------------
+ See also:
+
+--------------------------------------------------------------------------</pre></div>
+
+<!-- crossreference -->
+<h2><a name="_cross"></a>CROSS-REFERENCE INFORMATION <a href="#_top"><img alt="^" border="0" src="../../up.png"></a></h2>
+This function calls:
+<ul style="list-style-image:url(../../matlabicon.gif)">
+</ul>
+This function is called by:
+<ul style="list-style-image:url(../../matlabicon.gif)">
+<li><a href="../../AMPLE_1.1/ample.html" class="code" title="">ample</a>	AMPLE 1.1: A Material Point Learning Environment</li></ul>
+<!-- crossreference -->
+
+
+
+<h2><a name="_source"></a>SOURCE CODE <a href="#_top"><img alt="^" border="0" src="../../up.png"></a></h2>
+<div class="fragment"><pre>0001 <a name="_sub0" href="#_subfunctions" class="code">function [fext] = detExtForce(nodes,nD,g,mpData)</a>
+0002 
+0003 <span class="comment">%Global external force determination</span>
+0004 <span class="comment">%--------------------------------------------------------------------------</span>
+0005 <span class="comment">% Author: William Coombs</span>
+0006 <span class="comment">% Date:   23/01/2019</span>
+0007 <span class="comment">% Description:</span>
+0008 <span class="comment">% Function to determine the external forces at nodes based on body forces</span>
+0009 <span class="comment">% and point forces at material points.</span>
+0010 <span class="comment">%</span>
+0011 <span class="comment">%--------------------------------------------------------------------------</span>
+0012 <span class="comment">% [fbdy,mpData] = DETEXTFORCE(coord,etpl,g,eIN,mpData)</span>
+0013 <span class="comment">%--------------------------------------------------------------------------</span>
+0014 <span class="comment">% Input(s):</span>
+0015 <span class="comment">% nodes  - number of nodes (total in mesh)</span>
+0016 <span class="comment">% nD     - number of dimensions</span>
+0017 <span class="comment">% g      - gravity</span>
+0018 <span class="comment">% mpData - material point structured array. Function requires:</span>
+0019 <span class="comment">%           mpM   : material point mass</span>
+0020 <span class="comment">%           nIN   : nodes linked to the material point</span>
+0021 <span class="comment">%           Svp   : basis functions for the material point</span>
+0022 <span class="comment">%           fp    : point forces at material points</span>
+0023 <span class="comment">%--------------------------------------------------------------------------</span>
+0024 <span class="comment">% Ouput(s);</span>
+0025 <span class="comment">% fext   - external force vector (nodes*nD,1)</span>
+0026 <span class="comment">%--------------------------------------------------------------------------</span>
+0027 <span class="comment">% See also:</span>
+0028 <span class="comment">%</span>
+0029 <span class="comment">%--------------------------------------------------------------------------</span>
+0030 
+0031 nmp  = size(mpData,2);                                                      <span class="comment">% number of material points &amp; dimensions</span>
+0032 fext = zeros(nodes*nD,1);                                                   <span class="comment">% zero the external force vector</span>
+0033 grav = zeros(nD,1); grav(nD) = -g;                                          <span class="comment">% gavity vector</span>
+0034 <span class="keyword">for</span> mp = 1:nmp
+0035    nIN = mpData(mp).nIN;                                                    <span class="comment">% nodes associated with MP</span>
+0036    nn  = length(nIN);                                                       <span class="comment">% number of nodes influencing the MP</span>
+0037    Svp = mpData(mp).Svp;                                                    <span class="comment">% basis functions</span>
+0038    fp  = (mpData(mp).mpM*grav + mpData(mp).fp)*Svp;                         <span class="comment">% material point body &amp; point nodal forces</span>
+0039    ed  = repmat((nIN-1)*nD,nD,1)+repmat((1:nD).',1,nn);                     <span class="comment">% nodel degrees of freedom</span>
+0040    fext(ed) = fext(ed) + fp;                                                <span class="comment">% combine into external force vector</span>
+0041 <span class="keyword">end</span>
+0042 <span class="keyword">end</span></pre></div>
+<hr><address>Generated on Thu 27-Aug-2020 08:13:21 by <strong><a href="http://www.artefact.tk/software/matlab/m2html/" title="Matlab Documentation in HTML">m2html</a></strong> &copy; 2005</address>
+</body>
+</html>

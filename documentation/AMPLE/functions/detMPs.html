@@ -1,0 +1,221 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
+                "http://www.w3.org/TR/REC-html40/loose.dtd">
+<html>
+<head>
+  <title>Description of detMPs</title>
+  <meta name="keywords" content="detMPs">
+  <meta name="description" content="Stiffness and internal force calculation for all material points">
+  <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+  <meta name="generator" content="m2html v1.5 &copy; 2003-2005 Guillaume Flandin">
+  <meta name="robots" content="index, follow">
+  <link type="text/css" rel="stylesheet" href="../../m2html.css">
+</head>
+<body>
+<a name="_top"></a>
+<div><a href="../../index.html">Home</a> &gt;  <a href="../index.html">AMPLE</a> &gt; <a href="index.html">functions</a> &gt; detMPs.m</div>
+
+<!--<table width="100%"><tr><td align="left"><a href="../../index.html"><img alt="<" border="0" src="../../left.png">&nbsp;Master index</a></td>
+<td align="right"><a href="index.html">Index for AMPLE/functions&nbsp;<img alt=">" border="0" src="../../right.png"></a></td></tr></table>-->
+
+<h1>detMPs
+</h1>
+
+<h2><a name="_name"></a>PURPOSE <a href="#_top"><img alt="^" border="0" src="../../up.png"></a></h2>
+<div class="box"><strong>Stiffness and internal force calculation for all material points</strong></div>
+
+<h2><a name="_synopsis"></a>SYNOPSIS <a href="#_top"><img alt="^" border="0" src="../../up.png"></a></h2>
+<div class="box"><strong>function [fint,Kt,mpData] = detMPs(uvw,mpData) </strong></div>
+
+<h2><a name="_description"></a>DESCRIPTION <a href="#_top"><img alt="^" border="0" src="../../up.png"></a></h2>
+<div class="fragment"><pre class="comment">Stiffness and internal force calculation for all material points
+--------------------------------------------------------------------------
+ Author: William Coombs
+ Date:   23/01/2019
+ Description:
+ Function to determine the stiffness contribution of a particle to the
+ nodes that it influences based on a Updated Lagrangian finite deformation 
+ formulation.  The function also returns the stresses at the particles and 
+ the internal force contribution.  This function allows for elasto-
+ plasticity at the material points.  The functionis applicable to 1, 2 and
+ 3 dimensional problems without modification as well as different material 
+ point methods and background meshes.   
+ 
+--------------------------------------------------------------------------
+ [kp,fp,mpData] = DETMPS(uvw,mpData)
+--------------------------------------------------------------------------
+ Input(s):
+ uvw    - nodal displacements that influence the MP (nn*nD,1)
+ mpData - material point structured array. The following fields are
+          required by the function:
+           - dSvp  : basis function derivatives (nD,nn)
+           - nIN   : background mesh nodes associated with the MP (1,nn)
+           - Fn    : previous deformation gradient (3,3) 
+           - epsEn : previous elastic logarithmic strain (6,1)
+           - mCst  : material constants
+           - vp    : material point volume (1)
+           - nSMe  : number stiffness matrix entries
+--------------------------------------------------------------------------
+ Ouput(s);
+ fint   - global internal force vector
+ Kt     - global stiffness matrix
+ mpData - material point structured array (see above).  The following
+          fields are updated by the function:
+           - F     : current deformation gradient (3,3)
+           - sig   : current Cauchy stress (6,1)
+           - epsE  : current elastic logarithmic strain (6,1)
+--------------------------------------------------------------------------
+ See also:
+ FORMULSTIFFNESS  - updated Lagrangian material stiffness calculation
+ HOOKE3D          - linear elastic constitutive model
+ VMCONST          - von Mises elasto-plastic constitutive model
+--------------------------------------------------------------------------</pre></div>
+
+<!-- crossreference -->
+<h2><a name="_cross"></a>CROSS-REFERENCE INFORMATION <a href="#_top"><img alt="^" border="0" src="../../up.png"></a></h2>
+This function calls:
+<ul style="list-style-image:url(../../matlabicon.gif)">
+<li><a href="../../AMPLE/constitutive/Hooke3d.html" class="code" title="function [D,sig,epsE] = Hooke3d(epsE,mCst)">Hooke3d</a>	Linear elastic constitutive model</li><li><a href="../../AMPLE/constitutive/VMconst.html" class="code" title="function [Dalg,sig,epsE] = VMconst(epsEtr,mCst)">VMconst</a>	von Mises linear elastic perfectly plastic constitutive model</li><li><a href="formULstiff.html" class="code" title="function [A] = formULstiff(F,D,s,B)">formULstiff</a>	Updated Lagrangian material stiffness matrix</li></ul>
+This function is called by:
+<ul style="list-style-image:url(../../matlabicon.gif)">
+<li><a href="../../AMPLE/ample.html" class="code" title="">ample</a>	AMPLE: A Material Point Learning Environment</li></ul>
+<!-- crossreference -->
+
+
+
+<h2><a name="_source"></a>SOURCE CODE <a href="#_top"><img alt="^" border="0" src="../../up.png"></a></h2>
+<div class="fragment"><pre>0001 <a name="_sub0" href="#_subfunctions" class="code">function [fint,Kt,mpData] = detMPs(uvw,mpData)</a>
+0002 
+0003 <span class="comment">%Stiffness and internal force calculation for all material points</span>
+0004 <span class="comment">%--------------------------------------------------------------------------</span>
+0005 <span class="comment">% Author: William Coombs</span>
+0006 <span class="comment">% Date:   23/01/2019</span>
+0007 <span class="comment">% Description:</span>
+0008 <span class="comment">% Function to determine the stiffness contribution of a particle to the</span>
+0009 <span class="comment">% nodes that it influences based on a Updated Lagrangian finite deformation</span>
+0010 <span class="comment">% formulation.  The function also returns the stresses at the particles and</span>
+0011 <span class="comment">% the internal force contribution.  This function allows for elasto-</span>
+0012 <span class="comment">% plasticity at the material points.  The functionis applicable to 1, 2 and</span>
+0013 <span class="comment">% 3 dimensional problems without modification as well as different material</span>
+0014 <span class="comment">% point methods and background meshes.</span>
+0015 <span class="comment">%</span>
+0016 <span class="comment">%--------------------------------------------------------------------------</span>
+0017 <span class="comment">% [kp,fp,mpData] = DETMPS(uvw,mpData)</span>
+0018 <span class="comment">%--------------------------------------------------------------------------</span>
+0019 <span class="comment">% Input(s):</span>
+0020 <span class="comment">% uvw    - nodal displacements that influence the MP (nn*nD,1)</span>
+0021 <span class="comment">% mpData - material point structured array. The following fields are</span>
+0022 <span class="comment">%          required by the function:</span>
+0023 <span class="comment">%           - dSvp  : basis function derivatives (nD,nn)</span>
+0024 <span class="comment">%           - nIN   : background mesh nodes associated with the MP (1,nn)</span>
+0025 <span class="comment">%           - Fn    : previous deformation gradient (3,3)</span>
+0026 <span class="comment">%           - epsEn : previous elastic logarithmic strain (6,1)</span>
+0027 <span class="comment">%           - mCst  : material constants</span>
+0028 <span class="comment">%           - vp    : material point volume (1)</span>
+0029 <span class="comment">%           - nSMe  : number stiffness matrix entries</span>
+0030 <span class="comment">%--------------------------------------------------------------------------</span>
+0031 <span class="comment">% Ouput(s);</span>
+0032 <span class="comment">% fint   - global internal force vector</span>
+0033 <span class="comment">% Kt     - global stiffness matrix</span>
+0034 <span class="comment">% mpData - material point structured array (see above).  The following</span>
+0035 <span class="comment">%          fields are updated by the function:</span>
+0036 <span class="comment">%           - F     : current deformation gradient (3,3)</span>
+0037 <span class="comment">%           - sig   : current Cauchy stress (6,1)</span>
+0038 <span class="comment">%           - epsE  : current elastic logarithmic strain (6,1)</span>
+0039 <span class="comment">%--------------------------------------------------------------------------</span>
+0040 <span class="comment">% See also:</span>
+0041 <span class="comment">% FORMULSTIFFNESS  - updated Lagrangian material stiffness calculation</span>
+0042 <span class="comment">% HOOKE3D          - linear elastic constitutive model</span>
+0043 <span class="comment">% VMCONST          - von Mises elasto-plastic constitutive model</span>
+0044 <span class="comment">%--------------------------------------------------------------------------</span>
+0045 
+0046 nmp   = length(mpData);
+0047 fint  = zeros(size(uvw));
+0048 npCnt = 0;                                                                  <span class="comment">% counter for the number of entries in Kt</span>
+0049 tnSMe = sum([mpData.nSMe]);                                                 <span class="comment">% total number of stiffness matrix entries</span>
+0050 krow  = zeros(tnSMe,1); kcol=krow; kval=krow;                               <span class="comment">% zero the stiffness information</span>
+0051 
+0052 <span class="keyword">for</span> mp=1:nmp                                                                <span class="comment">% material point loop</span>
+0053     
+0054     nIN     = mpData(mp).nIN;                                               <span class="comment">% nodes associated with the material point</span>
+0055     dNx     = mpData(mp).dSvp;                                              <span class="comment">% basis function derivatives (start of lstp)</span>
+0056     [nD,nn] = size(dNx);                                                    <span class="comment">% no. dimensions &amp; no. nodes</span>
+0057     
+0058     ed = reshape(ones(nD,1)*(nIN-1)*nD+(1:nD).'*ones(1,nn),1,nn*nD);        <span class="comment">% degrees of freedom of nodes</span>
+0059     
+0060     <span class="keyword">if</span> nD==1                                                                <span class="comment">% 1D case</span>
+0061         G=dNx;
+0062         fPos=1;                                                             <span class="comment">% deformation gradient positions</span>
+0063         aPos=1;                                                             <span class="comment">% material stiffness matrix positions for global stiffness</span>
+0064         sPos=1;                                                             <span class="comment">% Cauchy stress components for internal force</span>
+0065     <span class="keyword">elseif</span> nD==2                                                            <span class="comment">% 2D case (plane strain &amp; stress)</span>
+0066         G=zeros(4,nD*nn);                                                   <span class="comment">% zero the strain-disp matrix (2D)</span>
+0067         G([1 3],1:nD:end)=dNx;                                              <span class="comment">% strain-displacement matrix</span>
+0068         G([4 2],2:nD:end)=dNx;
+0069         fPos=[1 5 4 2];
+0070         aPos=[1 2 4 5];
+0071         sPos=[1 2 4 4];
+0072     <span class="keyword">else</span>                                                                    <span class="comment">% 3D case</span>
+0073         G=zeros(9,nD*nn);                                                   <span class="comment">% zero the strain-disp matrix (3D)</span>
+0074         G([1 4 9],1:nD:end)=dNx;
+0075         G([5 2 6],2:nD:end)=dNx;
+0076         G([8 7 3],3:nD:end)=dNx;
+0077         fPos=[1 5 9 4 2 8 6 3 7];
+0078         aPos=(1:9);
+0079         sPos=[1 2 3 4 4 5 5 6 6];
+0080     <span class="keyword">end</span>
+0081     
+0082     ddF    = zeros(3); ddF(fPos) = G*uvw(ed);                               <span class="comment">% spatial gradient (start of lstp) of displacements</span>
+0083     dF     = (eye(3)+ddF);                                                  <span class="comment">% deformation gradient increment</span>
+0084     F      = dF*mpData(mp).Fn;                                              <span class="comment">% deformation gradient</span>
+0085     epsEn  = mpData(mp).epsEn; epsEn(4:6) = 0.5*epsEn(4:6);                 <span class="comment">% previous elastic strain</span>
+0086     epsEn  = epsEn([1 4 6; 4 2 5; 6 5 3]);                                  <span class="comment">% matrix form of previous elastic strain</span>
+0087     [V,D]  = eig(epsEn);                                                    <span class="comment">% eigen values and vectors of the elastic strain</span>
+0088     BeT    = dF*(V*diag(exp(2*diag(D)))*V.')*dF.';                          <span class="comment">% trial left Cauchy-Green strain</span>
+0089     [V,D]  = eig(BeT);                                                      <span class="comment">% eigen values and vectors of the trial left Cauchy-Green strain</span>
+0090     epsEtr = 0.5*V*diag(log(diag(D)))*V.';                                  <span class="comment">% trial elastic strain (tensor form)</span>
+0091     epsEtr = [epsEtr([1 5 9]) 2*epsEtr([2 6 3])].';                         <span class="comment">% trial elastic strain (vector form)</span>
+0092     
+0093     <span class="comment">%---------------------------------------------------------------------- % Constitutive model</span>
+0094     <span class="keyword">if</span> mpData(mp).cmType == 1
+0095         [D,Ksig,epsE]=<a href="../../AMPLE/constitutive/Hooke3d.html" class="code" title="function [D,sig,epsE] = Hooke3d(epsE,mCst)">Hooke3d</a>(epsEtr,mpData(mp).mCst);                      <span class="comment">% elastic behaviour</span>
+0096     <span class="keyword">elseif</span> mpData(mp).cmType == 2
+0097         [D,Ksig,epsE]=<a href="../../AMPLE/constitutive/VMconst.html" class="code" title="function [Dalg,sig,epsE] = VMconst(epsEtr,mCst)">VMconst</a>(epsEtr,mpData(mp).mCst);                      <span class="comment">% elasto-plastic behaviour (von Mises)</span>
+0098     <span class="keyword">end</span>
+0099     <span class="comment">%----------------------------------------------------------------------</span>
+0100     
+0101     sig = Ksig/det(F);                                                      <span class="comment">% Cauchy stress</span>
+0102     A   = <a href="formULstiff.html" class="code" title="function [A] = formULstiff(F,D,s,B)">formULstiff</a>(F,D,sig,BeT);                                         <span class="comment">% material stiffness</span>
+0103     
+0104     dNx = dF(1:nD,1:nD)'\dNx;                                               <span class="comment">% derivatives of basis functions (current)</span>
+0105     <span class="keyword">if</span> nD==1                                                                <span class="comment">% 1D case</span>
+0106         G=dNx;                                                              <span class="comment">% strain-displacement matrix</span>
+0107     <span class="keyword">elseif</span> nD==2                                                            <span class="comment">% 2D case (plane strain &amp; stress)</span>
+0108         G([1 3],1:nD:end)=dNx;                                              <span class="comment">% strain-displacement matrix</span>
+0109         G([4 2],2:nD:end)=dNx;
+0110     <span class="keyword">elseif</span> nD==3                                                            <span class="comment">% 3D case</span>
+0111         G([1 4 9],1:nD:end)=dNx;                                            <span class="comment">% strain-displacement matrix</span>
+0112         G([5 2 6],2:nD:end)=dNx;
+0113         G([8 7 3],3:nD:end)=dNx;
+0114     <span class="keyword">end</span>
+0115     
+0116     kp = mpData(mp).vp*det(dF)*(G.'*A(aPos,aPos)*G);                        <span class="comment">% material point stiffness contribution</span>
+0117     fp = mpData(mp).vp*det(dF)*(G.'*sig(sPos));                             <span class="comment">% internal force contribution</span>
+0118     
+0119     mpData(mp).F    = F;                                                    <span class="comment">% store deformation gradient</span>
+0120     mpData(mp).sig  = sig;                                                  <span class="comment">% store Cauchy stress</span>
+0121     mpData(mp).epsE = epsE;                                                 <span class="comment">% store elastic logarithmic strain</span>
+0122     
+0123     npDoF=(size(ed,1)*size(ed,2))^2;                                        <span class="comment">% no. entries in kp</span>
+0124     nnDoF=size(ed,1)*size(ed,2);                                            <span class="comment">% no. DoF in kp</span>
+0125     krow(npCnt+1:npCnt+npDoF)=reshape(ed.'*ones(1,nnDoF),npDoF,1);          <span class="comment">% row-column position storage</span>
+0126     kcol(npCnt+1:npCnt+npDoF)=reshape(ones(nnDoF,1)*ed  ,npDoF,1);
+0127     kval(npCnt+1:npCnt+npDoF)=reshape(kp,npDoF,1);                          <span class="comment">% stiffness storage</span>
+0128     npCnt=npCnt+npDoF;                                                      <span class="comment">% number of entries in Kt</span>
+0129     fint(ed)=fint(ed)+fp;                                                   <span class="comment">% internal force contribution</span>
+0130 <span class="keyword">end</span>
+0131 
+0132 nDoF=length(uvw);                                                           <span class="comment">% number of degrees of freedom</span>
+0133 Kt=sparse(krow,kcol,kval,nDoF,nDoF);                                        <span class="comment">% form the global stiffness matrix</span></pre></div>
+<hr><address>Generated on Fri 17-May-2019 08:05:05 by <strong><a href="http://www.artefact.tk/software/matlab/m2html/" title="Matlab Documentation in HTML">m2html</a></strong> &copy; 2005</address>
+</body>
+</html>

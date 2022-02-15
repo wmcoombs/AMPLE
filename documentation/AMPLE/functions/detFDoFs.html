@@ -1,0 +1,105 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
+                "http://www.w3.org/TR/REC-html40/loose.dtd">
+<html>
+<head>
+  <title>Description of detFDoFs</title>
+  <meta name="keywords" content="detFDoFs">
+  <meta name="description" content="Determine the free degrees of freedom on the background mesh">
+  <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+  <meta name="generator" content="m2html v1.5 &copy; 2003-2005 Guillaume Flandin">
+  <meta name="robots" content="index, follow">
+  <link type="text/css" rel="stylesheet" href="../../m2html.css">
+</head>
+<body>
+<a name="_top"></a>
+<div><a href="../../index.html">Home</a> &gt;  <a href="../index.html">AMPLE</a> &gt; <a href="index.html">functions</a> &gt; detFDoFs.m</div>
+
+<!--<table width="100%"><tr><td align="left"><a href="../../index.html"><img alt="<" border="0" src="../../left.png">&nbsp;Master index</a></td>
+<td align="right"><a href="index.html">Index for AMPLE/functions&nbsp;<img alt=">" border="0" src="../../right.png"></a></td></tr></table>-->
+
+<h1>detFDoFs
+</h1>
+
+<h2><a name="_name"></a>PURPOSE <a href="#_top"><img alt="^" border="0" src="../../up.png"></a></h2>
+<div class="box"><strong>Determine the free degrees of freedom on the background mesh</strong></div>
+
+<h2><a name="_synopsis"></a>SYNOPSIS <a href="#_top"><img alt="^" border="0" src="../../up.png"></a></h2>
+<div class="box"><strong>function [fd] = detFDoFs(mesh) </strong></div>
+
+<h2><a name="_description"></a>DESCRIPTION <a href="#_top"><img alt="^" border="0" src="../../up.png"></a></h2>
+<div class="fragment"><pre class="comment">Determine the free degrees of freedom on the background mesh
+--------------------------------------------------------------------------
+ Author: William Coombs
+ Date:   17/12/2018
+ Description:
+ Function to determine the free degrees of freedom of the background mesh
+ based on the elements that contain material points and the displacement
+ boundary conditions. 
+
+--------------------------------------------------------------------------
+ [fd] = DETFDOFS(etpl,eInA,bc,nD,nDoF)
+--------------------------------------------------------------------------
+ Input(s):
+ mesh  - mesh structured array. Function requires: 
+           - etpl : element topology (nels,nen) 
+           - eInA : elements &quot;active&quot; in the analysis
+           - bc   : boundary conditions (*,2)
+--------------------------------------------------------------------------
+ Ouput(s);
+ fd    - free degrees of freedom on the background mesh (*,1)
+--------------------------------------------------------------------------
+ See also:
+
+--------------------------------------------------------------------------</pre></div>
+
+<!-- crossreference -->
+<h2><a name="_cross"></a>CROSS-REFERENCE INFORMATION <a href="#_top"><img alt="^" border="0" src="../../up.png"></a></h2>
+This function calls:
+<ul style="list-style-image:url(../../matlabicon.gif)">
+</ul>
+This function is called by:
+<ul style="list-style-image:url(../../matlabicon.gif)">
+<li><a href="../../AMPLE/ample.html" class="code" title="">ample</a>	AMPLE: A Material Point Learning Environment</li></ul>
+<!-- crossreference -->
+
+
+
+<h2><a name="_source"></a>SOURCE CODE <a href="#_top"><img alt="^" border="0" src="../../up.png"></a></h2>
+<div class="fragment"><pre>0001 <a name="_sub0" href="#_subfunctions" class="code">function [fd] = detFDoFs(mesh)</a>
+0002 <span class="comment">%Determine the free degrees of freedom on the background mesh</span>
+0003 <span class="comment">%--------------------------------------------------------------------------</span>
+0004 <span class="comment">% Author: William Coombs</span>
+0005 <span class="comment">% Date:   17/12/2018</span>
+0006 <span class="comment">% Description:</span>
+0007 <span class="comment">% Function to determine the free degrees of freedom of the background mesh</span>
+0008 <span class="comment">% based on the elements that contain material points and the displacement</span>
+0009 <span class="comment">% boundary conditions.</span>
+0010 <span class="comment">%</span>
+0011 <span class="comment">%--------------------------------------------------------------------------</span>
+0012 <span class="comment">% [fd] = DETFDOFS(etpl,eInA,bc,nD,nDoF)</span>
+0013 <span class="comment">%--------------------------------------------------------------------------</span>
+0014 <span class="comment">% Input(s):</span>
+0015 <span class="comment">% mesh  - mesh structured array. Function requires:</span>
+0016 <span class="comment">%           - etpl : element topology (nels,nen)</span>
+0017 <span class="comment">%           - eInA : elements &quot;active&quot; in the analysis</span>
+0018 <span class="comment">%           - bc   : boundary conditions (*,2)</span>
+0019 <span class="comment">%--------------------------------------------------------------------------</span>
+0020 <span class="comment">% Ouput(s);</span>
+0021 <span class="comment">% fd    - free degrees of freedom on the background mesh (*,1)</span>
+0022 <span class="comment">%--------------------------------------------------------------------------</span>
+0023 <span class="comment">% See also:</span>
+0024 <span class="comment">%</span>
+0025 <span class="comment">%--------------------------------------------------------------------------</span>
+0026 
+0027 [nodes,nD] = size(mesh.coord);                                              <span class="comment">% no. nodes and dimensions</span>
+0028 nDoF   = nodes*nD;                                                          <span class="comment">% no. degrees of freedom</span>
+0029 incN   = unique(mesh.etpl(mesh.eInA&gt;0,:));                                  <span class="comment">% unique active node list</span>
+0030 iN     = size(incN,1);                                                      <span class="comment">% number of nodes in the list</span>
+0031 incDoF = reshape(ones(nD,1)*incN'*nD-(nD-1:-1:0).'*ones(1,iN),1,iN*nD);     <span class="comment">% active degrees of freedom</span>
+0032 fd     = (1:nDoF);                                                          <span class="comment">% all degrees of freedom</span>
+0033 fd(mesh.bc(:,1)) = 0;                                                       <span class="comment">% zero fixed displacement BCs</span>
+0034 fd     = fd(incDoF);                                                        <span class="comment">% only include active DoF</span>
+0035 fd     = fd(fd&gt;0);                                                          <span class="comment">% remove fixed displacement BCs</span></pre></div>
+<hr><address>Generated on Fri 17-May-2019 08:05:05 by <strong><a href="http://www.artefact.tk/software/matlab/m2html/" title="Matlab Documentation in HTML">m2html</a></strong> &copy; 2005</address>
+</body>
+</html>

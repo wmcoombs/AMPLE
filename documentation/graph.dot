@@ -1,0 +1,55 @@
+/* Created by mdot for Matlab */
+digraph m2html {
+  ample -> detExtForce;
+  ample -> detFDoFs;
+  ample -> detMPs;
+  ample -> elemMPinfo;
+  ample -> linSolve;
+  ample -> updateMPs;
+  ample -> postPro;
+  ample -> setupGrid;
+  MPMbasis -> SvpGIMP;
+  MPMbasis -> SvpMPM;
+  detMPs -> Hooke3d;
+  detMPs -> VMconst;
+  detMPs -> formULstiff;
+  elemMPinfo -> MPMbasis;
+  elemMPinfo -> elemForMP;
+  elemMPinfo -> nodesForMP;
+  postPro -> makeVtk;
+  postPro -> makeVtkMP;
+  setupGrid -> detMpPos;
+  setupGrid -> formCoord2D;
+  setupGrid -> shapefunc;
+  setupGrid_beam -> detMpPos;
+  setupGrid_beam -> formCoord2D;
+  setupGrid_beam -> shapefunc;
+  setupGrid_collapse -> detMpPos;
+  setupGrid_collapse -> formCoord2D;
+  setupGrid_collapse -> shapefunc;
+
+  ample [URL="AMPLE_1.1/ample.html"];
+  Hooke3d [URL="AMPLE_1.1/constitutive/Hooke3d.html"];
+  VMconst [URL="AMPLE_1.1/constitutive/VMconst.html"];
+  MPMbasis [URL="AMPLE_1.1/functions/MPMbasis.html"];
+  SvpGIMP [URL="AMPLE_1.1/functions/SvpGIMP.html"];
+  SvpMPM [URL="AMPLE_1.1/functions/SvpMPM.html"];
+  detExtForce [URL="AMPLE_1.1/functions/detExtForce.html"];
+  detFDoFs [URL="AMPLE_1.1/functions/detFDoFs.html"];
+  detMPs [URL="AMPLE_1.1/functions/detMPs.html"];
+  elemForMP [URL="AMPLE_1.1/functions/elemForMP.html"];
+  elemMPinfo [URL="AMPLE_1.1/functions/elemMPinfo.html"];
+  formULstiff [URL="AMPLE_1.1/functions/formULstiff.html"];
+  linSolve [URL="AMPLE_1.1/functions/linSolve.html"];
+  nodesForMP [URL="AMPLE_1.1/functions/nodesForMP.html"];
+  updateMPs [URL="AMPLE_1.1/functions/updateMPs.html"];
+  makeVtk [URL="AMPLE_1.1/plotting/makeVtk.html"];
+  makeVtkMP [URL="AMPLE_1.1/plotting/makeVtkMP.html"];
+  postPro [URL="AMPLE_1.1/plotting/postPro.html"];
+  detMpPos [URL="AMPLE_1.1/setup/detMpPos.html"];
+  formCoord2D [URL="AMPLE_1.1/setup/formCoord2D.html"];
+  setupGrid [URL="AMPLE_1.1/setup/setupGrid.html"];
+  setupGrid_beam [URL="AMPLE_1.1/setup/setupGrid_beam.html"];
+  setupGrid_collapse [URL="AMPLE_1.1/setup/setupGrid_collapse.html"];
+  shapefunc [URL="AMPLE_1.1/setup/shapefunc.html"];
+}

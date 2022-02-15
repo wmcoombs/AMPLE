@@ -1,0 +1,98 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
+                "http://www.w3.org/TR/REC-html40/loose.dtd">
+<html>
+<head>
+  <title>Description of Hooke3d</title>
+  <meta name="keywords" content="Hooke3d">
+  <meta name="description" content="Linear elastic constitutive model">
+  <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+  <meta name="generator" content="m2html v1.5 &copy; 2003-2005 Guillaume Flandin">
+  <meta name="robots" content="index, follow">
+  <link type="text/css" rel="stylesheet" href="../../m2html.css">
+</head>
+<body>
+<a name="_top"></a>
+<div><a href="../../index.html">Home</a> &gt;  <a href="../index.html">AMPLE</a> &gt; <a href="index.html">constitutive</a> &gt; Hooke3d.m</div>
+
+<!--<table width="100%"><tr><td align="left"><a href="../../index.html"><img alt="<" border="0" src="../../left.png">&nbsp;Master index</a></td>
+<td align="right"><a href="index.html">Index for AMPLE/constitutive&nbsp;<img alt=">" border="0" src="../../right.png"></a></td></tr></table>-->
+
+<h1>Hooke3d
+</h1>
+
+<h2><a name="_name"></a>PURPOSE <a href="#_top"><img alt="^" border="0" src="../../up.png"></a></h2>
+<div class="box"><strong>Linear elastic constitutive model</strong></div>
+
+<h2><a name="_synopsis"></a>SYNOPSIS <a href="#_top"><img alt="^" border="0" src="../../up.png"></a></h2>
+<div class="box"><strong>function [D,sig,epsE] = Hooke3d(epsE,mCst) </strong></div>
+
+<h2><a name="_description"></a>DESCRIPTION <a href="#_top"><img alt="^" border="0" src="../../up.png"></a></h2>
+<div class="fragment"><pre class="comment">Linear elastic constitutive model
+--------------------------------------------------------------------------
+ Author: William Coombs
+ Date:   29/01/2019
+ Description:
+ Small strain linear elastic constitutive model 
+
+--------------------------------------------------------------------------
+ [D,sig,epsE] = HOOKE3D(epsE,mCst)
+--------------------------------------------------------------------------
+ Input(s):
+ epsE  - elastic strain (6,1)
+ mCst  - material constants 
+--------------------------------------------------------------------------
+ Ouput(s);
+ D     - elastic stiffness matrix (6,6)
+ sig   - stress (6,1)
+ epsE  - elastic strain (6,1)
+--------------------------------------------------------------------------
+ See also:
+
+--------------------------------------------------------------------------</pre></div>
+
+<!-- crossreference -->
+<h2><a name="_cross"></a>CROSS-REFERENCE INFORMATION <a href="#_top"><img alt="^" border="0" src="../../up.png"></a></h2>
+This function calls:
+<ul style="list-style-image:url(../../matlabicon.gif)">
+</ul>
+This function is called by:
+<ul style="list-style-image:url(../../matlabicon.gif)">
+<li><a href="../../AMPLE/functions/detMPs.html" class="code" title="function [fint,Kt,mpData] = detMPs(uvw,mpData)">detMPs</a>	Stiffness and internal force calculation for all material points</li></ul>
+<!-- crossreference -->
+
+
+
+<h2><a name="_source"></a>SOURCE CODE <a href="#_top"><img alt="^" border="0" src="../../up.png"></a></h2>
+<div class="fragment"><pre>0001 <a name="_sub0" href="#_subfunctions" class="code">function [D,sig,epsE] = Hooke3d(epsE,mCst)</a>
+0002 <span class="comment">%Linear elastic constitutive model</span>
+0003 <span class="comment">%--------------------------------------------------------------------------</span>
+0004 <span class="comment">% Author: William Coombs</span>
+0005 <span class="comment">% Date:   29/01/2019</span>
+0006 <span class="comment">% Description:</span>
+0007 <span class="comment">% Small strain linear elastic constitutive model</span>
+0008 <span class="comment">%</span>
+0009 <span class="comment">%--------------------------------------------------------------------------</span>
+0010 <span class="comment">% [D,sig,epsE] = HOOKE3D(epsE,mCst)</span>
+0011 <span class="comment">%--------------------------------------------------------------------------</span>
+0012 <span class="comment">% Input(s):</span>
+0013 <span class="comment">% epsE  - elastic strain (6,1)</span>
+0014 <span class="comment">% mCst  - material constants</span>
+0015 <span class="comment">%--------------------------------------------------------------------------</span>
+0016 <span class="comment">% Ouput(s);</span>
+0017 <span class="comment">% D     - elastic stiffness matrix (6,6)</span>
+0018 <span class="comment">% sig   - stress (6,1)</span>
+0019 <span class="comment">% epsE  - elastic strain (6,1)</span>
+0020 <span class="comment">%--------------------------------------------------------------------------</span>
+0021 <span class="comment">% See also:</span>
+0022 <span class="comment">%</span>
+0023 <span class="comment">%--------------------------------------------------------------------------</span>
+0024 
+0025 E=mCst(1);                                                                  <span class="comment">% Young's modulus</span>
+0026 v=mCst(2);                                                                  <span class="comment">% Poisson's ratio</span>
+0027 bm1=[1 1 1 0 0 0]';
+0028 D=E/((1+v)*(1-2*v))*(bm1*bm1'*v+<span class="keyword">...</span><span class="comment">                                         % elastic stiffness</span>
+0029   [eye(3) zeros(3); zeros(3) eye(3)/2]*(1-2*v)); 
+0030 sig=D*epsE;                                                                 <span class="comment">% stress</span></pre></div>
+<hr><address>Generated on Fri 17-May-2019 08:05:05 by <strong><a href="http://www.artefact.tk/software/matlab/m2html/" title="Matlab Documentation in HTML">m2html</a></strong> &copy; 2005</address>
+</body>
+</html>

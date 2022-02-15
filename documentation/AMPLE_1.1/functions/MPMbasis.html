@@ -1,0 +1,139 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
+                "http://www.w3.org/TR/REC-html40/loose.dtd">
+<html>
+<head>
+  <title>Description of MPMbasis</title>
+  <meta name="keywords" content="MPMbasis">
+  <meta name="description" content="Basis functions for the material point method">
+  <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+  <meta name="generator" content="m2html v1.5 &copy; 2003-2005 Guillaume Flandin">
+  <meta name="robots" content="index, follow">
+  <link type="text/css" rel="stylesheet" href="../../m2html.css">
+</head>
+<body>
+<a name="_top"></a>
+<div><a href="../../menu.html">Home</a> &gt;  <a href="../menu.html">AMPLE_1.1</a> &gt; <a href="menu.html">functions</a> &gt; MPMbasis.m</div>
+
+<!--<table width="100%"><tr><td align="left"><a href="../../menu.html"><img alt="<" border="0" src="../../left.png">&nbsp;Master index</a></td>
+<td align="right"><a href="menu.html">Index for AMPLE_1.1/functions&nbsp;<img alt=">" border="0" src="../../right.png"></a></td></tr></table>-->
+
+<h1>MPMbasis
+</h1>
+
+<h2><a name="_name"></a>PURPOSE <a href="#_top"><img alt="^" border="0" src="../../up.png"></a></h2>
+<div class="box"><strong>Basis functions for the material point method</strong></div>
+
+<h2><a name="_synopsis"></a>SYNOPSIS <a href="#_top"><img alt="^" border="0" src="../../up.png"></a></h2>
+<div class="box"><strong>function [Svp,dSvp] = MPMbasis(mesh,mpData,node) </strong></div>
+
+<h2><a name="_description"></a>DESCRIPTION <a href="#_top"><img alt="^" border="0" src="../../up.png"></a></h2>
+<div class="fragment"><pre class="comment">Basis functions for the material point method
+--------------------------------------------------------------------------
+ Author: William Coombs
+ Date:   29/01/2019
+ Description:
+ Function to determine the multi-dimensional MPM shape functions from the
+ one dimensional MPM functions.  The function includes both the standard
+ and generalised interpolation material point methods. 
+
+--------------------------------------------------------------------------
+ [Svp,dSvp] = MPMBASIS(coord,mpC,L)
+--------------------------------------------------------------------------
+ Input(s):
+ mesh   - mesh data structured array. Function requires:
+           - coord  : nodal coordinates  
+           - h      : grid spacing
+
+ mpData - material point structured array.  Function requires:
+           - mpC    : material point coordinates (single point)
+           - lp     : particle domain lengths
+           - mpType : material point type (1 or 2)
+
+ node   - background mesh node number
+--------------------------------------------------------------------------
+ Ouput(s);
+ Svp   - particle characteristic function
+ dSvp  - gradient of the characterstic function 
+--------------------------------------------------------------------------
+ See also:
+ <a href="SvpMPM.html" class="code" title="function [Svp,dSvp] = SvpMPM(xp,xv,h)">SVPMPM</a>    - MPM basis functions in 1D (mpType = 1
+ <a href="SvpGIMP.html" class="code" title="function [Svp,dSvp] = SvpGIMP(xp,xv,h,lp)">SVPGIMP</a>   - GIMPM basis functions in 1D (mpType = 2)
+--------------------------------------------------------------------------</pre></div>
+
+<!-- crossreference -->
+<h2><a name="_cross"></a>CROSS-REFERENCE INFORMATION <a href="#_top"><img alt="^" border="0" src="../../up.png"></a></h2>
+This function calls:
+<ul style="list-style-image:url(../../matlabicon.gif)">
+<li><a href="SvpGIMP.html" class="code" title="function [Svp,dSvp] = SvpGIMP(xp,xv,h,lp)">SvpGIMP</a>	1D generalised interpolation material point basis functions</li><li><a href="SvpMPM.html" class="code" title="function [Svp,dSvp] = SvpMPM(xp,xv,h)">SvpMPM</a>	1D material point basis functions</li></ul>
+This function is called by:
+<ul style="list-style-image:url(../../matlabicon.gif)">
+<li><a href="elemMPinfo.html" class="code" title="function [mesh,mpData] = elemMPinfo(mesh,mpData)">elemMPinfo</a>	Determine the basis functions for material points</li></ul>
+<!-- crossreference -->
+
+
+
+<h2><a name="_source"></a>SOURCE CODE <a href="#_top"><img alt="^" border="0" src="../../up.png"></a></h2>
+<div class="fragment"><pre>0001 <a name="_sub0" href="#_subfunctions" class="code">function [Svp,dSvp] = MPMbasis(mesh,mpData,node)</a>
+0002 
+0003 <span class="comment">%Basis functions for the material point method</span>
+0004 <span class="comment">%--------------------------------------------------------------------------</span>
+0005 <span class="comment">% Author: William Coombs</span>
+0006 <span class="comment">% Date:   29/01/2019</span>
+0007 <span class="comment">% Description:</span>
+0008 <span class="comment">% Function to determine the multi-dimensional MPM shape functions from the</span>
+0009 <span class="comment">% one dimensional MPM functions.  The function includes both the standard</span>
+0010 <span class="comment">% and generalised interpolation material point methods.</span>
+0011 <span class="comment">%</span>
+0012 <span class="comment">%--------------------------------------------------------------------------</span>
+0013 <span class="comment">% [Svp,dSvp] = MPMBASIS(coord,mpC,L)</span>
+0014 <span class="comment">%--------------------------------------------------------------------------</span>
+0015 <span class="comment">% Input(s):</span>
+0016 <span class="comment">% mesh   - mesh data structured array. Function requires:</span>
+0017 <span class="comment">%           - coord  : nodal coordinates</span>
+0018 <span class="comment">%           - h      : grid spacing</span>
+0019 <span class="comment">%</span>
+0020 <span class="comment">% mpData - material point structured array.  Function requires:</span>
+0021 <span class="comment">%           - mpC    : material point coordinates (single point)</span>
+0022 <span class="comment">%           - lp     : particle domain lengths</span>
+0023 <span class="comment">%           - mpType : material point type (1 or 2)</span>
+0024 <span class="comment">%</span>
+0025 <span class="comment">% node   - background mesh node number</span>
+0026 <span class="comment">%--------------------------------------------------------------------------</span>
+0027 <span class="comment">% Ouput(s);</span>
+0028 <span class="comment">% Svp   - particle characteristic function</span>
+0029 <span class="comment">% dSvp  - gradient of the characterstic function</span>
+0030 <span class="comment">%--------------------------------------------------------------------------</span>
+0031 <span class="comment">% See also:</span>
+0032 <span class="comment">% SVPMPM    - MPM basis functions in 1D (mpType = 1</span>
+0033 <span class="comment">% SVPGIMP   - GIMPM basis functions in 1D (mpType = 2)</span>
+0034 <span class="comment">%--------------------------------------------------------------------------</span>
+0035 
+0036 coord  = mesh.coord(node,:);                                                <span class="comment">% node coordinates</span>
+0037 h      = mesh.h;                                                            <span class="comment">% grid spacing</span>
+0038 mpC    = mpData.mpC;                                                        <span class="comment">% material point coordinates</span>
+0039 lp     = mpData.lp;                                                         <span class="comment">% material point domain length</span>
+0040 mpType = mpData.mpType;                                                     <span class="comment">% material point type (MPM or GIMPM)</span>
+0041 nD     = size(mpC,1)*size(mpC,2);                                           <span class="comment">% number of dimensions</span>
+0042 S=zeros(nD,1); dS=S; dSvp=S;                                                <span class="comment">% zero vectors used in calcs</span>
+0043 <span class="keyword">for</span> i=1:nD
+0044     <span class="keyword">if</span> mpType == 1
+0045         [S(i),dS(i)] = <a href="SvpMPM.html" class="code" title="function [Svp,dSvp] = SvpMPM(xp,xv,h)">SvpMPM</a>(mpC(i),coord(i),h(i));                        <span class="comment">% 1D MPM functions</span>
+0046     <span class="keyword">elseif</span> mpType == 2
+0047         [S(i),dS(i)] = <a href="SvpGIMP.html" class="code" title="function [Svp,dSvp] = SvpGIMP(xp,xv,h,lp)">SvpGIMP</a>(mpC(i),coord(i),h(i),lp(i));                 <span class="comment">% 1D GIMPM functions</span>
+0048     <span class="keyword">end</span>
+0049 <span class="keyword">end</span>
+0050 <span class="keyword">if</span> nD == 1
+0051     indx=[];                                                                <span class="comment">% index for basis derivatives (1D)</span>
+0052 <span class="keyword">elseif</span> nD == 2
+0053     indx = [2; 1];                                                          <span class="comment">% index for basis derivatives (2D)</span>
+0054 <span class="keyword">elseif</span> nD == 3
+0055     indx = [2 3; 1 3; 1 2];                                                 <span class="comment">% index for basis derivatives (3D)</span>
+0056 <span class="keyword">end</span>
+0057 Svp=prod(S);                                                                <span class="comment">% basis function</span>
+0058 <span class="keyword">for</span> i=1:nD                                                                  
+0059     dSvp(i)=dS(i)*prod(S(indx(i,:)));                                       <span class="comment">% gradient of the basis function</span>
+0060 <span class="keyword">end</span>
+0061 <span class="keyword">end</span></pre></div>
+<hr><address>Generated on Thu 27-Aug-2020 08:13:21 by <strong><a href="http://www.artefact.tk/software/matlab/m2html/" title="Matlab Documentation in HTML">m2html</a></strong> &copy; 2005</address>
+</body>
+</html>

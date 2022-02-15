@@ -1,0 +1,198 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
+                "http://www.w3.org/TR/REC-html40/loose.dtd">
+<html>
+<head>
+  <title>Description of makeVtkMP</title>
+  <meta name="keywords" content="makeVtkMP">
+  <meta name="description" content="VTK output file generation: material point data">
+  <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+  <meta name="generator" content="m2html v1.5 &copy; 2003-2005 Guillaume Flandin">
+  <meta name="robots" content="index, follow">
+  <link type="text/css" rel="stylesheet" href="../../m2html.css">
+</head>
+<body>
+<a name="_top"></a>
+<div><a href="../../index.html">Home</a> &gt;  <a href="../index.html">AMPLE</a> &gt; <a href="index.html">plotting</a> &gt; makeVtkMP.m</div>
+
+<!--<table width="100%"><tr><td align="left"><a href="../../index.html"><img alt="<" border="0" src="../../left.png">&nbsp;Master index</a></td>
+<td align="right"><a href="index.html">Index for AMPLE/plotting&nbsp;<img alt=">" border="0" src="../../right.png"></a></td></tr></table>-->
+
+<h1>makeVtkMP
+</h1>
+
+<h2><a name="_name"></a>PURPOSE <a href="#_top"><img alt="^" border="0" src="../../up.png"></a></h2>
+<div class="box"><strong>VTK output file generation: material point data</strong></div>
+
+<h2><a name="_synopsis"></a>SYNOPSIS <a href="#_top"><img alt="^" border="0" src="../../up.png"></a></h2>
+<div class="box"><strong>function makeVtkMP(mpC,sig,uvw,mpFileName) </strong></div>
+
+<h2><a name="_description"></a>DESCRIPTION <a href="#_top"><img alt="^" border="0" src="../../up.png"></a></h2>
+<div class="fragment"><pre class="comment">VTK output file generation: material point data
+--------------------------------------------------------------------------
+ Author: William Coombs
+ Date:   15/01/2019
+ Description:
+ Function to generate a VTK file containing the material point data.
+
+--------------------------------------------------------------------------
+ MAKEVTKMP(mpC,sig,uvw,mpFileName)
+--------------------------------------------------------------------------
+ Input(s):
+ mpC        - material point coordinates (nmp,nD)
+ sig        - material point stresses (nmp,6)
+ uvw        - material point displacements (nmp,nD)
+ mpFileName - VTK file name, for example 'mpData.vtk'  
+--------------------------------------------------------------------------
+ See also:
+
+--------------------------------------------------------------------------</pre></div>
+
+<!-- crossreference -->
+<h2><a name="_cross"></a>CROSS-REFERENCE INFORMATION <a href="#_top"><img alt="^" border="0" src="../../up.png"></a></h2>
+This function calls:
+<ul style="list-style-image:url(../../matlabicon.gif)">
+</ul>
+This function is called by:
+<ul style="list-style-image:url(../../matlabicon.gif)">
+<li><a href="postPro.html" class="code" title="">postPro</a>	Post processing script for the AMPLE code</li></ul>
+<!-- crossreference -->
+
+
+
+<h2><a name="_source"></a>SOURCE CODE <a href="#_top"><img alt="^" border="0" src="../../up.png"></a></h2>
+<div class="fragment"><pre>0001 <a name="_sub0" href="#_subfunctions" class="code">function makeVtkMP(mpC,sig,uvw,mpFileName)</a>
+0002 
+0003 <span class="comment">%VTK output file generation: material point data</span>
+0004 <span class="comment">%--------------------------------------------------------------------------</span>
+0005 <span class="comment">% Author: William Coombs</span>
+0006 <span class="comment">% Date:   15/01/2019</span>
+0007 <span class="comment">% Description:</span>
+0008 <span class="comment">% Function to generate a VTK file containing the material point data.</span>
+0009 <span class="comment">%</span>
+0010 <span class="comment">%--------------------------------------------------------------------------</span>
+0011 <span class="comment">% MAKEVTKMP(mpC,sig,uvw,mpFileName)</span>
+0012 <span class="comment">%--------------------------------------------------------------------------</span>
+0013 <span class="comment">% Input(s):</span>
+0014 <span class="comment">% mpC        - material point coordinates (nmp,nD)</span>
+0015 <span class="comment">% sig        - material point stresses (nmp,6)</span>
+0016 <span class="comment">% uvw        - material point displacements (nmp,nD)</span>
+0017 <span class="comment">% mpFileName - VTK file name, for example 'mpData.vtk'</span>
+0018 <span class="comment">%--------------------------------------------------------------------------</span>
+0019 <span class="comment">% See also:</span>
+0020 <span class="comment">%</span>
+0021 <span class="comment">%--------------------------------------------------------------------------</span>
+0022 
+0023 [nmp,nD]=size(mpC);
+0024 
+0025 fid=fopen(mpFileName,<span class="string">'wt'</span>);
+0026 fprintf(fid,<span class="string">'# vtk DataFile Version 2.0\n'</span>);
+0027 fprintf(fid,<span class="string">'MATLAB generated vtk file, WMC\n'</span>);
+0028 fprintf(fid,<span class="string">'ASCII\n'</span>);
+0029 fprintf(fid,<span class="string">'DATASET UNSTRUCTURED_GRID\n'</span>);
+0030 fprintf(fid,<span class="string">'POINTS %i double\n'</span>,nmp);
+0031 <span class="keyword">if</span> nD==3
+0032     <span class="keyword">for</span> i=1:nmp
+0033         fprintf(fid,<span class="string">'%f %f %f \n'</span>,mpC(i,:));
+0034     <span class="keyword">end</span>
+0035 <span class="keyword">elseif</span> nD==2
+0036     <span class="keyword">for</span> i=1:nmp
+0037         fprintf(fid,<span class="string">'%f %f %f\n'</span>,mpC(i,:),0);
+0038     <span class="keyword">end</span>
+0039 <span class="keyword">elseif</span> nD==1
+0040     <span class="keyword">for</span> i=1:nmp
+0041         fprintf(fid,<span class="string">'%f %f %f\n'</span>,mpC(i),0,0);
+0042     <span class="keyword">end</span>
+0043 <span class="keyword">end</span>
+0044 fprintf(fid,<span class="string">'\n'</span>);
+0045 
+0046 fprintf(fid,<span class="string">'POINT_DATA %i\n'</span>,nmp);
+0047 
+0048 fprintf(fid,<span class="string">'SCALARS sigma_xx FLOAT %i\n'</span>,1);
+0049 fprintf(fid,<span class="string">'LOOKUP_TABLE default\n'</span>);
+0050 <span class="keyword">for</span> i=1:nmp
+0051     fprintf(fid,<span class="string">'%f\n'</span>,sig(i,1));
+0052 <span class="keyword">end</span>
+0053 fprintf(fid,<span class="string">'\n'</span>);
+0054 
+0055 fprintf(fid,<span class="string">'SCALARS sigma_yy FLOAT %i\n'</span>,1);
+0056 fprintf(fid,<span class="string">'LOOKUP_TABLE default\n'</span>);
+0057 <span class="keyword">for</span> i=1:nmp
+0058     fprintf(fid,<span class="string">'%f\n'</span>,sig(i,2));
+0059 <span class="keyword">end</span>
+0060 fprintf(fid,<span class="string">'\n'</span>);
+0061 
+0062 fprintf(fid,<span class="string">'SCALARS sigma_zz FLOAT %i\n'</span>,1);
+0063 fprintf(fid,<span class="string">'LOOKUP_TABLE default\n'</span>);
+0064 <span class="keyword">for</span> i=1:nmp
+0065     fprintf(fid,<span class="string">'%f\n'</span>,sig(i,3));
+0066 <span class="keyword">end</span>
+0067 fprintf(fid,<span class="string">'\n'</span>);
+0068 
+0069 fprintf(fid,<span class="string">'SCALARS sigma_xy FLOAT %i\n'</span>,1);
+0070 fprintf(fid,<span class="string">'LOOKUP_TABLE default\n'</span>);
+0071 <span class="keyword">for</span> i=1:nmp
+0072     fprintf(fid,<span class="string">'%f\n'</span>,sig(i,4));
+0073 <span class="keyword">end</span>
+0074 fprintf(fid,<span class="string">'\n'</span>);
+0075 
+0076 fprintf(fid,<span class="string">'SCALARS sigma_yz FLOAT %i\n'</span>,1);
+0077 fprintf(fid,<span class="string">'LOOKUP_TABLE default\n'</span>);
+0078 <span class="keyword">for</span> i=1:nmp
+0079     fprintf(fid,<span class="string">'%f\n'</span>,sig(i,5));
+0080 <span class="keyword">end</span>
+0081 fprintf(fid,<span class="string">'\n'</span>);
+0082 
+0083 fprintf(fid,<span class="string">'SCALARS sigma_yz FLOAT %i\n'</span>,1);
+0084 fprintf(fid,<span class="string">'LOOKUP_TABLE default\n'</span>);
+0085 <span class="keyword">for</span> i=1:nmp
+0086     fprintf(fid,<span class="string">'%f\n'</span>,sig(i,6));
+0087 <span class="keyword">end</span>
+0088 fprintf(fid,<span class="string">'\n'</span>);
+0089 
+0090 <span class="keyword">if</span> nD==3
+0091     fprintf(fid,<span class="string">'SCALARS u_x FLOAT %i\n'</span>,1);
+0092     fprintf(fid,<span class="string">'LOOKUP_TABLE default\n'</span>);
+0093     <span class="keyword">for</span> i=1:nmp
+0094         fprintf(fid,<span class="string">'%f\n'</span>,uvw(i,1));
+0095     <span class="keyword">end</span>
+0096     fprintf(fid,<span class="string">'\n'</span>);
+0097     
+0098     fprintf(fid,<span class="string">'SCALARS u_y FLOAT %i\n'</span>,1);
+0099     fprintf(fid,<span class="string">'LOOKUP_TABLE default\n'</span>);
+0100     <span class="keyword">for</span> i=1:nmp
+0101         fprintf(fid,<span class="string">'%f\n'</span>,uvw(i,2));
+0102     <span class="keyword">end</span>
+0103     fprintf(fid,<span class="string">'\n'</span>);
+0104     
+0105     fprintf(fid,<span class="string">'SCALARS u_z FLOAT %i\n'</span>,1);
+0106     fprintf(fid,<span class="string">'LOOKUP_TABLE default\n'</span>);
+0107     <span class="keyword">for</span> i=1:nmp
+0108         fprintf(fid,<span class="string">'%f\n'</span>,uvw(i,3));
+0109     <span class="keyword">end</span>
+0110     fprintf(fid,<span class="string">'\n'</span>);
+0111 <span class="keyword">elseif</span> nD==2
+0112     fprintf(fid,<span class="string">'SCALARS u_x FLOAT %i\n'</span>,1);
+0113     fprintf(fid,<span class="string">'LOOKUP_TABLE default\n'</span>);
+0114     <span class="keyword">for</span> i=1:nmp
+0115         fprintf(fid,<span class="string">'%f\n'</span>,uvw(i,1));
+0116     <span class="keyword">end</span>
+0117     fprintf(fid,<span class="string">'\n'</span>);
+0118     
+0119     fprintf(fid,<span class="string">'SCALARS u_y FLOAT %i\n'</span>,1);
+0120     fprintf(fid,<span class="string">'LOOKUP_TABLE default\n'</span>);
+0121     <span class="keyword">for</span> i=1:nmp
+0122         fprintf(fid,<span class="string">'%f\n'</span>,uvw(i,2));
+0123     <span class="keyword">end</span>
+0124     fprintf(fid,<span class="string">'\n'</span>);
+0125 <span class="keyword">elseif</span> nD==1
+0126     fprintf(fid,<span class="string">'SCALARS u_x FLOAT %i\n'</span>,1);
+0127     fprintf(fid,<span class="string">'LOOKUP_TABLE default\n'</span>);
+0128     <span class="keyword">for</span> i=1:nmp
+0129         fprintf(fid,<span class="string">'%f\n'</span>,uvw(i));
+0130     <span class="keyword">end</span>
+0131     fprintf(fid,<span class="string">'\n'</span>);
+0132 <span class="keyword">end</span>
+0133 fclose(<span class="string">'all'</span>);</pre></div>
+<hr><address>Generated on Fri 17-May-2019 08:05:05 by <strong><a href="http://www.artefact.tk/software/matlab/m2html/" title="Matlab Documentation in HTML">m2html</a></strong> &copy; 2005</address>
+</body>
+</html>

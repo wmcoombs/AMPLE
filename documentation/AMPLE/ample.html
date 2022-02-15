@@ -1,0 +1,119 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
+                "http://www.w3.org/TR/REC-html40/loose.dtd">
+<html>
+<head>
+  <title>Description of ample</title>
+  <meta name="keywords" content="ample">
+  <meta name="description" content="AMPLE: A Material Point Learning Environment">
+  <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+  <meta name="generator" content="m2html v1.5 &copy; 2003-2005 Guillaume Flandin">
+  <meta name="robots" content="index, follow">
+  <link type="text/css" rel="stylesheet" href="../m2html.css">
+</head>
+<body>
+<a name="_top"></a>
+<div><a href="../index.html">Home</a> &gt;  <a href="index.html">AMPLE</a> &gt; ample.m</div>
+
+<!--<table width="100%"><tr><td align="left"><a href="../index.html"><img alt="<" border="0" src="../left.png">&nbsp;Master index</a></td>
+<td align="right"><a href="index.html">Index for AMPLE&nbsp;<img alt=">" border="0" src="../right.png"></a></td></tr></table>-->
+
+<h1>ample
+</h1>
+
+<h2><a name="_name"></a>PURPOSE <a href="#_top"><img alt="^" border="0" src="../up.png"></a></h2>
+<div class="box"><strong>AMPLE: A Material Point Learning Environment</strong></div>
+
+<h2><a name="_synopsis"></a>SYNOPSIS <a href="#_top"><img alt="^" border="0" src="../up.png"></a></h2>
+<div class="box"><strong>This is a script file. </strong></div>
+
+<h2><a name="_description"></a>DESCRIPTION <a href="#_top"><img alt="^" border="0" src="../up.png"></a></h2>
+<div class="fragment"><pre class="comment">AMPLE: A Material Point Learning Environment
+--------------------------------------------------------------------------
+ Author: William Coombs
+ Date:   29/01/2019
+ Description:
+ Large deformation elasto-plastic (EP) material point method (MPM) code
+ based on an updated Lagrangian (UL) descripition of motion with a 
+ quadrilateral background mesh. 
+
+--------------------------------------------------------------------------
+ See also:
+ SETUPGRID             - analysis specific information
+ ELEMMPINFO            - material point-element information
+ DETEXTFORCE           - external forces
+ DETFDOFS              - mesh unknown degrees of freedom
+ LINSOLVE              - linear solver
+ DETMPS                - material point stiffness and internal force
+ UPDATEMPS             - update material points
+ POSTPRO               - post processing function including vtk output
+--------------------------------------------------------------------------</pre></div>
+
+<!-- crossreference -->
+<h2><a name="_cross"></a>CROSS-REFERENCE INFORMATION <a href="#_top"><img alt="^" border="0" src="../up.png"></a></h2>
+This function calls:
+<ul style="list-style-image:url(../matlabicon.gif)">
+<li><a href="../AMPLE/functions/detExtForce.html" class="code" title="function [fext] = detExtForce(nodes,nD,g,mpData)">detExtForce</a>	Global external force determination</li><li><a href="../AMPLE/functions/detFDoFs.html" class="code" title="function [fd] = detFDoFs(mesh)">detFDoFs</a>	Determine the free degrees of freedom on the background mesh</li><li><a href="../AMPLE/functions/detMPs.html" class="code" title="function [fint,Kt,mpData] = detMPs(uvw,mpData)">detMPs</a>	Stiffness and internal force calculation for all material points</li><li><a href="../AMPLE/functions/elemMPinfo.html" class="code" title="function [mesh,mpData] = elemMPinfo(mesh,mpData)">elemMPinfo</a>	Determine the basis functions for material points</li><li><a href="../AMPLE/functions/linSolve.html" class="code" title="function [duvw,drct] = linSolve(bc,Kt,oobf,NRit,fd)">linSolve</a>	Linear solver</li><li><a href="../AMPLE/functions/updateMPs.html" class="code" title="function [mpData] = updateMPs(uvw,mpData)">updateMPs</a>	Material point update: stress, position and volume</li><li><a href="../AMPLE/plotting/postPro.html" class="code" title="">postPro</a>	Post processing script for the AMPLE code</li><li><a href="../AMPLE/setup/setupGrid.html" class="code" title="function [lstps,g,mpData,mesh] = setupGrid">setupGrid</a>	Problem setup information</li></ul>
+This function is called by:
+<ul style="list-style-image:url(../matlabicon.gif)">
+</ul>
+<!-- crossreference -->
+
+
+
+<h2><a name="_source"></a>SOURCE CODE <a href="#_top"><img alt="^" border="0" src="../up.png"></a></h2>
+<div class="fragment"><pre>0001 <span class="comment">%AMPLE: A Material Point Learning Environment</span>
+0002 <span class="comment">%--------------------------------------------------------------------------</span>
+0003 <span class="comment">% Author: William Coombs</span>
+0004 <span class="comment">% Date:   29/01/2019</span>
+0005 <span class="comment">% Description:</span>
+0006 <span class="comment">% Large deformation elasto-plastic (EP) material point method (MPM) code</span>
+0007 <span class="comment">% based on an updated Lagrangian (UL) descripition of motion with a</span>
+0008 <span class="comment">% quadrilateral background mesh.</span>
+0009 <span class="comment">%</span>
+0010 <span class="comment">%--------------------------------------------------------------------------</span>
+0011 <span class="comment">% See also:</span>
+0012 <span class="comment">% SETUPGRID             - analysis specific information</span>
+0013 <span class="comment">% ELEMMPINFO            - material point-element information</span>
+0014 <span class="comment">% DETEXTFORCE           - external forces</span>
+0015 <span class="comment">% DETFDOFS              - mesh unknown degrees of freedom</span>
+0016 <span class="comment">% LINSOLVE              - linear solver</span>
+0017 <span class="comment">% DETMPS                - material point stiffness and internal force</span>
+0018 <span class="comment">% UPDATEMPS             - update material points</span>
+0019 <span class="comment">% POSTPRO               - post processing function including vtk output</span>
+0020 <span class="comment">%--------------------------------------------------------------------------</span>
+0021 clear; 
+0022 addpath(<span class="string">'constitutive'</span>,<span class="string">'functions'</span>,<span class="string">'plotting'</span>,<span class="string">'setup'</span>);        
+0023 [lstps,g,mpData,mesh] = <a href="../AMPLE/setup/setupGrid.html" class="code" title="function [lstps,g,mpData,mesh] = setupGrid">setupGrid</a>;                                          <span class="comment">% setup information</span>
+0024 NRitMax = 10; tol = 1e-9;                                                   <span class="comment">% Newton Raphson parameters</span>
+0025 [nodes,nD] = size(mesh.coord);                                              <span class="comment">% number of nodes and dimensions</span>
+0026 [nels,nen] = size(mesh.etpl);                                               <span class="comment">% number of elements and nodes/element</span>
+0027 nDoF = nodes*nD;                                                            <span class="comment">% total number of degrees of freedom</span>
+0028 nmp  = length(mpData);                                                      <span class="comment">% number of material points</span>
+0029 <span class="keyword">for</span> lstp=1:lstps                                                            <span class="comment">% loadstep loop</span>
+0030   fprintf(1,<span class="string">'\n%s %4i %s %4i\n'</span>,<span class="string">'loadstep '</span>,lstp,<span class="string">' of '</span>,lstps);             <span class="comment">% text output to screen (loadstep)</span>
+0031   [mesh,mpData] = <a href="../AMPLE/functions/elemMPinfo.html" class="code" title="function [mesh,mpData] = elemMPinfo(mesh,mpData)">elemMPinfo</a>(mesh,mpData);                                  <span class="comment">% material point - element information</span>
+0032   fext = <a href="../AMPLE/functions/detExtForce.html" class="code" title="function [fext] = detExtForce(nodes,nD,g,mpData)">detExtForce</a>(nodes,nD,g,mpData);                                    <span class="comment">% external force calculation (total)</span>
+0033   fext = fext*lstp/lstps;                                                   <span class="comment">% current external force value</span>
+0034   oobf = fext;                                                              <span class="comment">% initial out-of-balance force</span>
+0035   fErr = 1;                                                                 <span class="comment">% initial error</span>
+0036   frct = zeros(nDoF,1);                                                     <span class="comment">% zero the reaction forces</span>
+0037   uvw  = zeros(nDoF,1);                                                     <span class="comment">% zero the displacements</span>
+0038   fd   = <a href="../AMPLE/functions/detFDoFs.html" class="code" title="function [fd] = detFDoFs(mesh)">detFDoFs</a>(mesh);                                                    <span class="comment">% free degrees of freedom</span>
+0039   NRit = 0;                                                                 <span class="comment">% zero the iteration counter</span>
+0040   Kt   = 0;                                                                 <span class="comment">% zero global stiffness matrix</span>
+0041   <span class="keyword">while</span> (fErr &gt; tol) &amp;&amp; (NRit &lt; NRitMax) || (NRit &lt; 2)                      <span class="comment">% global equilibrium loop</span>
+0042     [duvw,drct] = <a href="../AMPLE/functions/linSolve.html" class="code" title="function [duvw,drct] = linSolve(bc,Kt,oobf,NRit,fd)">linSolve</a>(mesh.bc,Kt,oobf,NRit,fd);                        <span class="comment">% linear solver</span>
+0043     uvw  = uvw+duvw;                                                        <span class="comment">% update displacements</span>
+0044     frct = frct+drct;                                                       <span class="comment">% update reaction forces</span>
+0045     [fint,Kt,mpData] = <a href="../AMPLE/functions/detMPs.html" class="code" title="function [fint,Kt,mpData] = detMPs(uvw,mpData)">detMPs</a>(uvw,mpData);                                  <span class="comment">% global stiffness &amp; internal force</span>
+0046     oobf = (fext-fint+frct);                                                <span class="comment">% out-of-balance force</span>
+0047     fErr = norm(oobf)/norm(fext+frct+eps);                                  <span class="comment">% normalised oobf error</span>
+0048     NRit = NRit+1;                                                          <span class="comment">% increment the NR counter</span>
+0049     fprintf(1,<span class="string">'%s %2i %s %8.3e\n'</span>,<span class="string">'  iteration '</span>,NRit,<span class="string">' NR error '</span>,fErr);   <span class="comment">% text output to screen (NR error)</span>
+0050   <span class="keyword">end</span>                           
+0051   mpData = <a href="../AMPLE/functions/updateMPs.html" class="code" title="function [mpData] = updateMPs(uvw,mpData)">updateMPs</a>(uvw,mpData);                                           <span class="comment">% upate material points</span>
+0052   run <a href="../AMPLE/plotting/postPro.html" class="code" title="">postPro</a>;                                                              <span class="comment">% Plotting and post processing</span>
+0053 <span class="keyword">end</span></pre></div>
+<hr><address>Generated on Fri 17-May-2019 08:05:05 by <strong><a href="http://www.artefact.tk/software/matlab/m2html/" title="Matlab Documentation in HTML">m2html</a></strong> &copy; 2005</address>
+</body>
+</html>

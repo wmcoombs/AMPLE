@@ -1,0 +1,108 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
+                "http://www.w3.org/TR/REC-html40/loose.dtd">
+<html>
+<head>
+  <title>Description of findElementsForPoint</title>
+  <meta name="keywords" content="findElementsForPoint">
+  <meta name="description" content="Find elements associated with the material point">
+  <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+  <meta name="generator" content="m2html v1.5 &copy; 2003-2005 Guillaume Flandin">
+  <meta name="robots" content="index, follow">
+  <link type="text/css" rel="stylesheet" href="../../m2html.css">
+</head>
+<body>
+<a name="_top"></a>
+<div><a href="../../index.html">Home</a> &gt;  <a href="../index.html">AMPLE</a> &gt; <a href="index.html">functions</a> &gt; findElementsForPoint.m</div>
+
+<!--<table width="100%"><tr><td align="left"><a href="../../index.html"><img alt="<" border="0" src="../../left.png">&nbsp;Master index</a></td>
+<td align="right"><a href="index.html">Index for AMPLE/functions&nbsp;<img alt=">" border="0" src="../../right.png"></a></td></tr></table>-->
+
+<h1>findElementsForPoint
+</h1>
+
+<h2><a name="_name"></a>PURPOSE <a href="#_top"><img alt="^" border="0" src="../../up.png"></a></h2>
+<div class="box"><strong>Find elements associated with the material point</strong></div>
+
+<h2><a name="_synopsis"></a>SYNOPSIS <a href="#_top"><img alt="^" border="0" src="../../up.png"></a></h2>
+<div class="box"><strong>function [eIN] = findElementsForPoint(coord,etpl,mpC,lp) </strong></div>
+
+<h2><a name="_description"></a>DESCRIPTION <a href="#_top"><img alt="^" border="0" src="../../up.png"></a></h2>
+<div class="fragment"><pre class="comment">Find elements associated with the material point
+--------------------------------------------------------------------------
+ Author: William Coombs
+ Date:   06/05/2015
+ Description:
+ Function to determine the elements that are associated with a material
+ point assuming that the material point's domain is symmetric about the
+ particle position.
+
+--------------------------------------------------------------------------
+ [eIN] = FINDELEMENTSFORPOINT(coord,etpl,mpC,lp)
+--------------------------------------------------------------------------
+ Input(s):
+ coord - element coordinates (nen,nD)
+ etpl  - element topology (nels,nen)
+ mpC   - material point coordinates (1,nD)
+ lp    - domain half width
+--------------------------------------------------------------------------
+ Ouput(s);
+ eIN   - vector containing the elements associated with the mp
+--------------------------------------------------------------------------
+ See also:
+
+--------------------------------------------------------------------------</pre></div>
+
+<!-- crossreference -->
+<h2><a name="_cross"></a>CROSS-REFERENCE INFORMATION <a href="#_top"><img alt="^" border="0" src="../../up.png"></a></h2>
+This function calls:
+<ul style="list-style-image:url(../../matlabicon.gif)">
+</ul>
+This function is called by:
+<ul style="list-style-image:url(../../matlabicon.gif)">
+<li><a href="materialPointBasis.html" class="code" title="function [mesh,mpData] = materialPointBasis(mesh,mpData)">materialPointBasis</a>	Determine the basis functions for material points</li></ul>
+<!-- crossreference -->
+
+
+
+<h2><a name="_source"></a>SOURCE CODE <a href="#_top"><img alt="^" border="0" src="../../up.png"></a></h2>
+<div class="fragment"><pre>0001 <a name="_sub0" href="#_subfunctions" class="code">function [eIN] = findElementsForPoint(coord,etpl,mpC,lp)</a>
+0002 
+0003 <span class="comment">%Find elements associated with the material point</span>
+0004 <span class="comment">%--------------------------------------------------------------------------</span>
+0005 <span class="comment">% Author: William Coombs</span>
+0006 <span class="comment">% Date:   06/05/2015</span>
+0007 <span class="comment">% Description:</span>
+0008 <span class="comment">% Function to determine the elements that are associated with a material</span>
+0009 <span class="comment">% point assuming that the material point's domain is symmetric about the</span>
+0010 <span class="comment">% particle position.</span>
+0011 <span class="comment">%</span>
+0012 <span class="comment">%--------------------------------------------------------------------------</span>
+0013 <span class="comment">% [eIN] = FINDELEMENTSFORPOINT(coord,etpl,mpC,lp)</span>
+0014 <span class="comment">%--------------------------------------------------------------------------</span>
+0015 <span class="comment">% Input(s):</span>
+0016 <span class="comment">% coord - element coordinates (nen,nD)</span>
+0017 <span class="comment">% etpl  - element topology (nels,nen)</span>
+0018 <span class="comment">% mpC   - material point coordinates (1,nD)</span>
+0019 <span class="comment">% lp    - domain half width</span>
+0020 <span class="comment">%--------------------------------------------------------------------------</span>
+0021 <span class="comment">% Ouput(s);</span>
+0022 <span class="comment">% eIN   - vector containing the elements associated with the mp</span>
+0023 <span class="comment">%--------------------------------------------------------------------------</span>
+0024 <span class="comment">% See also:</span>
+0025 <span class="comment">%</span>
+0026 <span class="comment">%--------------------------------------------------------------------------</span>
+0027 
+0028 [~,nD]=size(coord); [nels,nen]=size(etpl);                                  <span class="comment">% basic size information</span>
+0029 Pmin=mpC-lp; Pmax=mpC+lp;                                                   <span class="comment">% particle domain extents</span>
+0030 a=true(nels,1);
+0031 <span class="keyword">for</span> i=1:nD
+0032   c=reshape(coord(reshape(etpl',nels*nen,1),i),nen,nels).';                 <span class="comment">% reshaped element coordinates</span>
+0033   Cmin=min(c.').';                                                          <span class="comment">% element lower coordinate limit</span>
+0034   Cmax=max(c.').';                                                          <span class="comment">% element upper coordainte limit</span>
+0035   a=a.*((Cmin&lt;Pmax(i)).*(Cmax&gt;Pmin(i)));                                    <span class="comment">% element overlap with mp domain</span>
+0036 <span class="keyword">end</span>
+0037 eIN=(1:nels).';                                                             <span class="comment">% list of all elements</span>
+0038 eIN=eIN(a&gt;0);                                                               <span class="comment">% remove those elements not in the domain</span></pre></div>
+<hr><address>Generated on Thu 07-Feb-2019 12:51:30 by <strong><a href="http://www.artefact.tk/software/matlab/m2html/" title="Matlab Documentation in HTML">m2html</a></strong> &copy; 2005</address>
+</body>
+</html>

@@ -1,0 +1,22 @@
+/* Created by mdot for Matlab */
+digraph m2html {
+  MPMbasis -> SvpGIMP;
+  MPMbasis -> SvpMPM;
+  detMPs -> formULstiff;
+  elemMPinfo -> MPMbasis;
+  elemMPinfo -> elemForMP;
+  elemMPinfo -> nodesForMP;
+
+  MPMbasis [URL="MPMbasis.html"];
+  SvpGIMP [URL="SvpGIMP.html"];
+  SvpMPM [URL="SvpMPM.html"];
+  detExtForce [URL="detExtForce.html"];
+  detFDoFs [URL="detFDoFs.html"];
+  detMPs [URL="detMPs.html"];
+  elemForMP [URL="elemForMP.html"];
+  elemMPinfo [URL="elemMPinfo.html"];
+  formULstiff [URL="formULstiff.html"];
+  linSolve [URL="linSolve.html"];
+  nodesForMP [URL="nodesForMP.html"];
+  updateMPs [URL="updateMPs.html"];
+}

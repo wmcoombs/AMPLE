@@ -1,0 +1,239 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
+                "http://www.w3.org/TR/REC-html40/loose.dtd">
+<html>
+<head>
+  <title>Description of formULstiff</title>
+  <meta name="keywords" content="formULstiff">
+  <meta name="description" content="Updated Lagrangian material stiffness matrix">
+  <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+  <meta name="generator" content="m2html v1.5 &copy; 2003-2005 Guillaume Flandin">
+  <meta name="robots" content="index, follow">
+  <link type="text/css" rel="stylesheet" href="../../m2html.css">
+</head>
+<body>
+<a name="_top"></a>
+<div><a href="../../index.html">Home</a> &gt;  <a href="../index.html">AMPLE</a> &gt; <a href="index.html">functions</a> &gt; formULstiff.m</div>
+
+<!--<table width="100%"><tr><td align="left"><a href="../../index.html"><img alt="<" border="0" src="../../left.png">&nbsp;Master index</a></td>
+<td align="right"><a href="index.html">Index for AMPLE/functions&nbsp;<img alt=">" border="0" src="../../right.png"></a></td></tr></table>-->
+
+<h1>formULstiff
+</h1>
+
+<h2><a name="_name"></a>PURPOSE <a href="#_top"><img alt="^" border="0" src="../../up.png"></a></h2>
+<div class="box"><strong>Updated Lagrangian material stiffness matrix</strong></div>
+
+<h2><a name="_synopsis"></a>SYNOPSIS <a href="#_top"><img alt="^" border="0" src="../../up.png"></a></h2>
+<div class="box"><strong>function [A] = formULstiff(F,D,s,B) </strong></div>
+
+<h2><a name="_description"></a>DESCRIPTION <a href="#_top"><img alt="^" border="0" src="../../up.png"></a></h2>
+<div class="fragment"><pre class="comment">Updated Lagrangian material stiffness matrix
+--------------------------------------------------------------------------
+ Author: William Coombs
+ Date:   27/05/2015
+ Description:
+ Function to determine consistent material stiffness matrix based on an
+ updated Lagrangian formulation of finite deformation mechanics.  See
+ equations (25) and (26) of the following paper for full details:
+ Charlton, T.J., Coombs, W.M. &amp; Augarde, C.E. (2017). iGIMP: An implicit 
+ generalised interpolation material point method for large deformations. 
+ Computers and Structures 190: 108-125.
+
+--------------------------------------------------------------------------
+ [A] = FORMULSTIFF(F,D,s,BeT)
+--------------------------------------------------------------------------
+ Input(s):
+ F  - deformation gradient (3,3)
+ D  - small strain material stifness matrix (6,6)
+ s  - Cauchy stress (6,1)
+ B  - trial elastic left Cauchy-Green strain matrix (3,3)
+--------------------------------------------------------------------------
+ Ouput(s);
+ A   - consistent tangent stifness matrix (9,9)
+--------------------------------------------------------------------------
+ See also:
+ PARDERGEN  - partial derivative of a second order tensor
+--------------------------------------------------------------------------</pre></div>
+
+<!-- crossreference -->
+<h2><a name="_cross"></a>CROSS-REFERENCE INFORMATION <a href="#_top"><img alt="^" border="0" src="../../up.png"></a></h2>
+This function calls:
+<ul style="list-style-image:url(../../matlabicon.gif)">
+</ul>
+This function is called by:
+<ul style="list-style-image:url(../../matlabicon.gif)">
+<li><a href="detMPs.html" class="code" title="function [fint,Kt,mpData] = detMPs(uvw,mpData)">detMPs</a>	Stiffness and internal force calculation for all material points</li></ul>
+<!-- crossreference -->
+
+<h2><a name="_subfunctions"></a>SUBFUNCTIONS <a href="#_top"><img alt="^" border="0" src="../../up.png"></a></h2>
+<ul style="list-style-image:url(../../matlabicon.gif)">
+<li><a href="#_sub1" class="code">function [L] = parDerGen(X,eV,eP,yP,ydash)</a></li></ul>
+
+<h2><a name="_source"></a>SOURCE CODE <a href="#_top"><img alt="^" border="0" src="../../up.png"></a></h2>
+<div class="fragment"><pre>0001 <a name="_sub0" href="#_subfunctions" class="code">function [A] = formULstiff(F,D,s,B)</a>
+0002 
+0003 <span class="comment">%Updated Lagrangian material stiffness matrix</span>
+0004 <span class="comment">%--------------------------------------------------------------------------</span>
+0005 <span class="comment">% Author: William Coombs</span>
+0006 <span class="comment">% Date:   27/05/2015</span>
+0007 <span class="comment">% Description:</span>
+0008 <span class="comment">% Function to determine consistent material stiffness matrix based on an</span>
+0009 <span class="comment">% updated Lagrangian formulation of finite deformation mechanics.  See</span>
+0010 <span class="comment">% equations (25) and (26) of the following paper for full details:</span>
+0011 <span class="comment">% Charlton, T.J., Coombs, W.M. &amp; Augarde, C.E. (2017). iGIMP: An implicit</span>
+0012 <span class="comment">% generalised interpolation material point method for large deformations.</span>
+0013 <span class="comment">% Computers and Structures 190: 108-125.</span>
+0014 <span class="comment">%</span>
+0015 <span class="comment">%--------------------------------------------------------------------------</span>
+0016 <span class="comment">% [A] = FORMULSTIFF(F,D,s,BeT)</span>
+0017 <span class="comment">%--------------------------------------------------------------------------</span>
+0018 <span class="comment">% Input(s):</span>
+0019 <span class="comment">% F  - deformation gradient (3,3)</span>
+0020 <span class="comment">% D  - small strain material stifness matrix (6,6)</span>
+0021 <span class="comment">% s  - Cauchy stress (6,1)</span>
+0022 <span class="comment">% B  - trial elastic left Cauchy-Green strain matrix (3,3)</span>
+0023 <span class="comment">%--------------------------------------------------------------------------</span>
+0024 <span class="comment">% Ouput(s);</span>
+0025 <span class="comment">% A   - consistent tangent stifness matrix (9,9)</span>
+0026 <span class="comment">%--------------------------------------------------------------------------</span>
+0027 <span class="comment">% See also:</span>
+0028 <span class="comment">% PARDERGEN  - partial derivative of a second order tensor</span>
+0029 <span class="comment">%--------------------------------------------------------------------------</span>
+0030 
+0031 t = [1:4 4 5 5 6 6];                                                        <span class="comment">% 6 to 9 component steering vector</span>
+0032 J = det(F);                                                                 <span class="comment">% volume ratio</span>
+0033 [bV,bP] = eig(B); bP = [bP(1); bP(5); bP(9)];                               <span class="comment">% eigen values/vector of the trial elastic strain tensor</span>
+0034 L = <a href="#_sub1" class="code" title="subfunction [L] = parDerGen(X,eV,eP,yP,ydash)">parDerGen</a>(B,bV,bP,log(bP),1./bP);                                       <span class="comment">% derivative of the logarithmic strain</span>
+0035 S = zeros(9); T = S;                                                        <span class="comment">% zero matrices</span>
+0036 S(1,[1 4 9]) = s([1 4 6]);                                                  <span class="comment">% matrix form of sigma_{il}delta_{jk}</span>
+0037 S(2,[2 5 6]) = s([2 4 5]); 
+0038 S(3,[3 7 8]) = s([3 5 6]);  
+0039 S(4,[2 5 6]) = s([4 1 6]); 
+0040 S(5,[1 4 9]) = s([4 2 5]); 
+0041 S(6,[3 7 8]) = s([5 2 4]);
+0042 S(7,[2 5 6]) = s([5 6 3]); 
+0043 S(8,[1 4 9]) = s([6 5 3]); 
+0044 S(9,[3 7 8]) = s([6 4 1]);
+0045 T(1,[1 4 9])     = 2*B([1 4 7]);                                            <span class="comment">% matrix form of delta_{pk}b^e_{ql}+delta_{qk}b^e_{pl}+</span>
+0046 T(2,[2 5 6])     = 2*B([5 2 8]); 
+0047 T(3,[3 7 8])     = 2*B([9 6 3]); 
+0048 T(4,[1 2 4:6 9]) = B([2 4 5 1 7 8]); 
+0049 T(5,:)           = T(4,:);
+0050 T(6,[2 3 5:8  ]) = B([6 8 3 9 5 2]); 
+0051 T(7,:)           = T(6,:);
+0052 T(8,[1 3 4 7:9]) = B([3 7 6 4 1 9]); 
+0053 T(9,:)           = T(8,:);
+0054 A = (D(t,t))*L(t,t)*T/(2*J)-S;                                              <span class="comment">% consistent tangent stiffness matrix</span>
+0055 
+0056 
+0057 
+0058 
+0059 <a name="_sub1" href="#_subfunctions" class="code">function [L] = parDerGen(X,eV,eP,yP,ydash)</a>
+0060 
+0061 <span class="comment">%Partial derivative of a second order tensor function</span>
+0062 <span class="comment">%--------------------------------------------------------------------------</span>
+0063 <span class="comment">% Author: William Coombs</span>
+0064 <span class="comment">% Date:   27/05/2015</span>
+0065 <span class="comment">% Description:</span>
+0066 <span class="comment">% Function to determine the partial derivative of a second order tensor</span>
+0067 <span class="comment">% function with respect to its arguement (X) based on the implementation</span>
+0068 <span class="comment">% described by in the following paper:</span>
+0069 <span class="comment">%</span>
+0070 <span class="comment">% C. Miehe, Comparison of two algorithms for the computation of fourth-</span>
+0071 <span class="comment">% order isotropic tensor functions, Computers &amp; Structures 66 (1998) 37-43.</span>
+0072 <span class="comment">%</span>
+0073 <span class="comment">% For example, in order to determine the derivative of log(X) with respect</span>
+0074 <span class="comment">% to X the inputs to the function should be:</span>
+0075 <span class="comment">%</span>
+0076 <span class="comment">% [L] = PARDERGEN(X,eV,eP,log(eP),1./eP)</span>
+0077 <span class="comment">%</span>
+0078 <span class="comment">% as the derivative of the log(x) is 1/x</span>
+0079 <span class="comment">%</span>
+0080 <span class="comment">% The symbols used in the code follow, as closely as possible, those used</span>
+0081 <span class="comment">% in the Miehe (1998) paper.  There are a number of different cases that</span>
+0082 <span class="comment">% have to be checked (all zero and repeated eigenvalues) in addition to the</span>
+0083 <span class="comment">% general case where there are no repeated eigenvalues.</span>
+0084 <span class="comment">%</span>
+0085 <span class="comment">%--------------------------------------------------------------------------</span>
+0086 <span class="comment">% [L] = PARDERGEN(X,eV,eP,yP,ydash)</span>
+0087 <span class="comment">%--------------------------------------------------------------------------</span>
+0088 <span class="comment">% Input(s):</span>
+0089 <span class="comment">% X     - second order tensor in matrix format (3,3)</span>
+0090 <span class="comment">% eV    - eigenvectors of X (3,3)</span>
+0091 <span class="comment">% eP    - eigenvalues of X (1,3)</span>
+0092 <span class="comment">% yP    - function applied to eP (1,3)</span>
+0093 <span class="comment">% ydash - derivative of the function applied to eP (1,3)</span>
+0094 <span class="comment">%--------------------------------------------------------------------------</span>
+0095 <span class="comment">% Ouput(s);</span>
+0096 <span class="comment">% L      - partial derivative of the second order tensor with respect to</span>
+0097 <span class="comment">%          its arguement (6,6)</span>
+0098 <span class="comment">%--------------------------------------------------------------------------</span>
+0099 <span class="comment">% See also:</span>
+0100 <span class="comment">%</span>
+0101 <span class="comment">%--------------------------------------------------------------------------</span>
+0102 
+0103 
+0104 tol=1e-9;
+0105 Is=[eye(3) zeros(3); zeros(3) eye(3)/2];
+0106 bm1=[1 1 1 0 0 0].';
+0107 <span class="keyword">if</span> (abs(eP(1))&lt;tol &amp;&amp; abs(eP(2))&lt;tol &amp;&amp; abs(eP(3))&lt;tol)                     <span class="comment">% all zero eigenvalues case</span>
+0108     L = Is;
+0109 <span class="keyword">elseif</span> abs(eP(1)-eP(2))&lt;tol &amp;&amp; abs(eP(1)-eP(3))&lt;tol                         <span class="comment">% equal eigenvalues case</span>
+0110     L = ydash(1)*Is;
+0111 <span class="keyword">elseif</span> abs(eP(1)-eP(2))&lt;tol || abs(eP(2)-eP(3))&lt;tol || abs(eP(1)-eP(3))&lt;tol <span class="comment">% repeated eigenvalues case</span>
+0112     <span class="keyword">if</span>     abs(eP(1)-eP(2))&lt;tol
+0113         xa  = eP(3);    xc  = eP(1);
+0114         ya  = yP(3);    yc  = yP(1);
+0115         yda = ydash(3); ydc = ydash(1);
+0116     <span class="keyword">elseif</span> abs(eP(2)-eP(3))&lt;tol
+0117         xa  = eP(1);    xc  = eP(2);
+0118         ya  = yP(1);    yc  = yP(2);
+0119         yda = ydash(1); ydc = ydash(2);
+0120     <span class="keyword">else</span>
+0121         xa  = eP(2);    xc  = eP(1);
+0122         ya  = yP(2);    yc  = yP(1);
+0123         yda = ydash(2); ydc = ydash(1);
+0124     <span class="keyword">end</span>
+0125     x    = X([1 5 9 4 6 3]).';
+0126     s    = zeros(5,1);
+0127     s(1) = (ya-yc)/(xa-xc)^2-ydc/(xa-xc);
+0128     s(2) = 2*xc*(ya-yc)/(xa-xc)^2-(xa+xc)/(xa-xc)*ydc;
+0129     s(3) = 2*(ya-yc)/(xa-xc)^3-(yda+ydc)/(xa-xc)^2;
+0130     s(4) = xc*s(3);
+0131     s(5) = xc^2*s(3);
+0132     dX2dX=[2*X(1) 0      0      X(2)         0             X(3)          ;
+0133            0      2*X(5) 0      X(2)         X(6)          0             ;
+0134            0      0      2*X(9) 0            X(6)          X(3)          ;
+0135            X(2)   X(2)   0     (X(1)+X(5))/2 X(3)/2        X(6)/2        ;
+0136            0      X(6)   X(6)   X(3)/2       (X(5)+X(9))/2 X(2)/2        ;
+0137            X(3)   0      X(3)   X(6)/2       X(2)/2        (X(1)+X(9))/2];
+0138     L = s(1)*dX2dX-s(2)*Is-s(3)*(x*x.')+s(4)*(x*bm1.'+bm1*x.')-s(5)*(bm1*bm1.');
+0139 <span class="keyword">else</span>                                                                        <span class="comment">% general case (non repeated eigenvalues)</span>
+0140     D=[(eP(1)-eP(2))*(eP(1)-eP(3));
+0141        (eP(2)-eP(1))*(eP(2)-eP(3));
+0142        (eP(3)-eP(1))*(eP(3)-eP(2))];
+0143     alfa=0; bta=0; gama=zeros(3,1); eDir=zeros(6,3);
+0144     <span class="keyword">for</span> i=1:3
+0145         alfa = alfa+yP(i)*eP(i)/D(i);
+0146         bta  = bta+yP(i)/D(i)*det(X);
+0147         <span class="keyword">for</span> j=1:3
+0148             gama(i) = gama(i)+yP(j)*eP(j)/D(j)*(det(X)/eP(j)-eP(i)^2)*1/eP(i)^2;
+0149         <span class="keyword">end</span>
+0150         esq = eV(:,i)*eV(:,i).';
+0151         eDir(:,i) = [esq(1,1) esq(2,2) esq(3,3) esq(1,2) esq(2,3) esq(3,1)].';
+0152     <span class="keyword">end</span>
+0153     y = inv(X);
+0154     Ib=[y(1)^2    y(2)^2    y(7)^2     y(1)*y(2)               y(2)*y(7)               y(1)*y(7)              ;
+0155         y(2)^2    y(5)^2    y(6)^2     y(5)*y(2)               y(5)*y(6)               y(2)*y(6)              ;
+0156         y(7)^2    y(6)^2    y(9)^2     y(6)*y(7)               y(9)*y(6)               y(9)*y(7)              ;
+0157         y(1)*y(2) y(5)*y(2) y(6)*y(7) (y(1)*y(5)+y(2)^2)/2    (y(2)*y(6)+y(5)*y(7))/2 (y(1)*y(6)+y(2)*y(7))/2 ;
+0158         y(2)*y(7) y(5)*y(6) y(9)*y(6) (y(2)*y(6)+y(5)*y(7))/2 (y(9)*y(5)+y(6)^2)/2    (y(9)*y(2)+y(6)*y(7))/2 ;
+0159         y(1)*y(7) y(2)*y(6) y(9)*y(7) (y(1)*y(6)+y(2)*y(7))/2 (y(9)*y(2)+y(6)*y(7))/2 (y(9)*y(1)+y(7)^2)/2   ];
+0160     L = alfa*Is-bta*Ib;
+0161     <span class="keyword">for</span> i=1:3
+0162         L = L+(ydash(i)+gama(i))*eDir(:,i)*eDir(:,i).';
+0163     <span class="keyword">end</span>
+0164 <span class="keyword">end</span></pre></div>
+<hr><address>Generated on Fri 17-May-2019 08:05:05 by <strong><a href="http://www.artefact.tk/software/matlab/m2html/" title="Matlab Documentation in HTML">m2html</a></strong> &copy; 2005</address>
+</body>
+</html>
