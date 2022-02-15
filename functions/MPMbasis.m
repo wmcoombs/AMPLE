@@ -1,0 +1,55 @@
+function [Svp,dSvp] = MPMbasis(mesh,mpData,node)
+
+%Basis functions for the material point method
+%--------------------------------------------------------------------------
+% Author: William Coombs
+% Date:   29/01/2019
+% Description:
+% Function to determine the multi-dimensional MPM shape functions from the
+% one dimensional MPM functions.  The function includes both the standard
+% and generalised interpolation material point methods. 
+%
+%--------------------------------------------------------------------------
+% [Svp,dSvp] = MPMBASIS(coord,mpC,L)
+%--------------------------------------------------------------------------
+% Input(s):
+% mesh   - mesh data structured array. Function requires:
+%           - coord  : nodal coordinates  
+%           - h      : grid spacing
+%
+% mpData - material point structured array.  Function requires:
+%           - mpC    : material point coordinates (single point)
+%           - lp     : particle domain lengths
+%           - mpType : material point type (1 or 2)
+%
+% node   - background mesh node number
+%--------------------------------------------------------------------------
+% Ouput(s);
+% Svp   - particle characteristic function
+% dSvp  - gradient of the characterstic function 
+%--------------------------------------------------------------------------
+% See also:
+% SVPMPM    - MPM basis functions in 1D (mpType = 1
+% SVPGIMP   - GIMPM basis functions in 1D (mpType = 2)
+%--------------------------------------------------------------------------
+
+coord  = mesh.coord(node,:);                                                % node coordinates
+h      = mesh.h;                                                            % grid spacing
+mpC    = mpData.mpC;                                                        % material point coordinates
+lp     = mpData.lp;                                                         % material point domain length
+mpType = mpData.mpType;                                                     % material point type (MPM or GIMPM)
+nD     = size(mpC,1)*size(mpC,2);                                           % number of dimensions
+S=zeros(nD,1); dS=S; dSvp=S;                                                % zero vectors used in calcs
+for i=1:nD
+    if mpType == 1
+        [S(i),dS(i)] = SvpMPM(mpC(i),coord(i),h(i));                        % 1D MPM functions
+    elseif mpType == 2
+        [S(i),dS(i)] = SvpGIMP(mpC(i),coord(i),h(i),lp(i));                 % 1D GIMPM functions
+    end
+end
+Svp=1;                                                                      % initial value of Svp
+for i=1:nD                                                                  
+    indx=(1:nD); indx(i)=[];                                                % other dims than current i value
+    Svp=Svp*S(i);                                                           % characteristic function
+    dSvp(i)=dS(i)*prod(S(indx));                                            % gradient of the characteristic function
+end
