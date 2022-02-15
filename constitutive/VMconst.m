@@ -53,7 +53,7 @@ if (f>tol)                                                                  % pl
   B=inv([Ce+dgam*ddf df; df.' 0]);                                          % Aalg from eqn (2.53) of Coombs(2011) thesis
   Dalg=B(1:6,1:6);                                                          % algorithmic consistent tangent
 end
-
+end
 
 function [df,ddf] = yieldFuncDerivatives(sig,rhoY)
 
@@ -86,3 +86,4 @@ dj2=s; dj2(4:6)=2*dj2(4:6);                                                 % de
 ddj2=[eye(3)-ones(3)/3 zeros(3); zeros(3) 2*eye(3)];                        % 2nd derivative of J2 wrt. stress
 df =dj2/(rhoY*sqrt(2*j2));                                                  % derivative of f wrt. stress
 ddf=1/rhoY*(ddj2/sqrt(2*j2)-(dj2*dj2.')/(2*j2)^(3/2));                      % 2nd derivative of f wrt. stress
+end

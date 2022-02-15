@@ -47,9 +47,15 @@ for i=1:nD
         [S(i),dS(i)] = SvpGIMP(mpC(i),coord(i),h(i),lp(i));                 % 1D GIMPM functions
     end
 end
-Svp=1;                                                                      % initial value of Svp
+if nD == 1
+    indx = [];                                                              % index for basis derivatives (1D)
+elseif nD == 2
+    indx = [2; 1];                                                          % index for basis derivatives (2D)
+elseif nD == 3
+    indx = [2 3; 1 3; 1 2];                                                 % index for basis derivatives (3D)
+end
+Svp=prod(S);                                                                % basis function
 for i=1:nD                                                                  
-    indx=(1:nD); indx(i)=[];                                                % other dims than current i value
-    Svp=Svp*S(i);                                                           % characteristic function
-    dSvp(i)=dS(i)*prod(S(indx));                                            % gradient of the characteristic function
+    dSvp(i)=dS(i)*prod(S(indx(i,:)));                                       % gradient of the basis function
+end
 end

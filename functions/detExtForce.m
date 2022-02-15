@@ -34,8 +34,9 @@ grav = zeros(nD,1); grav(nD) = -g;                                          % ga
 for mp = 1:nmp
    nIN = mpData(mp).nIN;                                                    % nodes associated with MP
    nn  = length(nIN);                                                       % number of nodes influencing the MP
-   ed  = reshape(ones(nD,1)*(nIN-1)*nD+(1:nD).'*ones(1,nn),1,nn*nD);        % node degrees of freedom
    Svp = mpData(mp).Svp;                                                    % basis functions
-   fext(ed) = fext(ed)+mpData(mp).mpM*reshape(grav*Svp,nn*nD,1)...          % global body force contribution
-            + reshape(mpData(mp).fp*Svp,nn*nD,1);                           % material point force contribution
+   fp  = (mpData(mp).mpM*grav + mpData(mp).fp)*Svp;                         % material point body & point nodal forces
+   ed  = repmat((nIN-1)*nD,nD,1)+repmat((1:nD).',1,nn);                     % nodel degrees of freedom 
+   fext(ed) = fext(ed) + fp;                                                % combine into external force vector
+end
 end

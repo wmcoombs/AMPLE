@@ -56,13 +56,13 @@ g=10;                                                                       % gr
 rho=0;                                                                      % material density
 P=-100e3;                                                                   % applied end load
 lstps=50;                                                                   % number of loadsteps
-a = 2;                                                                      % element multiplier
+a = 1;                                                                      % element multiplier
 nelsx=22*a;                                                                 % number of elements in the x direction
 nelsy=20*a;                                                                 % number of elements in the y direction
 ly=10;  lx=11;                                                              % domain dimensions
 d=1;  l=10;                                                                 % beam dimensions
 mp=6;                                                                       % number of material points in each direction per element
-mpType = 1;                                                                 % material point type: 1 = MPM, 2 = GIMP
+mpType = 2;                                                                 % material point type: 1 = MPM, 2 = GIMP
 cmType = 1;                                                                 % constitutive model: 1 = elastic, 2 = vM plasticity
 
 %% Mesh generation
@@ -92,7 +92,7 @@ mesh.h     = h;                                                             % me
 %% Material point generation
 ngp    = mp^nD;                                                             % number of material points per element
 GpLoc  = detMpPos(mp,nD);                                                   % local MP locations
-N      = shapefunc(nen,GpLoc,nD);                                           % basis functions for the material points
+N      = shapefunc(nen,GpLoc,nD);                                         % basis functions for the material points
 [etplmp,coordmp] = formCoord2D(20*a,2*a,l,d);                               % mesh for MP generation
 coordmp(:,2)=coordmp(:,2)+(ly-d);                                           % adjust MP locations (vertical)
 nelsmp = size(etplmp,1);                                                    % no. elements populated with material points
@@ -141,4 +141,5 @@ for mp = nmp:-1:1                                                           % lo
     mpData(mp).lp     = zeros(1,nD);                                        % material point domain lengths (MPM)
     mpData(mp).lp0    = zeros(1,nD);                                        % initial material point domain lengths (MPM)
   end
+end
 end

@@ -43,8 +43,8 @@ function [mesh,mpData] = elemMPinfo(mesh,mpData)
 nmp      = size(mpData,2);                                                  % number of material points & dimensions
 [~,nD]   = size(mesh.coord);                                                % number of nodes (total in mesh)  
 [nels,~] = size(mesh.etpl);                                                 % numerb of elements in mesh
-mpC  = reshape([mpData.mpC],nD,nmp)';                                       % all material point coordinates (nmp,nD)
-lp   = reshape([mpData.lp] ,nD,nmp)';                                       % all domain lengths
+mpC  = reshape([mpData.mpC],nD,nmp).';                                      % all material point coordinates (nmp,nD)
+lp   = reshape([mpData.lp] ,nD,nmp).';                                      % all domain lengths
 eInA = zeros(nels,1);                                                       % zero elements taking part in the analysis
 for mp = 1:nmp
     eIN  = elemForMP(mesh.coord,mesh.etpl,mpC(mp,:),lp(mp,:));              % elements connected to the material point
@@ -66,3 +66,4 @@ for mp = 1:nmp
     eInA(eIN) = 1;                                                          % identify elements in the analysis
 end
 mesh.eInA = eInA;                                                           % store eInA to mesh structured array
+end

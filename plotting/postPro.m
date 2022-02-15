@@ -5,6 +5,7 @@
 % Description:
 % The script produces VTK output files based on the background mesh and
 % material point data.  
+% Background mesh is plotted for all loadsteps.  
 %
 %--------------------------------------------------------------------------
 % POSTPRO
@@ -14,11 +15,11 @@
 % MAKEVTKMP         - VTK file for MP data
 %--------------------------------------------------------------------------
 
-mpDataName = sprintf('output/mpData_%i.vtk',lstp);                          % MP output data file name
 sig = reshape([mpData.sig],6,nmp)';                                         % all material point stresses (nmp,6)
 mpC = reshape([mpData.mpC],nD,nmp)';                                        % all material point coordinates (nmp,nD)
 mpU = [mpData.u]';                                                          % all material point displacements
+mpDataName = sprintf('output/mpData_%i.vtk',lstp);                          % MP output data file name
 makeVtkMP(mpC,sig,mpU,mpDataName);                                          % generate material point VTK file
-if lstp==1
-    makeVtk(mesh.coord,mesh.etpl,'output/mesh.vtk')                         % generate mesh VTK file
-end
+
+meshName = sprintf('output/mesh_%i.vtk',lstp);                              % MP output data file name
+makeVtk(mesh.coord,mesh.etpl,uvw,meshName);                                 % generate mesh VTK file

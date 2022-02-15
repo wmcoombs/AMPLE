@@ -24,7 +24,12 @@ function [D,sig,epsE] = Hooke3d(epsE,mCst)
 
 E=mCst(1);                                                                  % Young's modulus
 v=mCst(2);                                                                  % Poisson's ratio
-bm1=[1 1 1 0 0 0]';
-D=E/((1+v)*(1-2*v))*(bm1*bm1'*v+...                                         % elastic stiffness
-  [eye(3) zeros(3); zeros(3) eye(3)/2]*(1-2*v)); 
+bm11 = [1 1 1 0 0 0 ;
+        1 1 1 0 0 0 ;
+        1 1 1 0 0 0 ;
+        0 0 0 0 0 0 ;
+        0 0 0 0 0 0 ;
+        0 0 0 0 0 0 ];
+D=E/((1+v)*(1-2*v))*(bm11*v+diag([1 1 1 0.5 0.5 0.5])*(1-2*v));             % elastic stiffness
 sig=D*epsE;                                                                 % stress 
+end

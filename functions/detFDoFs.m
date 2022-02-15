@@ -33,3 +33,4 @@ fd     = (1:nDoF);                                                          % al
 fd(mesh.bc(:,1)) = 0;                                                       % zero fixed displacement BCs
 fd     = fd(incDoF);                                                        % only include active DoF 
 fd     = fd(fd>0);                                                          % remove fixed displacement BCs
+end

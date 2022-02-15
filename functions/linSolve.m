@@ -28,7 +28,7 @@ function [duvw,drct] = linSolve(bc,Kt,oobf,NRit,fd)
 % NRit  - Newton-Raphson iteration counter (1)
 % fd    - free degrees of freedom (*,1)
 %--------------------------------------------------------------------------
-% Output(s);
+% Ouput(s);
 % duvw  - displacement increment (nDoF,1)
 % drct  - reaction force increment (nDoF,1)
 %--------------------------------------------------------------------------
@@ -43,4 +43,5 @@ if (NRit)>0
     duvw(bc(:,1))=(1+sign(1-NRit))*bc(:,2);                                 % apply non-zero boundary conditions
     duvw(fd)=Kt(fd,fd)\(oobf(fd)-Kt(fd,bc(:,1))*duvw(bc(:,1)));             % solve for displacements
     drct(bc(:,1))=Kt(bc(:,1),:)*duvw-oobf(bc(:,1));                         % determine reaction forces 
+end
 end

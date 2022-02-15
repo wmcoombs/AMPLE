@@ -1,9 +1,9 @@
-function makeVtk(coord,etpl,meshName)
+function makeVtk(coord,etpl,uvw,meshName)
 
 %VTK output file generation: mesh data
 %--------------------------------------------------------------------------
 % Author: William Coombs
-% Date:   15/01/2019
+% Date:   03/04/2020
 % Description:
 % Function to generate a VTK file containing the background mesh data.
 %
@@ -13,6 +13,7 @@ function makeVtk(coord,etpl,meshName)
 % Input(s):
 % coord    - coordinates of the grid nodes (nodes,nD)
 % etpl     - element topology (nels,nen) 
+% uvw      - incremental deformations (nodes*nD,1)
 % meshName - VTK file name, for example 'mesh.vtk'  
 %--------------------------------------------------------------------------
 % See also:
@@ -68,23 +69,57 @@ fprintf(fid,'MATLAB generated vtk file, WMC\n');
 fprintf(fid,'ASCII\n');
 fprintf(fid,'DATASET UNSTRUCTURED_GRID\n');
 fprintf(fid,'POINTS %i double\n',nodes);
-if nD==3
-    for i=1:nodes
-        fprintf(fid,'%f %f %f \n',coord(i,:));
-    end
-elseif nD==2
-    for i=1:nodes
-        fprintf(fid,'%f %f %f \n',coord(i,:),0);
-    end
+
+%% nodal coordinates
+if nD<3
+    coord = [coord zeros(nodes,3-nD)];  
 end
+fprintf(fid,'%f %f %f \n',coord');
 fprintf(fid,'\n');
+
+%% element topology
 fprintf(fid,'CELLS %i %i\n',nels,(nen+1)*nels);
-for i=1:nels
- fprintf(fid,elemFormat,nen,(etpl(i,tvtk)-1));       
-end
+etplOutput = [nen*ones(nels,1) (etpl(:,tvtk)-1)];
+fprintf(fid,elemFormat,etplOutput');       
 fprintf(fid,'\n');
+
+%% element types
 fprintf(fid,'CELL_TYPES %i\n',nels);
-for i=1:nels
- fprintf(fid,'%i\n',elemId);       
-end
+fprintf(fid,'%i\n',elemId*ones(nels,1));       
 fprintf(fid,'\n');
+
+%% displacement output
+fprintf(fid,'POINT_DATA %i\n',nodes);
+if nD==3
+    fprintf(fid,'SCALARS u_x FLOAT %i\n',1);
+    fprintf(fid,'LOOKUP_TABLE default\n');
+    fprintf(fid,'%f\n',uvw(1:nD:end));
+    fprintf(fid,'\n');
+    
+    fprintf(fid,'SCALARS u_y FLOAT %i\n',1);
+    fprintf(fid,'LOOKUP_TABLE default\n');
+    fprintf(fid,'%f\n',uvw(2:nD:end));
+    fprintf(fid,'\n');
+    
+    fprintf(fid,'SCALARS u_z FLOAT %i\n',1);
+    fprintf(fid,'LOOKUP_TABLE default\n');
+    fprintf(fid,'%f\n',uvw(3:nD:end));
+    fprintf(fid,'\n');
+elseif nD==2
+    fprintf(fid,'SCALARS u_x FLOAT %i\n',1);
+    fprintf(fid,'LOOKUP_TABLE default\n');
+    fprintf(fid,'%f\n',uvw(1:nD:end));
+    fprintf(fid,'\n');
+    
+    fprintf(fid,'SCALARS u_y FLOAT %i\n',1);
+    fprintf(fid,'LOOKUP_TABLE default\n');
+    fprintf(fid,'%f\n',uvw(2:nD:end));
+    fprintf(fid,'\n');
+elseif nD==1
+    fprintf(fid,'SCALARS u_x FLOAT %i\n',1);
+    fprintf(fid,'LOOKUP_TABLE default\n');
+    fprintf(fid,'%f\n',uvw);
+    fprintf(fid,'\n');
+end
+fclose('all');
+end

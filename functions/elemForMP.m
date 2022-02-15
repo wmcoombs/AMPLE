@@ -25,14 +25,18 @@ function [eIN] = elemForMP(coord,etpl,mpC,lp)
 %
 %--------------------------------------------------------------------------
 
-[~,nD]=size(coord); [nels,nen]=size(etpl);                                  % basic size information
-Pmin=mpC-lp; Pmax=mpC+lp;                                                   % particle domain extents
-a=true(nels,1);
+nD   = size(coord,2);                                                       % number of dimensions
+nels = size(etpl,1);                                                        % number of elements
+Pmin = mpC-lp;                                                              % particle domain extents (lower)
+Pmax = mpC+lp;                                                              % particle domain extents (upper)
+a    = true(nels,1);                                                        % initialise logical array
 for i=1:nD
-  c=reshape(coord(reshape(etpl',nels*nen,1),i),nen,nels).';                 % reshaped element coordinates
-  Cmin=min(c.').';                                                          % element lower coordinate limit
-  Cmax=max(c.').';                                                          % element upper coordainte limit  
-  a=a.*((Cmin<Pmax(i)).*(Cmax>Pmin(i)));                                    % element overlap with mp domain
+  ci = coord(:,i);                                                          % nodal coordinates in current i direction
+  c  = ci(etpl);                                                            % reshaped element coordinates in current i direction
+  Cmin = min(c,[],2);                                                       % element lower coordinate limit 
+  Cmax = max(c,[],2);                                                       % element upper coordainte limit  
+  a = a.*((Cmin<Pmax(i)).*(Cmax>Pmin(i)));                                  % element overlap with mp domain
 end
-eIN=(1:nels).';                                                             % list of all elements
-eIN=eIN(a>0);                                                               % remove those elements not in the domain
+eIN = (1:nels).';                                                           % list of all elements
+eIN = eIN(a>0);                                                             % remove those elements not in the domain
+end                                                                        

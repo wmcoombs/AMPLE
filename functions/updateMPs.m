@@ -29,7 +29,7 @@ function [mpData] = updateMPs(uvw,mpData)
 %           - F   : deformation gradient
 %           - lp0 : initial domain lenghts (GIMPM only)
 %--------------------------------------------------------------------------
-% Output(s);
+% Ouput(s);
 % mpData - material point structured array.  The function modifies:
 %           - mpC   : material point coordinates
 %           - vp    : material point volume
@@ -41,23 +41,25 @@ function [mpData] = updateMPs(uvw,mpData)
 % See also:
 % 
 %--------------------------------------------------------------------------
-
+t = [1 5 9];                                                                % stretch components for domain updating
 nmp = length(mpData);                                                       % number of material points
 nD  = length(mpData(1).mpC);                                                % number of dimensions
 for mp=1:nmp
     nIN = mpData(mp).nIN;                                                   % nodes associated with material point
     nn  = length(nIN);                                                      % number nodes
-    ed  = reshape(ones(nD,1)*(nIN-1)*nD+(1:nD).'*ones(1,nn),1,nn*nD);       % element DoF
     N   = mpData(mp).Svp;                                                   % basis functions
-    F   = mpData(mp).F;                                                     % deformation gradient
-    mpU = N*reshape(uvw(ed),nD,nn).';                                       % material point displacement
+    F   = mpData(mp).F;                                                     % deformation gradient                                      
+    ed  = repmat((nIN.'-1)*nD,1,nD)+repmat((1:nD),nn,1);                    % nodal degrees of freedom
+    mpU = N*uvw(ed);                                                        % material point displacement
     mpData(mp).mpC   = mpData(mp).mpC + mpU;                                % update material point coordinates
     mpData(mp).vp    = det(F)*mpData(mp).vp0;                               % update material point volumes
     mpData(mp).epsEn = mpData(mp).epsE;                                     % update material point elastic strains
     mpData(mp).Fn    = mpData(mp).F;                                        % update material point deformation gradients
-    mpData(mp).u     = mpData(mp).u + mpU';                                 % update material point displacements
-    if mpData(mp).mpType == 2                                               % GIMPM only (update domain lengths)
-        U = sqrtm(F.'*F);                                                   % material stretch matrix
-        mpData(mp).lp = (mpData(mp).lp0).*diag(U(1:nD,1:nD)).';             % update domain lengths
+    mpData(mp).u     = mpData(mp).u + mpU.';                                % update material point displacements
+    if mpData(mp).mpType == 2                                               % GIMPM only (update domain lengths)        
+        [V,D] = eig(F.'*F);                                                 % eigen values and vectors F'F
+        U     = V*sqrt(D)*V.';                                              % material stretch matrix        
+        mpData(mp).lp = (mpData(mp).lp0).*U(t(1:nD));                       % update domain lengths
     end
+end
 end

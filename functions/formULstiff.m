@@ -28,32 +28,30 @@ function [A] = formULstiff(F,D,s,B)
 % PARDERGEN  - partial derivative of a second order tensor
 %--------------------------------------------------------------------------
 
-t = [1:4 4 5 5 6 6];                                                        % 6 to 9 component steering vector
+t = [1 2 3 4 4 5 5 6 6];                                                    % 6 to 9 component steering vector
 J = det(F);                                                                 % volume ratio
 [bV,bP] = eig(B); bP = [bP(1); bP(5); bP(9)];                               % eigen values/vector of the trial elastic strain tensor
 L = parDerGen(B,bV,bP,log(bP),1./bP);                                       % derivative of the logarithmic strain
-S = zeros(9); T = S;                                                        % zero matrices
-S(1,[1 4 9]) = s([1 4 6]);                                                  % matrix form of sigma_{il}delta_{jk}
-S(2,[2 5 6]) = s([2 4 5]); 
-S(3,[3 7 8]) = s([3 5 6]);  
-S(4,[2 5 6]) = s([4 1 6]); 
-S(5,[1 4 9]) = s([4 2 5]); 
-S(6,[3 7 8]) = s([5 2 4]);
-S(7,[2 5 6]) = s([5 6 3]); 
-S(8,[1 4 9]) = s([6 5 3]); 
-S(9,[3 7 8]) = s([6 4 1]);
-T(1,[1 4 9])     = 2*B([1 4 7]);                                            % matrix form of delta_{pk}b^e_{ql}+delta_{qk}b^e_{pl}+
-T(2,[2 5 6])     = 2*B([5 2 8]); 
-T(3,[3 7 8])     = 2*B([9 6 3]); 
-T(4,[1 2 4:6 9]) = B([2 4 5 1 7 8]); 
-T(5,:)           = T(4,:);
-T(6,[2 3 5:8  ]) = B([6 8 3 9 5 2]); 
-T(7,:)           = T(6,:);
-T(8,[1 3 4 7:9]) = B([3 7 6 4 1 9]); 
-T(9,:)           = T(8,:);
-A = (D(t,t))*L(t,t)*T/(2*J)-S;                                              % consistent tangent stiffness matrix
-
-
+S = [s(1) 0    0    s(4) 0    0    0    0    s(6);                          % matrix form of sigma_{il}delta_{jk}
+     0    s(2) 0    0    s(4) s(5) 0    0    0   ;
+     0    0    s(3) 0    0    0    s(5) s(6) 0   ;
+     0    s(4) 0    0    s(1) s(6) 0    0    0   ;
+     s(4) 0    0    s(2) 0    0    0    0    s(5);
+     0    0    s(5) 0    0    0    s(2) s(4) 0   ;
+     0    s(5) 0    0    s(6) s(3) 0    0    0   ;
+     s(6) 0    0    s(5) 0    0    0    0    s(3);
+     0    0    s(6) 0    0    0    s(4) s(1) 0   ];                                                         
+T = [2*B(1) 0      0      2*B(4) 0      0      2*B(7) 0      0   ;          % matrix form of delta_{pk}b^e_{ql}+delta_{qk}b^e_{pl}
+     0      2*B(5) 0      0      2*B(2) 2*B(8) 0      0      0   ;
+     0      0      2*B(9) 0      0      0      2*B(6) 2*B(3) 0   ;
+     B(2)   B(4)   0      B(5)   B(1)   B(7)   0      0      B(8);
+     B(2)   B(4)   0      B(5)   B(1)   B(7)   0      0      B(8);
+     0      B(6)   B(8)   0      B(3)   B(9)   B(5)   B(2)   0   ;
+     0      B(6)   B(8)   0      B(3)   B(9)   B(5)   B(2)   0   ;
+     B(3)   0      B(7)   B(6)   0      0      B(4)   B(1)   B(9);
+     B(3)   0      B(7)   B(6)   0      0      B(4)   B(1)   B(9)];                                                         
+A = D(t,t)*L(t,t)*T/(2*J)-S;                                                % consistent tangent stiffness matrix
+end
 
 
 function [L] = parDerGen(X,eV,eP,yP,ydash)
@@ -100,10 +98,8 @@ function [L] = parDerGen(X,eV,eP,yP,ydash)
 % 
 %--------------------------------------------------------------------------
 
-
 tol=1e-9;
-Is=[eye(3) zeros(3); zeros(3) eye(3)/2];
-bm1=[1 1 1 0 0 0].';
+Is=diag([1 1 1 0.5 0.5 0.5]); 
 if (abs(eP(1))<tol && abs(eP(2))<tol && abs(eP(3))<tol)                     % all zero eigenvalues case
     L = Is;
 elseif abs(eP(1)-eP(2))<tol && abs(eP(1)-eP(3))<tol                         % equal eigenvalues case
@@ -122,21 +118,27 @@ elseif abs(eP(1)-eP(2))<tol || abs(eP(2)-eP(3))<tol || abs(eP(1)-eP(3))<tol % re
         ya  = yP(2);    yc  = yP(1);
         yda = ydash(2); ydc = ydash(1);
     end
-    x    = X([1 5 9 4 6 3]).';
-    s    = zeros(5,1);
-    s(1) = (ya-yc)/(xa-xc)^2-ydc/(xa-xc);
-    s(2) = 2*xc*(ya-yc)/(xa-xc)^2-(xa+xc)/(xa-xc)*ydc;
-    s(3) = 2*(ya-yc)/(xa-xc)^3-(yda+ydc)/(xa-xc)^2;
-    s(4) = xc*s(3);
-    s(5) = xc^2*s(3);
+    x  = X([1 5 9 4 6 3].');
+    s1 = (ya-yc)/(xa-xc)^2-ydc/(xa-xc);
+    s2 = 2*xc*(ya-yc)/(xa-xc)^2-(xa+xc)/(xa-xc)*ydc;
+    s3 = 2*(ya-yc)/(xa-xc)^3-(yda+ydc)/(xa-xc)^2;
+    s4 = xc*s3;
+    s5 = xc^2*s3;
     dX2dX=[2*X(1) 0      0      X(2)         0             X(3)          ;
            0      2*X(5) 0      X(2)         X(6)          0             ;
            0      0      2*X(9) 0            X(6)          X(3)          ;
            X(2)   X(2)   0     (X(1)+X(5))/2 X(3)/2        X(6)/2        ;
            0      X(6)   X(6)   X(3)/2       (X(5)+X(9))/2 X(2)/2        ;
            X(3)   0      X(3)   X(6)/2       X(2)/2        (X(1)+X(9))/2];
-    L = s(1)*dX2dX-s(2)*Is-s(3)*(x*x.')+s(4)*(x*bm1.'+bm1*x.')-s(5)*(bm1*bm1.');
-else                                                                        % general case (non repeated eigenvalues)
+    bm1  = [1 1 1 0 0 0].';
+    bm11 = [1 1 1 0 0 0 ;
+            1 1 1 0 0 0 ;
+            1 1 1 0 0 0 ;
+            0 0 0 0 0 0 ;
+            0 0 0 0 0 0 ;
+            0 0 0 0 0 0 ];
+    L = s1*dX2dX-s2*Is-s3*(x*x.')+s4*(x*bm1.'+bm1*x.')-s5*bm11;
+else                                                                        % general case (no repeated eigenvalues)
     D=[(eP(1)-eP(2))*(eP(1)-eP(3));
        (eP(2)-eP(1))*(eP(2)-eP(3));
        (eP(3)-eP(1))*(eP(3)-eP(2))];
@@ -161,4 +163,5 @@ else                                                                        % ge
     for i=1:3
         L = L+(ydash(i)+gama(i))*eDir(:,i)*eDir(:,i).';
     end
+end
 end

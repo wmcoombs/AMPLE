@@ -60,7 +60,7 @@ g      = 10;                                                                % gr
 rho    = 80;                                                                % material density
 lstps  = 40;                                                                % number of loadsteps
 nelsx  = 1;                                                                 % number of elements in the x direction
-nelsy  = 2^12;                                                               % number of elements in the y direction
+nelsy  = 2^9;                                                               % number of elements in the y direction
 ly     = 50;  lx = ly/nelsy;                                                % domain dimensions
 mp     = 2;                                                                 % number of material points in each direction per element
 mpType = 2;                                                                 % material point type: 1 = MPM, 2 = GIMP
@@ -138,4 +138,5 @@ for mp = nmp:-1:1                                                           % lo
     mpData(mp).lp     = zeros(1,nD);                                        % material point domain lengths (MPM)
     mpData(mp).lp0    = zeros(1,nD);                                        % initial material point domain lengths (MPM)
   end
+end
 end

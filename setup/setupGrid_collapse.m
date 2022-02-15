@@ -136,3 +136,4 @@ for mp = nmp:-1:1                                                           % lo
     mpData(mp).lp0    = zeros(1,nD);                                        % initial material point domain lengths (MPM)
   end
 end
+end
