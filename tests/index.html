@@ -1,0 +1,341 @@
+<!DOCTYPE html>
+
+<link rel="stylesheet" href="https://cdn.rawgit.com/jpswalsh/academicons/master/css/academicons.min.css">
+
+<html lang="en">
+<head>
+	<meta charset="utf-8">
+	<title>Test cases - AMPLE - A Material Point Learning Environment</title>
+	<meta name="description" content="You’ll find this post in your `_posts` directory. Go ahead and edit it and re-build the site to see your changes.">
+	<meta http-equiv="X-UA-Compatible" content="IE=edge">
+	<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+	<meta property="og:image" content="">
+	<link rel="shortcut icon" href="/assets/img/favicon/favicon.ico" type="image/x-icon">
+	<link rel="apple-touch-icon" href="/assets/img/favicon/apple-touch-icon.png">
+	<link rel="apple-touch-icon" sizes="72x72" href="/assets/img/favicon/apple-touch-icon-72x72.png">
+	<link rel="apple-touch-icon" sizes="114x114" href="/assets/img/favicon/apple-touch-icon-114x114.png">
+	<!-- Chrome, Firefox OS and Opera -->
+	<meta name="theme-color" content="#311e3e">
+	<!-- Windows Phone -->
+	<meta name="msapplication-navbutton-color" content="#311e3e">
+	<!-- iOS Safari -->
+	<meta name="apple-mobile-web-app-status-bar-style" content="#311e3e">
+	<!-- Google Fonts -->
+	<link href="https://fonts.googleapis.com/css?family=Montserrat:300,400,700" rel="stylesheet">
+	<link href="https://fonts.googleapis.com/css?family=Lato:300,400,700" rel="stylesheet">
+	<!-- Font Awesome -->
+	<link rel="stylesheet" href="/assets/fonts/font-awesome/css/font-awesome.min.css">
+	<!-- Styles -->
+	<link rel="stylesheet" href="/assets/css/main.css">
+</head>
+
+<body>
+  <div class="flex-container">
+  <header class="main-header">
+  <div class="wrapper">
+    <div class="header-flex">
+      <div class="menu-icon-container">
+        <span class="menu-icon"><i class="fa fa-bars" aria-hidden="true"></i></span>
+      </div>
+      <nav class="main-nav">
+        <span class="menu-icon-close"><i class="fa fa-times" aria-hidden="true"></i></span>
+        <ul>
+          <li><a href="/">Homepage</a></li>
+          <li><a href="/mpm">MPM</a></li>
+          <li><a href="/principles">Development</a></li>
+          <li><a href="/formulation">Formulation</a></li>
+          <li><a href="/structure">Code Structure</a></li>
+          <li><a href="/tests">Test Cases</a></li>
+          <li><a href="/publications">Publications</a></li>
+          <li><a href="/versions">Versions</a></li>
+          <li><a href="/acknowledgements">acknowledgements</a></li>
+          <li><a href="/download">Download</a></li>
+          <!--<li><a href="/other">Other pages</a></li>-->
+          <li><a href="/about">About</a></li>
+        </ul>
+      </nav>
+      <p class="logo"><a href="/">AMPLE&#58;  A Material Point Learning Environment</a></p>
+      <div class="search-icon-container">
+        <span class="search-icon"><a><i class="fa fa-search" aria-hidden="true"></i></a></span>
+      </div>
+    </div>
+  </div>
+</header> <!-- End Header -->
+
+  <article class="article-page">
+    <div class="page-image">
+      <div class="cover-image" style="background: url(/assets/img/collapse2.jpg) center no-repeat; background-size: cover;"></div>
+    </div>
+    <div class="wrapper">
+      <div class="page-content">
+        <div class="header-page">
+          <h1 class="page-title">Test cases</h1>
+          <!--<div class="page-date"><time datetime="2019-01-04 06:00:00 +0000">2019, Jan 04</time></div>-->
+        </div>
+        <p>Three different demonstration cases are included as standard with AMPLE: elastic compaction under self weight, a large deformation elastic beam analysis and elasto-plastic collapse of a body.  Each of the problems are designed to demonstrate a different aspect of AMPLE as described below.</p>
+
+<h2 id="convergence-compaction-under-self-weight">Convergence: compaction under self weight</h2>
+
+<p>The first example is an elastic column compressed under its own weight. Initially the column has a height of <script type="math/tex">l_0=50</script>m and a width linked to the size of the background grid used to analyse the problem such that there was always one element in the horizontal direction.  A plane strain assumption is set in the third direction.  The base of the column is restrained vertically and both sides of the column are restrained in the horizontal direction.  The column has a Young’s modulus of 1MPa and Poisson’s ratio of 0 and a density of <script type="math/tex">\varrho_0=80</script>kg/m<script type="math/tex">^3</script>.  A body force of <script type="math/tex">-800</script>N/m<script type="math/tex">^3</script> is applied in the vertical (<script type="math/tex">Y</script>, <script type="math/tex">y</script>) direction over 20 equal loadsteps.</p>
+
+<p>The basic setup information for this analysis, as contained on lines 57 through 67 of <code class="highlighter-rouge">setupGrid</code>, is shown below.  The figure shows the setup information for an analysis with 64 elements in the <script type="math/tex">y</script>-direction (nelsy) and a single element in the <script type="math/tex">x</script>-direction (nelsx).  The physical body is discretised by generalised interpolation material points (mpType=2), with linear-elastic material behaviour (cmType=1).</p>
+
+<p><img src="/assets/img/compactionSetup.jpg" alt="Compaction setup" /></p>
+
+<p>The analytical solution for the vertical Cauchy stress is</p>
+
+<script type="math/tex; mode=display">\sigma^{a}_{yy} = \varrho_0 g (l_0-Y),</script>
+
+<p>where <script type="math/tex">g</script> is the gravitational acceleration (taken to be 10m/s<script type="math/tex">^2</script>), <script type="math/tex">l_0</script> is the initial height of the column and <script type="math/tex">Y</script> is the initial vertical position within the column. If Poisson’s ratio is zero the stresses in the horizontal directions are equal to zero when the behaviour is elastic.</p>
+
+<p>The below figure shows the convergence of the standard and generalised interpolation material point methods with background mesh and material point refinement.  It is clear that the standard material point method does not converge due to cell crossing errors whereas the generalised interpolation material point method converges at an approximately linear rate.  The figure also shows AMPLE’s run time with progressive background mesh refinement.  For most of the analyses, the run time scales approximately linearly with the number of material points.  However, when the number of elements in the <script type="math/tex">y</script>-direction exceeds <script type="math/tex">2^{12}</script> the time spent in the linear solver starts to dominate, with a corresponding increase in the gradient of the run time.</p>
+
+<p><img src="/assets/img/convergence.jpg" alt="Compaction convergence" /></p>
+
+<h2 id="visualisation-large-deformation-elastic-beam">Visualisation: large deformation elastic beam</h2>
+
+<p>To run this demonstration case you will need to change line 03 of <code class="highlighter-rouge">ample.m</code> to</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>[lstps,g,mpData,mesh] = setupGrid_beam;
+</code></pre></div></div>
+
+<p>The second demonstration case is a plane strain analysis of an elastic beam subjected to a vertical end load of <script type="math/tex">100</script>kN applied over 50 equal loadsteps.  The beam had an initial length <script type="math/tex">l_0=10</script>m and depth <script type="math/tex">d_0=1</script>m and the material has a Young’s modulus of <script type="math/tex">12</script>MPa and a Poisson’s ratio of <script type="math/tex">0.2</script>.  The geometry and boundary conditions with <script type="math/tex">h=0.5</script>m and <script type="math/tex">2^2</script> material points per initially active background elements are shown below.  The force is split across the two material points closest to the neutral axis at the end of the beam (the black-filled circles).  The neutral axis of the beam is pinned at its left hand edge and roller boundary conditions are imposed on the other background grid nodes at the root of the beam, as shown below.</p>
+
+<p><img src="/assets/img/beamSetup.jpg" alt="Beam setup" /></p>
+
+<p>In AMPLE it is suggested that users use the included scripts to generate VTK files and visualise the deformation of the material points using a VTK view (such as <a href="https://wci.llnl.gov/simulation/computer-codes/visit/" target="_blank">VisIt</a> or <a href="https://www.paraview.org/" target="_blank">ParaView</a>).  The VTK files are generated by the following two functions:</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>makeVtkOutputFile.m                 % generates the background mesh
+makeVtkOutputMaterialPoint.m        % generates the material points
+</code></pre></div></div>
+
+<p>The normalised global force versus displacement response for two different background mesh sizes with <script type="math/tex">6^2</script> generalised interpolation material points (mpType=2) per initially populated background grid cell are shown below.  The analytical solution, as detailed in the thesis of [1], is shown by the discrete points.  The global response of both analyses show good agreement with the analytical solution.</p>
+
+<p><img src="/assets/img/beamForceDisp.jpg" alt="Beam force versus displacement" /></p>
+
+<p>The above figure also shows the deformed material point positions at the end of the <script type="math/tex">h=0.125</script>m analysis that have been coloured according to the normal stress in the <script type="math/tex">y</script>-direction, <script type="math/tex">\sigma_{yy}</script>.  The figure was produced from the VTK output files that are generated on line 32 of the main <code class="highlighter-rouge">ample.m</code> script via <code class="highlighter-rouge">postPro.m</code> and saved into the <strong>output</strong> folder</p>
+
+<h2 id="material-model-elasto-plastic-collapse">Material model: elasto-plastic collapse</h2>
+
+<p>To run this demonstration case you will need to change line 03 of <code class="highlighter-rouge">ample.m</code> to</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>[lstps,g,mpData,mesh] = setupGrid_collapse;
+</code></pre></div></div>
+
+<p>The final demonstration example is the elasto-plastic collapse of a rectangular body of material subject to a gravitational body force.  Due to symmetry only half of the body is modelled and the initial discretisation of the problem is shown in below with <script type="math/tex">l_0=8</script>m,  <script type="math/tex">h=1</script>m and <script type="math/tex">2^2</script> material points per initially filled background cell (the grey-shaded region).  Roller boundary conditions are imposed on the base and the left hand edge of the background mesh.    The material is modelled using a linear-elastic, perfectly-plastic von Mises constitutive formulation.</p>
+
+<p><img src="/assets/img/collapseSetup.jpg" alt="Collapse setup" /></p>
+
+<p>For this analysis, the yield strength of the material is <script type="math/tex">\rho_y=20</script>kPa, the Young’s modulus is <script type="math/tex">1</script>MPa and Poisson’s ratio is <script type="math/tex">0.3</script>.  A body force of <script type="math/tex">10</script>kN/m<script type="math/tex">^3</script> (density of <script type="math/tex">1000</script>kg/m<script type="math/tex">^3</script> and gravitational acceleration of <script type="math/tex">10</script>m/s<script type="math/tex">^2</script>) is applied over 40 equal loadsteps.</p>
+
+<p>The deformed material point positions at the end of the analysis for <script type="math/tex">h=0.5</script>m and <script type="math/tex">h=0.25</script>m with <script type="math/tex">6^2</script> material points per initially populated background grid cell are shown below.  The material points are coloured according to <script type="math/tex">\sigma_{xx}</script>, <script type="math/tex">\sigma_{yy}</script> and <script type="math/tex">\sigma_{xy}</script>, where the blue and red regions show areas of low and high stress, respectively.   There is very little deformation for the first 20 loadsteps (up to <script type="math/tex">5</script>kN/m<script type="math/tex">^3</script>) but beyond this value the material rapidly collapses and achieves the final deformed state shown below.</p>
+
+<p><img src="/assets/img/collapse.jpg" alt="Collapse" /></p>
+
+<hr />
+
+<p>[1] T. Molstad, Finite deformation analysis using the finite element method, Ph.D. thesis, University of British Columbia, 1977.</p>
+
+
+        <div class="page-footer">
+          <!--<div class="page-tag">
+            <span>Tags:</span>
+            
+          </div>--><!-- End Tags -->
+          <div class="page-share">
+            <span>Share:</span>
+            <a href="https://twitter.com/intent/tweet?text=Test cases&url=http://localhost:4000/tests/" title="Share on Twitter" rel="nofollow" target="_blank"><i class="fa fa-twitter" aria-hidden="true"></i></a>
+            <a href="https://facebook.com/sharer.php?u=http://localhost:4000/tests/" title="Share on Facebook" rel="nofollow" target="_blank"><i class="fa fa-facebook" aria-hidden="true"></i></a>
+            <a href="https://plus.google.com/share?url=http://localhost:4000/tests/" title="Share on Google+" rel="nofollow" target="_blank"><i class="fa fa-google" aria-hidden="true"></i></a>
+          </div><!-- End Share -->
+        </div>
+        <section class="author-box">
+  <img src="/assets/img/plate.jpg" alt="AMPLE&#58;  A Material Point Learning Environment" class="author-img">
+  <div class="author-desc">
+    <h2>AMPLE&#58;  A Material Point Learning Environment</h2>
+    <p>AMPLE was developed to address the sevre learning curve for researchers wishing to understand, and start using, the material point method. The software was developed at Durham University between 2014 and 2018 by Dr Will Coombs as a platform to test our new research ideas and understand the impact of adopting different material point variants. AMPLE was first released in January 2019 at the 2nd International Conference on the Material Point Method held at Cambridge University, UK.
+</p>
+    <ul>
+      
+        <li class="email"><a href="mailto:w.m.coombs@durham.ac.uk"><i class="fa fa-envelope-o"></i></a></li>
+      
+      <!--
+        <li class="phone"><a href="tel:+44 191 334 2516"><i class="fa fa-phone"></i></a></li>
+      -->
+      
+        <li class="website"><a href="http://www.dur.ac.uk/engineering" target="_blank"><i class="fa fa-globe"></i></a></li>
+      
+      
+        <li class="twitter"><a href="https://twitter.com/@DU_comp_mech" target="_blank"><i class="fa fa-twitter"></i></a></li>
+      
+    </ul>
+  </div>
+</section>
+
+        <!--<div class="newsletter" id="mc_embed_signup">
+  <h2 class="newsletter-title">Newsletter</h2>
+  <div class="form-container">
+    <p>Subscribe here to get our latest updates</p>
+    <form action="//" method="post" id="mc-embedded-subscribe-form" name="mc-embedded-subscribe-form" class="validate" target="_blank" novalidate>
+      <label class="screen-reader-text" for="mce-EMAIL">Email Address</label>
+      <div class="newsletter-box" id="mc_embed_signup_scroll">
+        <input type="email" name="EMAIL" placeholder="Email address" class="email-input" id="mce-EMAIL" required>
+        <input type="submit" value="Subscribe" name="subscribe" class="subscribe-btn" id="mc-embedded-subscribe">
+      </div>
+    </form>
+  </div>
+</div> -->
+<!-- End Newsletter -->
+
+        <!-- <section class="comment-area">
+  <div class="comment-wrapper">
+    
+    <div id="disqus_thread" class="article-comments"></div>
+    <script>
+      (function() {
+          var d = document, s = d.createElement('script');
+          s.src = '//Dr-Coombs.disqus.com/embed.js';
+          s.setAttribute('data-timestamp', +new Date());
+          (d.head || d.body).appendChild(s);
+      })();
+    </script>
+    <noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+    
+  </div>
+</section> --> <!-- End Comment Area -->
+
+      </div>
+    </div> <!-- End Wrapper -->
+  </article>
+  <div class="search-box">
+  <div class="wrapper">
+    <div class="search-grid">
+      <form class="search-form">
+        <div id="search-container">
+          <input type="text" id="search-input" class="search" placeholder="Search">
+        </div>
+      </form>
+      <ul id="results-container" class="results-search"></ul>
+      <div class="icon-close-container">
+        <span class="search-icon-close"><i class="fa fa-times" aria-hidden="true"></i></span>
+      </div>
+    </div>
+  </div>
+</div>
+
+  <footer class="main-footer">
+  <div class="copyright">
+    <p>2020 &copy; AMPLE&#58;  A Material Point Learning Environment</p>
+  </div>
+  <section class="about-body">
+    <ul class="contact-list">
+    
+      <li class="email"><a href="mailto:w.m.coombs@durham.ac.uk"><i class="fa fa-envelope-o"></i></a></li>
+    
+
+    <!--
+      <li class="phone"><a href="tel:+44 191 334 2516"><i class="fa fa-phone"></i></a></li>
+    -->
+
+    
+      <li class="website"><a href="http://www.dur.ac.uk/engineering" target="_blank"><i class="fa fa-globe"></i></a></li>
+    
+
+    
+      <li class="linkedin"><a href="https://in.linkedin.com/in/william-coombs-1a0a5852" target="_blank"><i class="fa fa-linkedin"></i></a></li>
+    
+
+    <!--
+      <li class="github"><a href="http://github.com/artemsheludko" target="_blank"><i class="fa fa-github" aria-hidden="true"></i></a></li>
+    -->
+
+    
+      <li class="twitter"><a href="https://twitter.com/@DU_comp_mech" target="_blank"><i class="fa fa-twitter"></i></a></li>
+    
+
+    
+      <li class="researchgate"><a href="https://www.researchgate.net/profile/William_Coombs3" target="_blank"><i class="ai ai-researchgate"></i></a></li>
+    
+
+    
+      <li class="googlescholar"><a href="https://scholar.google.co.uk/citations?user=s_IQ4rAAAAAJ" target="_blank"><i class="ai ai-google-scholar"></i></a></li>
+    
+
+    
+      <li class="orcid"><a href="https://orcid.org/0000-0003-2099-1676" target="_blank"><i class="ai ai-orcid"></i></a></li>
+    
+
+    
+      <li class="researcherID"><a href="https://www.researcherid.com/rid/C-3288-2012" target="_blank"><i class="ai ai-researcherid"></i></a></li>
+    
+
+    <!--
+      <li class="facebook"><a href="https://facebook.com/" target="_blank"><i class="fa fa-facebook" aria-hidden="true"></i></a></li>
+    -->
+
+    <!--
+      <li class="instagram"><a href="https://instagram.com/" target="_blank"><i class="fa fa-instagram" aria-hidden="true"></i></a></li>
+    -->
+
+    <!--
+      <li class="pinterest"><a href="https://pinterest.com/" target="_blank"><i class="fa fa-pinterest" aria-hidden="true"></i></a></li>
+    -->
+    </ul>
+  </section> <!-- End About Body-->
+</footer> <!-- End Footer -->
+
+</div>
+
+<script src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML" type="text/javascript"></script>
+
+<!--<div class="recent-box">
+  <h2 class="recent-title">Other pages</h2>
+  <div class="recent-list">
+    
+      
+        <a href="/mpm/" class="recent-item" style="background: url(/assets/img/collapse1.jpg) center no-repeat; background-size: cover;"><span>Material Point Method</span></a>
+      
+    
+      
+        <a href="/principles/" class="recent-item" style="background: url(/assets/img/curve.jpg) center no-repeat; background-size: cover;"><span>Development Principles</span></a>
+      
+    
+      
+        <a href="/formulation/" class="recent-item" style="background: url(/assets/img/mechanics.jpg) center no-repeat; background-size: cover;"><span>Formulation</span></a>
+      
+    
+      
+        <a href="/structure/" class="recent-item" style="background: url(/assets/img/code.jpg) center no-repeat; background-size: cover;"><span>Code Structure</span></a>
+      
+    
+  </div>
+</div> <!-- End Recent-Box -->
+-->
+
+  <!-- JS -->
+<script src="/assets/js/jquery-3.2.1.min.js"></script>
+<script src="/assets/js/jekyll-search.js"></script>
+<script>
+  SimpleJekyllSearch({
+    searchInput: document.getElementById('search-input'),
+    resultsContainer: document.getElementById('results-container'),
+    json: '/search.json',
+    searchResultTemplate: '<li><a href="{url}" title="{desc}">{title}</a></li>',
+    noResultsText: 'No results found',
+    fuzzy: false,
+    exclude: ['Welcome']
+  });
+</script>
+<script src="/assets/js/main.js"></script>
+
+  <script>
+  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+  m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+  })(window,document,'script','https://www.google-analytics.com/analytics.js','ga');
+  ga('create', '', 'auto');
+  ga('send', 'pageview');
+</script> <!-- End Analytics -->
+
+</body>
+</html>

@@ -1,0 +1,291 @@
+<!DOCTYPE html>
+
+<link rel="stylesheet" href="https://cdn.rawgit.com/jpswalsh/academicons/master/css/academicons.min.css">
+
+<html lang="en">
+<head>
+	<meta charset="utf-8">
+	<title>Material Point Method - AMPLE - A Material Point Learning Environment</title>
+	<meta name="description" content="You’ll find this post in your `_posts` directory. Go ahead and edit it and re-build the site to see your changes.">
+	<meta http-equiv="X-UA-Compatible" content="IE=edge">
+	<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+	<meta property="og:image" content="">
+	<link rel="shortcut icon" href="/assets/img/favicon/favicon.ico" type="image/x-icon">
+	<link rel="apple-touch-icon" href="/assets/img/favicon/apple-touch-icon.png">
+	<link rel="apple-touch-icon" sizes="72x72" href="/assets/img/favicon/apple-touch-icon-72x72.png">
+	<link rel="apple-touch-icon" sizes="114x114" href="/assets/img/favicon/apple-touch-icon-114x114.png">
+	<!-- Chrome, Firefox OS and Opera -->
+	<meta name="theme-color" content="#311e3e">
+	<!-- Windows Phone -->
+	<meta name="msapplication-navbutton-color" content="#311e3e">
+	<!-- iOS Safari -->
+	<meta name="apple-mobile-web-app-status-bar-style" content="#311e3e">
+	<!-- Google Fonts -->
+	<link href="https://fonts.googleapis.com/css?family=Montserrat:300,400,700" rel="stylesheet">
+	<link href="https://fonts.googleapis.com/css?family=Lato:300,400,700" rel="stylesheet">
+	<!-- Font Awesome -->
+	<link rel="stylesheet" href="/assets/fonts/font-awesome/css/font-awesome.min.css">
+	<!-- Styles -->
+	<link rel="stylesheet" href="/assets/css/main.css">
+</head>
+
+<body>
+  <div class="flex-container">
+  <header class="main-header">
+  <div class="wrapper">
+    <div class="header-flex">
+      <div class="menu-icon-container">
+        <span class="menu-icon"><i class="fa fa-bars" aria-hidden="true"></i></span>
+      </div>
+      <nav class="main-nav">
+        <span class="menu-icon-close"><i class="fa fa-times" aria-hidden="true"></i></span>
+        <ul>
+          <li><a href="/">Homepage</a></li>
+          <li><a href="/mpm">MPM</a></li>
+          <li><a href="/principles">Development</a></li>
+          <li><a href="/formulation">Formulation</a></li>
+          <li><a href="/structure">Code Structure</a></li>
+          <li><a href="/tests">Test Cases</a></li>
+          <li><a href="/publications">Publications</a></li>
+          <li><a href="/versions">Versions</a></li>
+          <li><a href="/acknowledgements">acknowledgements</a></li>
+          <li><a href="/download">Download</a></li>
+          <!--<li><a href="/other">Other pages</a></li>-->
+          <li><a href="/about">About</a></li>
+        </ul>
+      </nav>
+      <p class="logo"><a href="/">AMPLE&#58;  A Material Point Learning Environment</a></p>
+      <div class="search-icon-container">
+        <span class="search-icon"><a><i class="fa fa-search" aria-hidden="true"></i></a></span>
+      </div>
+    </div>
+  </div>
+</header> <!-- End Header -->
+
+  <article class="article-page">
+    <div class="page-image">
+      <div class="cover-image" style="background: url(/assets/img/collapse1.jpg) center no-repeat; background-size: cover;"></div>
+    </div>
+    <div class="wrapper">
+      <div class="page-content">
+        <div class="header-page">
+          <h1 class="page-title">Material Point Method</h1>
+          <!--<div class="page-date"><time datetime="2019-01-08 06:00:00 +0000">2019, Jan 08</time></div>-->
+        </div>
+        <p>Numerical approaches based on Lagrangian mechanics, particularly using the finite element method, dominate the analysis of solid mechanics problems.  However there are issues with mesh-based Lagrangian approaches for problems involving very large deformation in that the discretisation used to analyse the physical problem becomes distorted leading to inaccurate results and, in extreme cases, eventual breakdown of the numerics due to element inversion.</p>
+
+<p>The <strong>Material Point Method</strong> (MPM) is an alternative to pure Lagrangian approaches and is well suited to problems involving very large deformations.  The method was developed in the 1990’s by Sulsky <em>et al.</em> [1] as a solid mechanics extension to the FLuid Implicit Particle (FLIP) method [2] which itself was developed from the Particle-In-Cell (PIC) method [3].  In the material point method, equilibrium computations take place on a background grid but the calculations are based on information (mass, volume, stress, state variables, etc.) held at material points that are convected through the background grid as the material deforms. This allows computations to take place on an undistorted background mesh (structured or unstructured) whilst modelling problems involving very large deformations. One way to summarise the material point method is: <em>a finite element method where the integration points (material points) are allowed to move independently of the mesh</em>.</p>
+
+<p>AMPLE, unlike most of the MPM community, adopts an implicit formulation.  The key steps in an implicit implementation of the material point method are shown below.</p>
+
+<p><img src="/assets/img/MPMsteps.jpg" alt="MPM steps" /></p>
+
+<hr />
+
+<p>[1] D. Sulsky, Z. Chen, H. Schreyer, A particle method for history-dependent materials, Computer Methods in Applied Mechanics and Engineering 118 (1994) 179–196.<br />
+[2] J.U. Brackbill, H.M. Ruppel, FLIP - A method for adaptively zoned, particle-in-cell calculations of fluid flows in two dimensions, Journal of Computational Physics 65 (1986), 314-343.<br />
+[3] F. Harlow, The particle-in-cell computing method for fluid dynamics, Methods for Computational Physics 3 (1964). <br /></p>
+
+
+        <div class="page-footer">
+          <!--<div class="page-tag">
+            <span>Tags:</span>
+            
+          </div>--><!-- End Tags -->
+          <div class="page-share">
+            <span>Share:</span>
+            <a href="https://twitter.com/intent/tweet?text=Material Point Method&url=http://localhost:4000/mpm/" title="Share on Twitter" rel="nofollow" target="_blank"><i class="fa fa-twitter" aria-hidden="true"></i></a>
+            <a href="https://facebook.com/sharer.php?u=http://localhost:4000/mpm/" title="Share on Facebook" rel="nofollow" target="_blank"><i class="fa fa-facebook" aria-hidden="true"></i></a>
+            <a href="https://plus.google.com/share?url=http://localhost:4000/mpm/" title="Share on Google+" rel="nofollow" target="_blank"><i class="fa fa-google" aria-hidden="true"></i></a>
+          </div><!-- End Share -->
+        </div>
+        <section class="author-box">
+  <img src="/assets/img/plate.jpg" alt="AMPLE&#58;  A Material Point Learning Environment" class="author-img">
+  <div class="author-desc">
+    <h2>AMPLE&#58;  A Material Point Learning Environment</h2>
+    <p>AMPLE was developed to address the sevre learning curve for researchers wishing to understand, and start using, the material point method. The software was developed at Durham University between 2014 and 2018 by Dr Will Coombs as a platform to test our new research ideas and understand the impact of adopting different material point variants. AMPLE was first released in January 2019 at the 2nd International Conference on the Material Point Method held at Cambridge University, UK.
+</p>
+    <ul>
+      
+        <li class="email"><a href="mailto:w.m.coombs@durham.ac.uk"><i class="fa fa-envelope-o"></i></a></li>
+      
+      <!--
+        <li class="phone"><a href="tel:+44 191 334 2516"><i class="fa fa-phone"></i></a></li>
+      -->
+      
+        <li class="website"><a href="http://www.dur.ac.uk/engineering" target="_blank"><i class="fa fa-globe"></i></a></li>
+      
+      
+        <li class="twitter"><a href="https://twitter.com/@DU_comp_mech" target="_blank"><i class="fa fa-twitter"></i></a></li>
+      
+    </ul>
+  </div>
+</section>
+
+        <!--<div class="newsletter" id="mc_embed_signup">
+  <h2 class="newsletter-title">Newsletter</h2>
+  <div class="form-container">
+    <p>Subscribe here to get our latest updates</p>
+    <form action="//" method="post" id="mc-embedded-subscribe-form" name="mc-embedded-subscribe-form" class="validate" target="_blank" novalidate>
+      <label class="screen-reader-text" for="mce-EMAIL">Email Address</label>
+      <div class="newsletter-box" id="mc_embed_signup_scroll">
+        <input type="email" name="EMAIL" placeholder="Email address" class="email-input" id="mce-EMAIL" required>
+        <input type="submit" value="Subscribe" name="subscribe" class="subscribe-btn" id="mc-embedded-subscribe">
+      </div>
+    </form>
+  </div>
+</div> -->
+<!-- End Newsletter -->
+
+        <!-- <section class="comment-area">
+  <div class="comment-wrapper">
+    
+    <div id="disqus_thread" class="article-comments"></div>
+    <script>
+      (function() {
+          var d = document, s = d.createElement('script');
+          s.src = '//Dr-Coombs.disqus.com/embed.js';
+          s.setAttribute('data-timestamp', +new Date());
+          (d.head || d.body).appendChild(s);
+      })();
+    </script>
+    <noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+    
+  </div>
+</section> --> <!-- End Comment Area -->
+
+      </div>
+    </div> <!-- End Wrapper -->
+  </article>
+  <div class="search-box">
+  <div class="wrapper">
+    <div class="search-grid">
+      <form class="search-form">
+        <div id="search-container">
+          <input type="text" id="search-input" class="search" placeholder="Search">
+        </div>
+      </form>
+      <ul id="results-container" class="results-search"></ul>
+      <div class="icon-close-container">
+        <span class="search-icon-close"><i class="fa fa-times" aria-hidden="true"></i></span>
+      </div>
+    </div>
+  </div>
+</div>
+
+  <footer class="main-footer">
+  <div class="copyright">
+    <p>2020 &copy; AMPLE&#58;  A Material Point Learning Environment</p>
+  </div>
+  <section class="about-body">
+    <ul class="contact-list">
+    
+      <li class="email"><a href="mailto:w.m.coombs@durham.ac.uk"><i class="fa fa-envelope-o"></i></a></li>
+    
+
+    <!--
+      <li class="phone"><a href="tel:+44 191 334 2516"><i class="fa fa-phone"></i></a></li>
+    -->
+
+    
+      <li class="website"><a href="http://www.dur.ac.uk/engineering" target="_blank"><i class="fa fa-globe"></i></a></li>
+    
+
+    
+      <li class="linkedin"><a href="https://in.linkedin.com/in/william-coombs-1a0a5852" target="_blank"><i class="fa fa-linkedin"></i></a></li>
+    
+
+    <!--
+      <li class="github"><a href="http://github.com/artemsheludko" target="_blank"><i class="fa fa-github" aria-hidden="true"></i></a></li>
+    -->
+
+    
+      <li class="twitter"><a href="https://twitter.com/@DU_comp_mech" target="_blank"><i class="fa fa-twitter"></i></a></li>
+    
+
+    
+      <li class="researchgate"><a href="https://www.researchgate.net/profile/William_Coombs3" target="_blank"><i class="ai ai-researchgate"></i></a></li>
+    
+
+    
+      <li class="googlescholar"><a href="https://scholar.google.co.uk/citations?user=s_IQ4rAAAAAJ" target="_blank"><i class="ai ai-google-scholar"></i></a></li>
+    
+
+    
+      <li class="orcid"><a href="https://orcid.org/0000-0003-2099-1676" target="_blank"><i class="ai ai-orcid"></i></a></li>
+    
+
+    
+      <li class="researcherID"><a href="https://www.researcherid.com/rid/C-3288-2012" target="_blank"><i class="ai ai-researcherid"></i></a></li>
+    
+
+    <!--
+      <li class="facebook"><a href="https://facebook.com/" target="_blank"><i class="fa fa-facebook" aria-hidden="true"></i></a></li>
+    -->
+
+    <!--
+      <li class="instagram"><a href="https://instagram.com/" target="_blank"><i class="fa fa-instagram" aria-hidden="true"></i></a></li>
+    -->
+
+    <!--
+      <li class="pinterest"><a href="https://pinterest.com/" target="_blank"><i class="fa fa-pinterest" aria-hidden="true"></i></a></li>
+    -->
+    </ul>
+  </section> <!-- End About Body-->
+</footer> <!-- End Footer -->
+
+</div>
+
+<script src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML" type="text/javascript"></script>
+
+<!--<div class="recent-box">
+  <h2 class="recent-title">Other pages</h2>
+  <div class="recent-list">
+    
+      
+        <a href="/mpm/" class="recent-item" style="background: url(/assets/img/collapse1.jpg) center no-repeat; background-size: cover;"><span>Material Point Method</span></a>
+      
+    
+      
+        <a href="/principles/" class="recent-item" style="background: url(/assets/img/curve.jpg) center no-repeat; background-size: cover;"><span>Development Principles</span></a>
+      
+    
+      
+        <a href="/formulation/" class="recent-item" style="background: url(/assets/img/mechanics.jpg) center no-repeat; background-size: cover;"><span>Formulation</span></a>
+      
+    
+      
+        <a href="/structure/" class="recent-item" style="background: url(/assets/img/code.jpg) center no-repeat; background-size: cover;"><span>Code Structure</span></a>
+      
+    
+  </div>
+</div> <!-- End Recent-Box -->
+-->
+
+  <!-- JS -->
+<script src="/assets/js/jquery-3.2.1.min.js"></script>
+<script src="/assets/js/jekyll-search.js"></script>
+<script>
+  SimpleJekyllSearch({
+    searchInput: document.getElementById('search-input'),
+    resultsContainer: document.getElementById('results-container'),
+    json: '/search.json',
+    searchResultTemplate: '<li><a href="{url}" title="{desc}">{title}</a></li>',
+    noResultsText: 'No results found',
+    fuzzy: false,
+    exclude: ['Welcome']
+  });
+</script>
+<script src="/assets/js/main.js"></script>
+
+  <script>
+  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+  m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+  })(window,document,'script','https://www.google-analytics.com/analytics.js','ga');
+  ga('create', '', 'auto');
+  ga('send', 'pageview');
+</script> <!-- End Analytics -->
+
+</body>
+</html>

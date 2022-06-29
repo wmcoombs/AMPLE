@@ -1,0 +1,354 @@
+<!DOCTYPE html>
+
+<link rel="stylesheet" href="https://cdn.rawgit.com/jpswalsh/academicons/master/css/academicons.min.css">
+
+<html lang="en">
+<head>
+	<meta charset="utf-8">
+	<title>Code Structure - AMPLE - A Material Point Learning Environment</title>
+	<meta name="description" content="You’ll find this post in your `_posts` directory. Go ahead and edit it and re-build the site to see your changes.">
+	<meta http-equiv="X-UA-Compatible" content="IE=edge">
+	<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+	<meta property="og:image" content="">
+	<link rel="shortcut icon" href="/assets/img/favicon/favicon.ico" type="image/x-icon">
+	<link rel="apple-touch-icon" href="/assets/img/favicon/apple-touch-icon.png">
+	<link rel="apple-touch-icon" sizes="72x72" href="/assets/img/favicon/apple-touch-icon-72x72.png">
+	<link rel="apple-touch-icon" sizes="114x114" href="/assets/img/favicon/apple-touch-icon-114x114.png">
+	<!-- Chrome, Firefox OS and Opera -->
+	<meta name="theme-color" content="#311e3e">
+	<!-- Windows Phone -->
+	<meta name="msapplication-navbutton-color" content="#311e3e">
+	<!-- iOS Safari -->
+	<meta name="apple-mobile-web-app-status-bar-style" content="#311e3e">
+	<!-- Google Fonts -->
+	<link href="https://fonts.googleapis.com/css?family=Montserrat:300,400,700" rel="stylesheet">
+	<link href="https://fonts.googleapis.com/css?family=Lato:300,400,700" rel="stylesheet">
+	<!-- Font Awesome -->
+	<link rel="stylesheet" href="/assets/fonts/font-awesome/css/font-awesome.min.css">
+	<!-- Styles -->
+	<link rel="stylesheet" href="/assets/css/main.css">
+</head>
+
+<body>
+  <div class="flex-container">
+  <header class="main-header">
+  <div class="wrapper">
+    <div class="header-flex">
+      <div class="menu-icon-container">
+        <span class="menu-icon"><i class="fa fa-bars" aria-hidden="true"></i></span>
+      </div>
+      <nav class="main-nav">
+        <span class="menu-icon-close"><i class="fa fa-times" aria-hidden="true"></i></span>
+        <ul>
+          <li><a href="/">Homepage</a></li>
+          <li><a href="/mpm">MPM</a></li>
+          <li><a href="/principles">Development</a></li>
+          <li><a href="/formulation">Formulation</a></li>
+          <li><a href="/structure">Code Structure</a></li>
+          <li><a href="/tests">Test Cases</a></li>
+          <li><a href="/publications">Publications</a></li>
+          <li><a href="/versions">Versions</a></li>
+          <li><a href="/acknowledgements">acknowledgements</a></li>
+          <li><a href="/download">Download</a></li>
+          <!--<li><a href="/other">Other pages</a></li>-->
+          <li><a href="/about">About</a></li>
+        </ul>
+      </nav>
+      <p class="logo"><a href="/">AMPLE&#58;  A Material Point Learning Environment</a></p>
+      <div class="search-icon-container">
+        <span class="search-icon"><a><i class="fa fa-search" aria-hidden="true"></i></a></span>
+      </div>
+    </div>
+  </div>
+</header> <!-- End Header -->
+
+  <article class="article-page">
+    <div class="page-image">
+      <div class="cover-image" style="background: url(/assets/img/code.jpg) center no-repeat; background-size: cover;"></div>
+    </div>
+    <div class="wrapper">
+      <div class="page-content">
+        <div class="header-page">
+          <h1 class="page-title">Code Structure</h1>
+          <!--<div class="page-date"><time datetime="2019-01-05 06:00:00 +0000">2019, Jan 05</time></div>-->
+        </div>
+        <p>AMPLE’s high-level structure is below and comprises three loops:</p>
+
+<ul>
+  <li>
+    <p>a loadstep <strong>for</strong> loop that first determines the external forces at the nodes for the current step and then calculates the nodal basis functions and spatial derivatives for each material point.  The code then enters a <strong>while</strong> loop to find equilibrium between the internal and external forces. Once equilibrium has been obtained the material point positions and internal variables (deformation gradient, stress, elastic logarithmic strain, domain size, etc.) are updated.</p>
+  </li>
+  <li>
+    <p>a Newton-Raphson <strong>while</strong> loop to solve the global equilibrium equations on the background mesh.  The loop first solves the non-linear system of equations to determine the displacement and reaction force increments at the nodes before moving onto the determination of the current internal force and stiffness via a material point <strong>for</strong> loop.</p>
+  </li>
+  <li>
+    <p>a material point <strong>for</strong> loop that determines the internal force and stiffness contribution of each of the material points to the background mesh.</p>
+  </li>
+</ul>
+
+<p><img src="/assets/img/alg.jpg" alt="AMPLE algorithm" /></p>
+
+<p>AMPLE’s main script, <code class="highlighter-rouge">ample.m</code>, is shown in its entirety below.  The format of the code aligns with the algorithm shown above.  Comments are shown in green and have been truncated on the right hand side for clarity of the executed code.  Only two of the three loops described above can be seen in the main <code class="highlighter-rouge">ample.m</code> file: (1) a loadstep <strong>for</strong> loop spanning lines 9 through 33 and
+(2) a Newton-Raphson <strong>while</strong> loop over lines 21 through 30.  The material point loop is contained within the  <code class="highlighter-rouge">detMPs.m</code> function on line 25.</p>
+
+<p><img src="/assets/img/ampleMain.jpg" alt="AMPLE main code" /></p>
+
+<p>The main <code class="highlighter-rouge">ample.m</code> script calls eight functions, the purpose of each of these functions is explained below:</p>
+<ul>
+  <li>
+    <p><code class="highlighter-rouge">setupGrid</code>: called on line 3 of <code class="highlighter-rouge">ample.m</code>, the function returns the analysis-specific information such as details of the background grid and any information held at material points (position, material properties, etc.).</p>
+  </li>
+  <li>
+    <p><code class="highlighter-rouge">elemMPinfo</code>: called on line 1 of <code class="highlighter-rouge">ample.m</code>, the function determines the parent element(s) of each material point and the nodes that the material point influences.  Note that for the standard material point method each material point will only have one parent element but in the generalised interpolation material point method the domain of the point can overlap multiple elements.  The function also determines the basis functions at each of the material points and their spatial gradients based on the nodal positions at the start of the load step.  The function calls three other functions: <code class="highlighter-rouge">elemForMP</code> that finds the element(s) associated with the material point, <code class="highlighter-rouge">nodesForMP</code> that determines a unique list of nodes based on the element(s) associated with the material point and <code class="highlighter-rouge">MPMbasis</code> that determines the basis functions for the material point.  This function depends on the type of material point method and the form of the background mesh.</p>
+  </li>
+  <li>
+    <p><code class="highlighter-rouge">detExtForce</code>: called on line 12 of <code class="highlighter-rouge">ample.m</code>, the function determines the external force vector at the start of the load step based on the body and point forces at material points.</p>
+  </li>
+  <li>
+    <p><code class="highlighter-rouge">detFDoFs</code>: called on line 18 of <code class="highlighter-rouge">ample.m</code>, the function determines a list of the unknown displacement degrees of freedom of the background mesh based on the elements that <em>contain</em> material points and the displacement boundary conditions imposed on the mesh.</p>
+  </li>
+  <li>
+    <p><code class="highlighter-rouge">linSolve</code>: called on line 22 of <code class="highlighter-rouge">ample.m</code>, the function solves the linear system of equations to determine the iterative increment in the nodal displacements based on the current out-of-balance force residual.  The function also determines the increment in the reaction forces due to the constrained degrees of freedom on the background mesh.</p>
+  </li>
+  <li>
+    <p><code class="highlighter-rouge">detMPs</code>: called on line 25 of <code class="highlighter-rouge">ample.m</code>, the function determines the stiffness and internal force contribution of each material point to the background mesh and assembles these into a global stiffness matrix and internal force vector.  This function contains the updated Lagrangian formulation and the constitutive model controlling the stress-strain behaviour of each material point.  The function calls three other functions: <code class="highlighter-rouge">Hooke3D</code> a linear elastic constitutive model, <code class="highlighter-rouge">VMconst</code> a linear elastic perfectly plastic von Mises constitutive model and <code class="highlighter-rouge">formULstiff</code> a function to determine the consistent spatial tangent modulus.</p>
+  </li>
+  <li>
+    <p><code class="highlighter-rouge">updateMPs</code>: called on line 31 of <code class="highlighter-rouge">ample.m</code>, the function updates the positions and volumes of the material points based on the incremental nodal displacements and the current value of the deformation gradient at each material point.  For generalised interpolation material point methods, the function also updates the domain lengths.  This function depends on the type of material point method and will require modification if a user wishes to implement other domain-based methods.</p>
+  </li>
+  <li>
+    <p><code class="highlighter-rouge">postPro</code>: called on line 32 of <code class="highlighter-rouge">ample.m</code>, the function produces VTK output files that can be viewed when the analysis has finished via a suitable VTK file visualised (such as VisIt or Paraview, amongst others).  The function calls two functions: <code class="highlighter-rouge">makeVtk</code> and <code class="highlighter-rouge">makeVtkMP</code> that generate VTK files for the background mesh and the material points, respectively.</p>
+  </li>
+</ul>
+
+<p>The structure of these functions is shown diagrammatically below, where the solid and dashed lines around the function boxes indicate that the function does or does not calls other functions, respectively.  The black arrows indicate the function calls and the locations of the loops in the code are indicated by the grey lines.  For example, <code class="highlighter-rouge">Hook3d.m</code> is called by <code class="highlighter-rouge">detMPs.m</code>; and <code class="highlighter-rouge">linSolve.m</code> and <code class="highlighter-rouge">detMPs.m</code> are called within the equilibrium, or N-R, loop.</p>
+
+<p><img src="/assets/img/codeStructure.jpg" alt="AMPLE code structure" /></p>
+
+<p>The majority of AMPLE’s functions do not depend on: (i) the form of the background mesh, (ii) the type of material point methods adopted or (iii) the number of physical dimensions (1D, 2D plane strain or 3D).  The exceptions to this are: <code class="highlighter-rouge">elemMPinfo.m</code> which depends on the background mesh type and the material point variant and <code class="highlighter-rouge">updateMPs.m</code> which depends on the material point variant as different updating procedures are required for different material point methods.  Obviously <code class="highlighter-rouge">setupGrid.m</code> depends on all three of the above points as it contains the analysis-specific information that will change depending on the user’s requirements.</p>
+
+<p>The functions are organised into a number of folders depending on their purpose, specifically: <strong>constitutive</strong> contains the constitutive functions, <strong>setup</strong> contains the functions that are required to provide the analysis-specific information, <strong>plotting</strong> contains the post-processing files and <strong>functions</strong> contains the remaining M files. AMPLE’s file structure also contains <strong>output</strong> and <strong>documentation</strong> that contain the generated VTK files and AMPLE’s html documentation.</p>
+
+<h2 id="function-format">Function format</h2>
+
+<p>All of AMPLE’s functions share a common file format.  An example AMPLE function is shown below, specifically the function to determine the external forces on the background mesh based on body and point forces at material points, <code class="highlighter-rouge">detExtForce.m</code>, which is called on line 12 of <code class="highlighter-rouge">ample.m</code>. The function starts with a common comment block that includes the following information: (i) brief description/title; (ii) author and date information with a more detailed description of the function’s purpose; (iii) function call format; (iv) required input information; (v) the function’s output; and (vi) a <em>see also</em> section detailing the functions that are called by the function (in the case of <code class="highlighter-rouge">detExtForce.m</code>, none).</p>
+
+<p><img src="/assets/img/extForceExample.jpg" alt="AMPLE function format" /></p>
+
+<h2 id="data-structures">Data Structures</h2>
+
+<p>The majority of the analysis information required by AMPLE is stored in two structured arrays:</p>
+<ul>
+  <li>
+    <p><strong>mpData</strong>: that contains material point information, such as the point’s position, deformation gradient, Cauchy stress, etc.</p>
+  </li>
+  <li>
+    <p><strong>mesh</strong>: that contains information about the background mesh, such as the positions of the nodes and the topology of each of the background mesh elements.</p>
+  </li>
+</ul>
+
+<p>MATLAB’s structured arrays provide a convenient way to store the material point data as different material points will potentially influence different numbers of nodes and therefore will require different amounts of storage for, for example, the basis functions that influence the point and their spatial derivatives.</p>
+
+
+        <div class="page-footer">
+          <!--<div class="page-tag">
+            <span>Tags:</span>
+            
+          </div>--><!-- End Tags -->
+          <div class="page-share">
+            <span>Share:</span>
+            <a href="https://twitter.com/intent/tweet?text=Code Structure&url=http://localhost:4000/structure/" title="Share on Twitter" rel="nofollow" target="_blank"><i class="fa fa-twitter" aria-hidden="true"></i></a>
+            <a href="https://facebook.com/sharer.php?u=http://localhost:4000/structure/" title="Share on Facebook" rel="nofollow" target="_blank"><i class="fa fa-facebook" aria-hidden="true"></i></a>
+            <a href="https://plus.google.com/share?url=http://localhost:4000/structure/" title="Share on Google+" rel="nofollow" target="_blank"><i class="fa fa-google" aria-hidden="true"></i></a>
+          </div><!-- End Share -->
+        </div>
+        <section class="author-box">
+  <img src="/assets/img/plate.jpg" alt="AMPLE&#58;  A Material Point Learning Environment" class="author-img">
+  <div class="author-desc">
+    <h2>AMPLE&#58;  A Material Point Learning Environment</h2>
+    <p>AMPLE was developed to address the sevre learning curve for researchers wishing to understand, and start using, the material point method. The software was developed at Durham University between 2014 and 2018 by Dr Will Coombs as a platform to test our new research ideas and understand the impact of adopting different material point variants. AMPLE was first released in January 2019 at the 2nd International Conference on the Material Point Method held at Cambridge University, UK.
+</p>
+    <ul>
+      
+        <li class="email"><a href="mailto:w.m.coombs@durham.ac.uk"><i class="fa fa-envelope-o"></i></a></li>
+      
+      <!--
+        <li class="phone"><a href="tel:+44 191 334 2516"><i class="fa fa-phone"></i></a></li>
+      -->
+      
+        <li class="website"><a href="http://www.dur.ac.uk/engineering" target="_blank"><i class="fa fa-globe"></i></a></li>
+      
+      
+        <li class="twitter"><a href="https://twitter.com/@DU_comp_mech" target="_blank"><i class="fa fa-twitter"></i></a></li>
+      
+    </ul>
+  </div>
+</section>
+
+        <!--<div class="newsletter" id="mc_embed_signup">
+  <h2 class="newsletter-title">Newsletter</h2>
+  <div class="form-container">
+    <p>Subscribe here to get our latest updates</p>
+    <form action="//" method="post" id="mc-embedded-subscribe-form" name="mc-embedded-subscribe-form" class="validate" target="_blank" novalidate>
+      <label class="screen-reader-text" for="mce-EMAIL">Email Address</label>
+      <div class="newsletter-box" id="mc_embed_signup_scroll">
+        <input type="email" name="EMAIL" placeholder="Email address" class="email-input" id="mce-EMAIL" required>
+        <input type="submit" value="Subscribe" name="subscribe" class="subscribe-btn" id="mc-embedded-subscribe">
+      </div>
+    </form>
+  </div>
+</div> -->
+<!-- End Newsletter -->
+
+        <!-- <section class="comment-area">
+  <div class="comment-wrapper">
+    
+    <div id="disqus_thread" class="article-comments"></div>
+    <script>
+      (function() {
+          var d = document, s = d.createElement('script');
+          s.src = '//Dr-Coombs.disqus.com/embed.js';
+          s.setAttribute('data-timestamp', +new Date());
+          (d.head || d.body).appendChild(s);
+      })();
+    </script>
+    <noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+    
+  </div>
+</section> --> <!-- End Comment Area -->
+
+      </div>
+    </div> <!-- End Wrapper -->
+  </article>
+  <div class="search-box">
+  <div class="wrapper">
+    <div class="search-grid">
+      <form class="search-form">
+        <div id="search-container">
+          <input type="text" id="search-input" class="search" placeholder="Search">
+        </div>
+      </form>
+      <ul id="results-container" class="results-search"></ul>
+      <div class="icon-close-container">
+        <span class="search-icon-close"><i class="fa fa-times" aria-hidden="true"></i></span>
+      </div>
+    </div>
+  </div>
+</div>
+
+  <footer class="main-footer">
+  <div class="copyright">
+    <p>2020 &copy; AMPLE&#58;  A Material Point Learning Environment</p>
+  </div>
+  <section class="about-body">
+    <ul class="contact-list">
+    
+      <li class="email"><a href="mailto:w.m.coombs@durham.ac.uk"><i class="fa fa-envelope-o"></i></a></li>
+    
+
+    <!--
+      <li class="phone"><a href="tel:+44 191 334 2516"><i class="fa fa-phone"></i></a></li>
+    -->
+
+    
+      <li class="website"><a href="http://www.dur.ac.uk/engineering" target="_blank"><i class="fa fa-globe"></i></a></li>
+    
+
+    
+      <li class="linkedin"><a href="https://in.linkedin.com/in/william-coombs-1a0a5852" target="_blank"><i class="fa fa-linkedin"></i></a></li>
+    
+
+    <!--
+      <li class="github"><a href="http://github.com/artemsheludko" target="_blank"><i class="fa fa-github" aria-hidden="true"></i></a></li>
+    -->
+
+    
+      <li class="twitter"><a href="https://twitter.com/@DU_comp_mech" target="_blank"><i class="fa fa-twitter"></i></a></li>
+    
+
+    
+      <li class="researchgate"><a href="https://www.researchgate.net/profile/William_Coombs3" target="_blank"><i class="ai ai-researchgate"></i></a></li>
+    
+
+    
+      <li class="googlescholar"><a href="https://scholar.google.co.uk/citations?user=s_IQ4rAAAAAJ" target="_blank"><i class="ai ai-google-scholar"></i></a></li>
+    
+
+    
+      <li class="orcid"><a href="https://orcid.org/0000-0003-2099-1676" target="_blank"><i class="ai ai-orcid"></i></a></li>
+    
+
+    
+      <li class="researcherID"><a href="https://www.researcherid.com/rid/C-3288-2012" target="_blank"><i class="ai ai-researcherid"></i></a></li>
+    
+
+    <!--
+      <li class="facebook"><a href="https://facebook.com/" target="_blank"><i class="fa fa-facebook" aria-hidden="true"></i></a></li>
+    -->
+
+    <!--
+      <li class="instagram"><a href="https://instagram.com/" target="_blank"><i class="fa fa-instagram" aria-hidden="true"></i></a></li>
+    -->
+
+    <!--
+      <li class="pinterest"><a href="https://pinterest.com/" target="_blank"><i class="fa fa-pinterest" aria-hidden="true"></i></a></li>
+    -->
+    </ul>
+  </section> <!-- End About Body-->
+</footer> <!-- End Footer -->
+
+</div>
+
+<script src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML" type="text/javascript"></script>
+
+<!--<div class="recent-box">
+  <h2 class="recent-title">Other pages</h2>
+  <div class="recent-list">
+    
+      
+        <a href="/mpm/" class="recent-item" style="background: url(/assets/img/collapse1.jpg) center no-repeat; background-size: cover;"><span>Material Point Method</span></a>
+      
+    
+      
+        <a href="/principles/" class="recent-item" style="background: url(/assets/img/curve.jpg) center no-repeat; background-size: cover;"><span>Development Principles</span></a>
+      
+    
+      
+        <a href="/formulation/" class="recent-item" style="background: url(/assets/img/mechanics.jpg) center no-repeat; background-size: cover;"><span>Formulation</span></a>
+      
+    
+      
+        <a href="/structure/" class="recent-item" style="background: url(/assets/img/code.jpg) center no-repeat; background-size: cover;"><span>Code Structure</span></a>
+      
+    
+  </div>
+</div> <!-- End Recent-Box -->
+-->
+
+  <!-- JS -->
+<script src="/assets/js/jquery-3.2.1.min.js"></script>
+<script src="/assets/js/jekyll-search.js"></script>
+<script>
+  SimpleJekyllSearch({
+    searchInput: document.getElementById('search-input'),
+    resultsContainer: document.getElementById('results-container'),
+    json: '/search.json',
+    searchResultTemplate: '<li><a href="{url}" title="{desc}">{title}</a></li>',
+    noResultsText: 'No results found',
+    fuzzy: false,
+    exclude: ['Welcome']
+  });
+</script>
+<script src="/assets/js/main.js"></script>
+
+  <script>
+  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+  m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+  })(window,document,'script','https://www.google-analytics.com/analytics.js','ga');
+  ga('create', '', 'auto');
+  ga('send', 'pageview');
+</script> <!-- End Analytics -->
+
+</body>
+</html>
