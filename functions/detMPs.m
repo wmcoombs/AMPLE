@@ -49,7 +49,6 @@ fint  = zeros(size(uvw));                                                   % ze
 npCnt = 0;                                                                  % counter for the number of entries in Kt
 tnSMe = sum([mpData.nSMe]);                                                 % total number of stiffness matrix entries
 krow  = zeros(tnSMe,1); kcol=krow; kval=krow;                               % zero the stiffness information
-ddF   = zeros(3);                                                           % derivative of duvw wrt. spatial position
 
 nD = length(mpData(1).mpC);
 
@@ -67,7 +66,7 @@ else                                                                        % 3D
     sPos=[1 2 3 4 4 5 5 6 6];
 end
 
-for mp=1:nmp                                                                % material point loop
+parfor mp=1:nmp                                                                % material point loop
     
     nIN = mpData(mp).nIN;                                                   % nodes associated with the material point 
     dNx = mpData(mp).dSvp;                                                  % basis function derivatives (start of lstp)
@@ -88,6 +87,7 @@ for mp=1:nmp                                                                % ma
         G([8 7 3],3:nD:end)=dNx;
     end
     
+    ddF   = zeros(3);                                                           % derivative of duvw wrt. spatial position
     ddF(fPos) = G*uvw(ed);                                                  % spatial gradient (start of lstp) of displacements
     dF     = (eye(3)+ddF);                                                  % deformation gradient increment
     F      = dF*mpData(mp).Fn;                                              % deformation gradient
@@ -128,7 +128,19 @@ for mp=1:nmp                                                                % ma
     mpData(mp).F    = F;                                                    % store deformation gradient
     mpData(mp).sig  = sig;                                                  % store Cauchy stress
     mpData(mp).epsE = epsE;                                                 % store elastic logarithmic strain
-    
+    mpData(mp).temp_kp = kp;                                                 % store elastic logarithmic strain
+    mpData(mp).temp_fp = fp;                                                 % store elastic logarithmic strain
+end    
+
+for mp=1:nmp    
+    nIN = mpData(mp).nIN;                                                   % nodes associated with the material point 
+    dNx = mpData(mp).dSvp;                                                  % basis function derivatives (start of lstp)
+    nn  = size(dNx,2);                                                      % no. dimensions & no. nodes
+    ed  = repmat((nIN-1)*nD,nD,1)+repmat((1:nD).',1,nn);                    % degrees of freedom of nodes (matrix form)
+    ed  = reshape(ed,1,nn*nD);                                              % degrees of freedom of nodes (vector form)
+
+    kp = mpData(mp).temp_kp;
+    fp = mpData(mp).temp_fp;
     npDoF=(size(ed,1)*size(ed,2))^2;                                        % no. entries in kp
     nnDoF=size(ed,1)*size(ed,2);                                            % no. DoF in kp                        
     krow(npCnt+1:npCnt+npDoF)=repmat(ed.',nnDoF,1);                         % row position storage
