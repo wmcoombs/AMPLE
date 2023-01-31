@@ -19,23 +19,23 @@
 % POSTPRO               - post processing function including vtk output
 %--------------------------------------------------------------------------
 clear;
-addpath('constitutive','functions','plotting','setup');        
-[lstps,g,mpData,mesh] = setupGrid_collapse;                                          % setup information
-NRitMax = 10; tol = 1e-9;                                                   % Newton Raphson parameters
-[nodes,nD] = size(mesh.coord);                                              % number of nodes and dimensions
-[nels,nen] = size(mesh.etpl);                                               % number of elements and nodes/element
-nDoF = nodes*nD;                                                            % total number of degrees of freedom
-nmp  = length(mpData);                                                      % number of material points
-lstp = 0;                                                                   % zero loadstep counter (for plotting function)
-uvw  = zeros(nDoF,1);                                                       % zeros displacements (for plotting function)
-run postPro;                                                                % plotting initial state & mesh
 csv_file = fopen("timing.csv","w");
 fprintf(csv_file,"threads,time,throughput\n");
 fclose(csv_file);
+addpath('constitutive','functions','plotting','setup');  
 for threads = [1,2,4,8,16]
     fprintf(1,'Threads %i\n',threads);
     delete(gcp('nocreate'));
     parpool("local",threads);
+    [lstps,g,mpData,mesh] = setupGrid_collapse;                                          % setup information
+    NRitMax = 10; tol = 1e-9;                                                   % Newton Raphson parameters
+    [nodes,nD] = size(mesh.coord);                                              % number of nodes and dimensions
+    [nels,nen] = size(mesh.etpl);                                               % number of elements and nodes/element
+    nDoF = nodes*nD;                                                            % total number of degrees of freedom
+    nmp  = length(mpData);                                                      % number of material points
+    lstp = 0;                                                                   % zero loadstep counter (for plotting function)
+    uvw  = zeros(nDoF,1);                                                       % zeros displacements (for plotting function)
+    run postPro;                                                                % plotting initial state & mesh
     tic;
     for lstp=1:lstps                                                            % loadstep loop
       fprintf(1,'\n%s %4i %s %4i\n','loadstep ',lstp,' of ',lstps);             % text output to screen (loadstep)
