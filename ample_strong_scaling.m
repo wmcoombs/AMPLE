@@ -23,7 +23,7 @@ csv_file = fopen("timing.csv","w");
 fprintf(csv_file,"threads,time,throughput\n");
 fclose(csv_file);
 addpath('constitutive','functions','plotting','setup');  
-for threads = [1,2,4,8,16]
+for threads = [1,4]
     fprintf(1,'Threads %i\n',threads);
     delete(gcp('nocreate'));
     parpool("local",threads);

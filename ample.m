@@ -30,6 +30,7 @@ lstp = 0;                                                                   % ze
 uvw  = zeros(nDoF,1);                                                       % zeros displacements (for plotting function)
 run postPro;                                                                % plotting initial state & mesh
 disp(nmp)
+%parpool("threads")
 %mpData_a = mpData
 %mpData_b = mpData
 for lstp=1:lstps                                                            % loadstep loop
