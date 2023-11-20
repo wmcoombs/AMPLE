@@ -21,18 +21,10 @@
 clear;
 addpath('constitutive','functions','plotting','setup','splitting');        
 split_count = 1;
+
 for split_count = 4:4
 [lstps,g,mpData,mesh] = setupGrid(1);                                          % setup information
-%mpData = split_mps(mesh,mpData,2*ones(length(mpData),1));
-%mpData = split_mps(mesh,mpData,2*ones(length(mpData),1));
 for i=1:split_count
-    %to_split = zeros(length(mpData),1);
-    %nmp = length(mpData);
-    %for mp=1:nmp 
-    %    if mpData(mp).mpC(2) < 1
-    %        to_split(mp) = 2;
-    %    end
-    %end
     mpData = split_mps(mesh,mpData,2*ones(length(mpData),1));
     %mpData = split_mps(mesh,mpData,to_split);
 end
@@ -97,7 +89,12 @@ for lstp=1:lstps                                                            % lo
   pause(0.5)
   ylim([0, max(pos_y)* 1.1])
   while (fErr > tol) && (NRit < NRitMax) || (NRit < 2)                      % global equilibrium loop
+    if split_count > 0
     [duvw,drct] = linSolve(mesh.bc,Kt,oobf,NRit,fd);                        % linear solver
+    else
+      [duvw] = readmatrix(sprintf("cached_nodes/duvw_%d.csv",lstp))
+      [drct] = readmatrix(sprintf("cached_nodes/drct_%d.csv",lstp))
+    end
     uvw  = uvw+duvw;                                                        % update displacements
     frct = frct+drct;                                                       % update reaction forces
     [fint,Kt,mpData] = detMPs(uvw,mpData);                                  % global stiffness & internal force
@@ -105,7 +102,9 @@ for lstp=1:lstps                                                            % lo
     fErr = norm(oobf)/norm(fext+frct+eps);                                  % normalised oobf error
     NRit = NRit+1;                                                          % increment the NR counter
     fprintf(1,'%s %2i %s %8.3e\n','  iteration ',NRit,' NR error ',fErr);   % text output to screen (NR error)
-  end                           
+  end
+  writematrix(duvw,sprintf("cached_nodes/duvw_%d.csv",lstp))
+  writematrix(drct,sprintf("cached_nodes/drct_%d.csv",lstp))
   mpData = updateMPs(uvw,mpData);                                           % update material points
   too_long_crit = split_critera(mesh,mpData,1);
   if(any(too_long_crit))

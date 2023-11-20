@@ -104,6 +104,8 @@ parfor mp=1:nmp                                                                %
         [D,Ksig,epsE]=Hooke3d(epsEtr,mpData(mp).mCst);                      % elastic behaviour
     elseif mpData(mp).cmType == 2
         [D,Ksig,epsE]=VMconst(epsEtr,mpData(mp).mCst);                      % elasto-plastic behaviour (von Mises)
+    elseif mpData(mp).cmType == 3
+        [D,Ksig,epsE]=exactPR(epsEtr,mpData(mp).mCst(1),mpData(mp).mCst(2),mpData(mp).mCst(3));                      % elasto-plastic behaviour (von Mises)
     end
 
     %----------------------------------------------------------------------
