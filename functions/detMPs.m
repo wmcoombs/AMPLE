@@ -105,9 +105,12 @@ parfor mp=1:nmp                                                                %
     elseif mpData(mp).cmType == 2
         [D,Ksig,epsE]=VMconst(epsEtr,mpData(mp).mCst);                      % elasto-plastic behaviour (von Mises)
     end
+
     %----------------------------------------------------------------------
-    
+    %D = D * det(F);
+    %Ksig = Ksig * det(F);
     sig = Ksig/det(F);                                                      % Cauchy stress
+    %sig = Ksig/det(F);                                                      % Cauchy stress
     A   = formULstiff(F,D,sig,BeT);                                         % spatial tangent stiffness matrix
                                                             
     iF   = dF\eye(3);                                                       % inverse deformation gradient increment
