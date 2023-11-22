@@ -1,4 +1,4 @@
-function [Svp,dSvp] = MPMbasis(mesh,mpData,node)
+function [Svp,dSvp] = MPMbasis(mesh,mpData,node,cmat)
 
 %Basis functions for the material point method
 %--------------------------------------------------------------------------
@@ -7,14 +7,14 @@ function [Svp,dSvp] = MPMbasis(mesh,mpData,node)
 % Description:
 % Function to determine the multi-dimensional MPM shape functions from the
 % one dimensional MPM functions.  The function includes both the standard
-% and generalised interpolation material point methods. 
+% and generalised interpolation material point methods.
 %
 %--------------------------------------------------------------------------
 % [Svp,dSvp] = MPMBASIS(coord,mpC,L)
 %--------------------------------------------------------------------------
 % Input(s):
 % mesh   - mesh data structured array. Function requires:
-%           - coord  : nodal coordinates  
+%           - coord  : nodal coordinates
 %           - h      : grid spacing
 %
 % mpData - material point structured array.  Function requires:
@@ -26,7 +26,7 @@ function [Svp,dSvp] = MPMbasis(mesh,mpData,node)
 %--------------------------------------------------------------------------
 % Ouput(s);
 % Svp   - particle characteristic function
-% dSvp  - gradient of the characterstic function 
+% dSvp  - gradient of the characterstic function
 %--------------------------------------------------------------------------
 % See also:
 % SVPMPM    - MPM basis functions in 1D (mpType = 1
@@ -34,17 +34,25 @@ function [Svp,dSvp] = MPMbasis(mesh,mpData,node)
 %--------------------------------------------------------------------------
 
 coord  = mesh.coord(node,:);                                                % node coordinates
-h      = mesh.h;                                                            % grid spacing
 mpC    = mpData.mpC;                                                        % material point coordinates
 lp     = mpData.lp;                                                         % material point domain length
 mpType = mpData.mpType;                                                     % material point type (MPM or GIMPM)
 nD     = size(mpC,1)*size(mpC,2);                                           % number of dimensions
+h = mesh.h;
+if nargin == 4
+    mpC = cmat;
+    lp = zeros(size(lp));
+    mpType = 1;
+end
+
 S=zeros(nD,1); dS=S; dSvp=S;                                                % zero vectors used in calcs
 for i=1:nD
     if mpType == 1
-        [S(i),dS(i)] = SvpMPM(mpC(i),coord(i),h(i));                        % 1D MPM functions
+        h_XY   = h(i);                                % grid spacing
+        [S(i),dS(i)] = SvpMPM(mpC(i),coord(i),h_XY);                        % 1D MPM functions
     elseif mpType == 2
-        [S(i),dS(i)] = SvpGIMP(mpC(i),coord(i),h(i),lp(i));                 % 1D GIMPM functions
+        h_XY   = h(i);
+        [S(i),dS(i)] = SvpGIMP(mpC(i),coord(i),h_XY,lp(i));                 % 1D GIMPM functions
     end
 end
 if nD == 1
@@ -55,7 +63,7 @@ elseif nD == 3
     indx = [2 3; 1 3; 1 2];                                                 % index for basis derivatives (3D)
 end
 Svp=prod(S);                                                                % basis function
-for i=1:nD                                                                  
+for i=1:nD
     dSvp(i)=dS(i)*prod(S(indx(i,:)));                                       % gradient of the basis function
 end
 end

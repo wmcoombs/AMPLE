@@ -1,0 +1,42 @@
+function [Dalg,sig,epsE] = exactPR(epsEn,epsEt,E,v,fc)
+epsEn=[epsEn(1:3);epsEn([4 4 5 5 6 6])/2]; epsEt=[epsEt(1:3);epsEt([4 4 5 5 6 6])/2];
+bm1=[1 1 1 0 0 0 0 0 0]'; tol=1e-12; 
+I9=zeros(9); I9(1:3,1:3)=eye(3); I9(4:5,4:5)=1/2; I9(6:7,6:7)=1/2; I9(8:9,8:9)=1/2;  
+G=E/(2*(1+v)); K=E/(3*(1-2*v));
+De=K/3*bm1*bm1.'+2*G*(I9-bm1*bm1.'/3); Dalg=De;
+Ce=(1+v)*I9/E; Ce(1:3,1:3)=(-ones(3)*v+(1+v)*eye(3))/E;
+epsInc=epsEt-epsEn; epsE=epsEt;
+sig=De*(epsEt); str=sig-sum(sig(1:3))/3*bm1;
+fc = sqrt(2/3)*(fc);
+if (str.'*str-fc^2) > tol
+  eInc=epsInc-sum(epsInc(1:3))/3*bm1;
+  sig=De*epsEn;
+  s=sig-sum(sig(1:3))/3*bm1;
+  eIncN=sqrt(eInc.'*eInc);
+  alfa=(-s.'*eInc+sqrt((s.'*eInc)^2-eIncN^2*(s.'*s-fc^2)))/(2*G*eIncN^2);
+  sAlfa=s+2*G*alfa*eInc;
+  xsi=exp(-2*G*(1-alfa)*eIncN/fc);
+  zet=sAlfa.'*eInc/(eIncN*fc);
+  m=1+xsi^2+zet*(1-xsi^2);
+  n=1-xsi^2+zet*(1-xsi)^2;
+  bta=2*xsi/m;
+  gam=(fc/eIncN)*n/m;
+  sig=K*sum(epsEt(1:3))/3*bm1+bta*sAlfa+gam*eInc;
+  epsE=Ce*sig;
+  as=1/(2*G*eIncN^2)*(s.'*eInc/(sAlfa.'*eInc)-1);
+  ae=1/(2*G*eIncN^2)*((s.'*s-fc^2)/(sAlfa.'*eInc)+4*G*alfa);
+  bs=s.'*eInc/(fc*eIncN*(sAlfa.'*eInc));
+  be=-(s.'*eInc)^2/(fc*eIncN^3*sAlfa.'*eInc);
+  cs=-2*G*alfa*eIncN*xsi/(fc*sAlfa.'*eInc);
+  ce=-2*G*xsi/(fc*eIncN*sAlfa.'*eInc)*((sAlfa-alfa*s).'*eInc);
+  gs=-fc/(eIncN*m^2)*(2*(m*zet+(m+n)*xsi*(1-zet))*cs+(n-m+2*m*xsi-(m+n)*xsi^2)*bs);
+  ge=-fc/(eIncN*m^2)*(2*(m*zet+(m+n)*xsi*(1-zet))*ce+(n-m+2*m*xsi-(m+n)*xsi^2)*be+n*m/eIncN^2);
+  fs=2/m^2*((m-2*xsi^2*(1-zet))*cs-xsi*(1-xsi^2)*bs);
+  fe=2/m^2*((m-2*xsi^2*(1-zet))*ce-xsi*(1-xsi^2)*be);
+  qs=2*G*alfa*fs+gs+2*G*as*bta; 
+  qe=2*G*alfa*fe+ge-2*G*ae*bta;
+  eta=gam+2*G*alfa*bta;
+  Dalg=fs*s*s.'+fe*s*eInc.'+qs*eInc*s.'+qe*eInc*eInc.'+(K-eta)/3*bm1*bm1.'+eta*I9;
+end
+sig=sig([1:4 6 8]); epsE=[epsE(1:3);2*epsE([4 6 8])];
+Dalg=Dalg([1:4 6 8],[1:4 6 8]); 

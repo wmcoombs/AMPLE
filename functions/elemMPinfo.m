@@ -48,6 +48,9 @@ lp   = reshape([mpData.lp] ,nD,nmp).';                                      % al
 eInA = zeros(nels,1);                                                       % zero elements taking part in the analysis
 for mp = 1:nmp
     eIN  = elemForMP(mesh.coord,mesh.etpl,mpC(mp,:),lp(mp,:));              % elements connected to the material point
+    if length(eIN) == 0
+        disp("No elements");
+    end
     nIN  = nodesForMP(mesh.etpl,eIN).';                                     % unique list of nodes associated with elements
     nn   = length(nIN);                                                     % number of nodes influencing the MP
     Svp  = zeros(1,nn);                                                     % zero basis functions
@@ -64,6 +67,22 @@ for mp = 1:nmp
     mpData(mp).dSvp = dSvp;                                                 % basis function derivatives
     mpData(mp).nSMe = (nn*nD)^2;                                            % number stiffness matrix components
     eInA(eIN) = 1;                                                          % identify elements in the analysis
+    if mpData(mp).mpType == 2
+        for c = 1:4
+            cmat = mpData(mp).C(c,:);
+            eIN  = elemForMP(mesh.coord,mesh.etpl,cmat,0);% elements connected to the material point
+            nIN  = nodesForMP(mesh.etpl,eIN).';
+            nn   = length(nIN);                                                 % number of nodes influencing the MP
+            Svp  = zeros(1,nn);                                                 % zero basis functions
+            for i = 1:nn
+                node = nIN(i);                                                  % current node
+                [S,~] = MPMbasis(mesh,mpData(mp),node,cmat);                         % basis function and spatial derivatives
+                Svp(i) = Svp(i) + S;                                            % basis functions for all nodes
+            end
+            mpData(mp).CSvp(c).Svp = Svp;
+            mpData(mp).CNodes(c).N = nIN;
+        end
+    end
 end
 mesh.eInA = eInA;                                                           % store eInA to mesh structured array
 end

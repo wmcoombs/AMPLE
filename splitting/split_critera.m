@@ -6,5 +6,6 @@ nmp = length(mpData);
 parfor mp=1:nmp 
 %to_split(mp) = (mpData(mp).lp(1) > (0.5*factor*mesh.h(1))) || (mpData(mp).lp(2) > (0.5*factor*mesh.h(2)));
 to_split(mp) = (mpData(mp).lp(2) > (0.5*factor*mesh.h(2)));
+%to_split(mp) = to_split(mp) || (mpData(mp).vp <= 0);
 end
 

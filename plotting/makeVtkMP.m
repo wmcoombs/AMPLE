@@ -1,4 +1,4 @@
-function makeVtkMP(mpC,sig,uvw,mpFileName)
+function makeVtkMP(mpC,sig,uvw,lp,plastic,mpFileName)
 
 %VTK output file generation: material point data
 %--------------------------------------------------------------------------
@@ -67,6 +67,21 @@ fprintf(fid,'\n');
 fprintf(fid,'SCALARS sigma_zx FLOAT %i\n',1);
 fprintf(fid,'LOOKUP_TABLE default\n');
 fprintf(fid,'%f\n',sig(:,6));
+fprintf(fid,'\n');
+
+fprintf(fid,'SCALARS l_x FLOAT %i\n',1);
+fprintf(fid,'LOOKUP_TABLE default\n');
+fprintf(fid,'%f\n',lp(:,1));
+fprintf(fid,'\n');
+
+fprintf(fid,'SCALARS l_y FLOAT %i\n',1);
+fprintf(fid,'LOOKUP_TABLE default\n');
+fprintf(fid,'%f\n',lp(:,2));
+fprintf(fid,'\n');
+
+fprintf(fid,'SCALARS plastic FLOAT %i\n',1);
+fprintf(fid,'LOOKUP_TABLE default\n');
+fprintf(fid,'%f\n',plastic(:));
 fprintf(fid,'\n');
 
 

@@ -1,2 +1,5 @@
 
 *.vtk
+cached_nodes/
+load_disp_refine/
+split_output/

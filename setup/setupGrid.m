@@ -54,15 +54,16 @@ function [lstps,g,mpData,mesh] = setupGrid(mps_per_cell)
 %--------------------------------------------------------------------------
 
 %% Analysis parameters
-E      = 1e3;   v = 0;                                                      % Young's modulus, Poisson's ratio   
-mCst   = [E v 1e9];                                                             % material constants
+E      = 1e4;   v = 0;                                                      % Young's modulus, Poisson's ratio   
+mCst   = [E v 1e0];                                                             % material constants
 g      = -10;                                                                % gravity
-rho    = 50;                                                                % material density
-lstps  = 5000;                                                                % number of loadsteps
+rho    = 35;                                                                % material density
+lstps  = 50;                                                                % number of loadsteps
 nelsx  = 1;                                                                 % number of elements in the x direction
-nelsy  = 2^6;                                                               % number of elements in the y direction
+height_scale = 32;
+nelsy  = 2^1 * height_scale;                                                               % number of elements in the y direction
 ly_mps     = 16;
-ly     = ly_mps*16;  lx = ly/nelsy;                                                % domain dimensions
+ly     = ly_mps*height_scale;  lx = ly/nelsy;                                                % domain dimensions
 lx_mps = lx;                                                % domain dimensions
 mp     = mps_per_cell;                                                                 % number of material points in each direction per element
 mpType = 2;                                                                 % material point type: 1 = MPM, 2 = GIMP
@@ -91,6 +92,7 @@ mesh.etpl  = etpl;                                                          % el
 mesh.coord = coord;                                                         % nodal coordinates
 mesh.bc    = bc;                                                            % boundary conditions
 mesh.h     = h;                                                             % mesh size
+mesh.size = [lx,ly];
 
 %% Material point generation
 ngp    = mp^nD;                                                             % number of material points per element
@@ -112,6 +114,7 @@ lp(:,1) = h(1)/(2*mp);                                                      % do
 lp(:,2) = h(2)/(2*mp);                                                      % domain half length y-direction
 vp      = 2^nD*lp(:,1).*lp(:,2);                                            % volume associated with each material point
 
+lp = lp.*(1-10^-7);                                                         % slight change to material point domain size
 %% Material point structure generation
 for mp = nmp:-1:1                                                           % loop backwards over MPs so array doesn't change size
   mpData(mp).mpType = mpType;                                               % material point type: 1 = MPM, 2 = GIMP
@@ -130,10 +133,14 @@ for mp = nmp:-1:1                                                           % lo
   mpData(mp).sig    = zeros(6,1);                                           % Cauchy stress
   mpData(mp).epsEn  = zeros(6,1);                                           % previous elastic strain (logarithmic)
   mpData(mp).epsE   = zeros(6,1);                                           % elastic strain (logarithmic)
+  mpData(mp).epsPlastic   = zeros(6,1);                                           % elastic strain (logarithmic)
   mpData(mp).mCst   = mCst;                                                 % material constants (or internal variables) for constitutive model
   mpData(mp).fp     = zeros(nD,1);                                          % point forces at material points
   mpData(mp).u      = zeros(nD,1);                                          % material point displacements
   if mpData(mp).mpType == 2
+    x = lp(mp,1);y = lp(mp,2);                                          % size of the material point in x and y
+    cmat = mpCorners(x,y) + repmat(mpData(mp).mpC,4,1);                 % 
+    mpData(mp).C      = cmat;
     mpData(mp).lp     = lp(mp,:);                                           % material point domain lengths (GIMP)
     mpData(mp).lp0    = lp(mp,:);                                           % initial material point domain lengths (GIMP)
   else
