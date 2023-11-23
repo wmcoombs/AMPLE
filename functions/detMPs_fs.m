@@ -109,8 +109,6 @@ parfor mp=1:nmp                                                                %
     end
     mpData(mp).epsPlastic =  epsEtr - epsE;
     %----------------------------------------------------------------------
-    %D = D * det(F);
-    %Ksig = Ksig * det(F);
     sig = Ksig/det(F);                                                      % Cauchy stress
     %sig = Ksig/det(F);                                                      % Cauchy stress
     A   = formULstiff(F,D,sig,BeT);                                         % spatial tangent stiffness matrix

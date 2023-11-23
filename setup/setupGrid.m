@@ -57,11 +57,11 @@ function [lstps,g,mpData,mesh] = setupGrid(mps_per_cell)
 E      = 1e4;   v = 0;                                                      % Young's modulus, Poisson's ratio   
 mCst   = [E v 1e0];                                                             % material constants
 g      = -10;                                                                % gravity
-rho    = 35;                                                                % material density
-lstps  = 50;                                                                % number of loadsteps
+rho    = 20;                                                                % material density
+lstps  = 100;                                                                % number of loadsteps
 nelsx  = 1;                                                                 % number of elements in the x direction
 height_scale = 32;
-nelsy  = 2^1 * height_scale;                                                               % number of elements in the y direction
+nelsy  = 2^4 * height_scale;                                                               % number of elements in the y direction
 ly_mps     = 16;
 ly     = ly_mps*height_scale;  lx = ly/nelsy;                                                % domain dimensions
 lx_mps = lx;                                                % domain dimensions

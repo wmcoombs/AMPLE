@@ -1,4 +1,4 @@
-function [lstps,g,mpData,mesh] = setupGrid_collapse
+function [lstps,g,mpData,mesh] = setupGrid_collapse(mps_per_cell)
 
 %Problem setup information
 %--------------------------------------------------------------------------
@@ -54,13 +54,13 @@ function [lstps,g,mpData,mesh] = setupGrid_collapse
 E=1e6;   v=0.3;   fc=20e3;                                                  % Young's modulus, Poisson's ratio, yield strength   
 mCst=[E v fc];                                                              % material constants
 g=10;                                                                       % gravity
-rho=1000;                                                                   % material density
-lstps=20;                                                                   % number of loadsteps
-a = 2;                                                                      % element multiplier
+rho=5000;                                                                   % material density
+lstps=200;                                                                   % number of loadsteps
+a = 4;                                                                      % element multiplier
 nelsx=4*a;                                                                  % number of elements in the x direction
 nelsy=4*a;                                                                  % number of elements in the y direction
 ly=8;  lx=8;                                                                % domain dimensions
-mp=6;                                                                       % number of material points in each direction per element
+mp=mps_per_cell;                                                                       % number of material points in each direction per element
 mpType = 2;                                                                 % material point type: 1 = MPM, 2 = GIMP
 cmType = 2;                                                                 % constitutive model: 1 = elastic, 2 = vM plasticity
 
@@ -78,6 +78,7 @@ for node=1:nodes                                                            % lo
   end
   if coord(node,2)==0                                                       % roller (y=0)
     bc(node*2  ,:)=[node*2   0];
+    bc(node*2-1  ,:)=[node*2-1   0];
   end
 end
 bc = bc(bc(:,1)>0,:);                                                       % remove empty part of bc
@@ -87,6 +88,7 @@ mesh.etpl  = etpl;                                                          % el
 mesh.coord = coord;                                                         % nodal coordinates
 mesh.bc    = bc;                                                            % boundary conditions
 mesh.h     = h;                                                             % mesh size
+mesh.size = [lx,ly];
 
 %% Material point generation
 ngp    = mp^nD;                                                             % number of material points per element
@@ -107,6 +109,7 @@ lp = zeros(nmp,2);                                                          % ze
 lp(:,1) = h(1)/(2*mp);                                                      % domain half length x-direction
 lp(:,2) = h(2)/(2*mp);                                                      % domain half length y-direction
 vp      = 2^nD*lp(:,1).*lp(:,2);                                            % volume associated with each material point
+lp = lp.*(1-10^-7);                                                         % slight change to material point domain size
 
 %% Material point structure generation
 for mp = nmp:-1:1                                                           % loop backwards over MPs so array doesn't change size
@@ -123,12 +126,16 @@ for mp = nmp:-1:1                                                           % lo
   mpData(mp).Fn     = eye(3);                                               % previous deformation gradient
   mpData(mp).F      = eye(3);                                               % deformation gradient
   mpData(mp).sig    = zeros(6,1);                                           % Cauchy stress
+  mpData(mp).epsPlastic   = zeros(6,1);                                           % elastic strain (logarithmic)
   mpData(mp).epsEn  = zeros(6,1);                                           % previous elastic strain (logarithmic)
   mpData(mp).epsE   = zeros(6,1);                                           % elastic strain (logarithmic)
   mpData(mp).mCst   = mCst;                                                 % material constants (or internal variables) for constitutive model
   mpData(mp).fp     = zeros(nD,1);                                          % point forces at material points
   mpData(mp).u      = zeros(nD,1);                                          % material point displacements
   if mpData(mp).mpType == 2
+    x = lp(mp,1);y = lp(mp,2);                                          % size of the material point in x and y
+    cmat = mpCorners(x,y) + repmat(mpData(mp).mpC,4,1);                 % 
+    mpData(mp).C      = cmat;
     mpData(mp).lp     = lp(mp,:);                                           % material point domain lengths (GIMP)
     mpData(mp).lp0    = lp(mp,:);                                           % initial material point domain lengths (GIMP)
   else

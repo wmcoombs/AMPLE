@@ -21,8 +21,8 @@
 clear;
 addpath('constitutive','functions','plotting','setup','splitting');        
 split_count = 1;
-for split_count = 9:9
-[lstps,g,mpData,mesh] = setupGrid(1);                                          % setup information
+for split_count = 1:1
+[lstps,g,mpData,mesh] = setupGrid_collapse(1);                                          % setup information
 %mpData = split_mps(mesh,mpData,2*ones(length(mpData),1));
 %mpData = split_mps(mesh,mpData,2*ones(length(mpData),1));
 for i=1:split_count
@@ -33,7 +33,7 @@ for i=1:split_count
     %        to_split(mp) = 2;
     %    end
     %end
-    mpData = split_mps(mesh,mpData,2*ones(length(mpData),1));
+    mpData = split_mps(mesh,mpData,3*ones(length(mpData),1));
     %mpData = split_mps(mesh,mpData,to_split);
 end
 NRitMax = 50; tol = 1e-9;                                                   % Newton Raphson parameters
@@ -85,24 +85,26 @@ for lstp=1:lstps                                                            % lo
   data_load(lstp) = lstp;
   data_disp(lstp) = max(pos_y);
   %scatter(pos_x,pos_y,[],data_split);
-  %colours = zeros(nmp,3);
-  %positions = [(pos_x-lp_x*0.5)', (pos_y-lp_y*0.5)', lp_x',lp_y'];
-  %colours(:,1) = data_split;
-  %colours(:,2) = data_split==0;
-  %cla;
-  %for i=1:nmp
-  %  rectangle('Position', positions(i,:), 'FaceColor', colours(i,:));
-  %end
-  %colormap(colours);
+  colours = zeros(nmp,3);
+  positions = [(pos_x-lp_x*0.5)', (pos_y-lp_y*0.5)', lp_x',lp_y'];
+  colours(:,1) = data_split;
+  colours(:,2) = data_split==0;
+  cla;
+  for i=1:nmp
+    rectangle('Position', positions(i,:), 'FaceColor', colours(i,:));
+  end
+  colormap(colours);
   %xlim([0,mesh.h(1)]);
-  %caxis([0,1]);
-  %drawnow;
+  xlim([0,16]);
+  ylim([0,16]);
+  caxis([0,1]);
+  drawnow;
   %pause(0.1)
   %ylim([0, max(pos_y)* 1.1])
-  title("Load-displacement graph")
-  cla;
-  hold on;
-  plot(data_load(1:lstp),data_disp(1:lstp));
+  %title("Load-displacement graph")
+  %cla;
+  %hold on;
+  %plot(data_load(1:lstp),data_disp(1:lstp));
   while (fErr > tol) && (NRit < NRitMax) || (NRit < 2)                      % global equilibrium loop
     [duvw,drct] = linSolve(mesh.bc,Kt,oobf,NRit,fd);                        % linear solver
     uvw  = uvw+duvw;                                                        % update displacements

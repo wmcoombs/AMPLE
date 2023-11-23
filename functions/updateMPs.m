@@ -52,7 +52,7 @@ for mp=1:nmp
     ed  = repmat((nIN.'-1)*nD,1,nD)+repmat((1:nD),nn,1);                    % nodal degrees of freedom
     mpU = N*uvw(ed);                                                        % material point displacement
     mpData(mp).mpC   = mpData(mp).mpC + mpU;                                % update material point coordinates
-    %mpData(mp).vp    = det(F)*mpData(mp).vp0;                               % update material point volumes
+    mpData(mp).vp    = det(F)*mpData(mp).vp0;                               % update material point volumes
     mpData(mp).epsEn = mpData(mp).epsE;                                     % update material point elastic strains
     mpData(mp).Fn    = mpData(mp).F;                                        % update material point deformation gradients
     mpData(mp).u     = mpData(mp).u + mpU.';                                % update material point displacements
@@ -60,7 +60,7 @@ for mp=1:nmp
         throw(MException("AMPLE:negative_volume","MP volume is negative\n"));
     end
     if mpData(mp).mpType == 2                                               % GIMPM only (update domain lengths)   
-        corner_tracking = true;
+        corner_tracking = false;
         if corner_tracking == false
         [V,D] = eig(F.'*F);                                                 % eigen values and vectors F'F
         U     = V*sqrt(D)*V.';                                              % material stretch matrix        
@@ -78,8 +78,8 @@ for mp=1:nmp
               0.5*(max(mpData(mp).C(:,2)) - min(mpData(mp).C(:,2)))];
         nom = det(F(1:nD,1:nD))*mpData(mp).lp0(1)*mpData(mp).lp0(2);
         den = lp(1)*lp(2);
-        mpData(mp).lp(1) = lp(1);%*(nom/den).^(1/2);
-        mpData(mp).lp(2) = lp(2);%*(nom/den).^(1/2);
+        mpData(mp).lp(1) = lp(1)*(nom/den).^(1/2);
+        mpData(mp).lp(2) = lp(2)*(nom/den).^(1/2);
         x = mpData(mp).lp(1);
         y = mpData(mp).lp(2);
 

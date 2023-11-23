@@ -22,24 +22,27 @@ clear;
 addpath('constitutive','functions','plotting','setup','splitting');        
 split_count = 1;
 
+crit = 0.6;
 refine = true;
 refine_count = 1;
-max_refines = 6;
+max_refines = 10;
 refine_mats = {};
-[lstps,g,mpData,mesh] = setupGrid(1); 
+[lstps,g,mpData,mesh] = setupGrid_collapse(1); 
 plot_data_disp = zeros(max_refines,lstps);
 plot_data_load = zeros(max_refines,lstps);
 plot_lstp = zeros(max_refines,1);
 last_lstp = 1;
 while refine && refine_count < max_refines
-[lstps,g,mpData,mesh] = setupGrid(1);                                          % setup information
+[lstps,g,mpData,mesh] = setupGrid_collapse(1);                                          % setup information
 for i=1:split_count
-    mpData = split_mps(mesh,mpData,2*ones(length(mpData),1));
+    %mpData = split_mps(mesh,mpData,2*ones(length(mpData),1));
+    mpData = split_mps(mesh,mpData,3*ones(length(mpData),1));
     %mpData = split_mps(mesh,mpData,to_split);
 end
 disp("Refining MPS");
 for i=1:(refine_count-1)
-    mpData = split_mps(mesh,mpData,2*refine_mats{i});
+    %mpData = split_mps(mesh,mpData,2*refine_mats{i});
+    mpData = split_mps(mesh,mpData,3*refine_mats{i});
 end
 NRitMax = 50; tol = 1e-9;                                                   % Newton Raphson parameters
 use_cache = true;
@@ -85,9 +88,8 @@ lp = [mpData.lp];
   lp_y = lp(2:2:end)*2;
   %pos_y = pos_y(pos_x==pos_x(1));
   %pos_x = pos_x(pos_x==pos_x(1));
-  crit = 0.9;
   %data_split_m = split_critera(mesh,mpData,crit*0.25);
-  data_split_l = split_critera(mesh,mpData,crit*0.9);
+  data_split_l = split_critera(mesh,mpData,crit);
   data_split = data_split_l;
   %data_split = (0.5*(data_split_m.*(1-data_split_l))) + data_split_l;
   data_load(lstp) = lstp;
@@ -96,28 +98,30 @@ lp = [mpData.lp];
   plot_data_load(refine_count,lstp) = data_load(lstp);
   plot_lstp(refine_count) = lstp;
   %scatter(pos_x,pos_y,[],data_split);
-  %colours = zeros(nmp,3);
-  %positions = [(pos_x-lp_x*0.5)', (pos_y-lp_y*0.5)', lp_x',lp_y'];
-  %colours(:,1) = data_split;
-  %colours(:,2) = data_split==0;
-  %cla;
-  %for i=1:nmp
-  %  rectangle('Position', positions(i,:), 'FaceColor', colours(i,:));
-  %end
-  %colormap(colours);
-  %xlim([0,mesh.h(1)]);
-  %caxis([0,1]);
+  colours = zeros(nmp,3);
+  positions = [(pos_x-lp_x*0.5)', (pos_y-lp_y*0.5)', lp_x',lp_y'];
+  colours(:,1) = data_split;
+  colours(:,2) = data_split==0;
+  cla;
+  for i=1:nmp
+    rectangle('Position', positions(i,:), 'FaceColor', colours(i,:));
+  end
+  colormap(colours);
+  xlim([0,mesh.h(1)]);
+  caxis([0,1]);
+  xlim([0,16]);
+  ylim([0,16]);
   %ylim([0, 50]);
-  %drawnow;
+  drawnow;
   %pause(0.01)
   %ylim([0, max(pos_y)* 1.1]);%figure(2)
-  title("Load-displacement graph")
-  cla;
-  hold on;
-  for i = 1:(refine_count-1)
-    plot(plot_data_load(i,1:plot_lstp(i)),plot_data_disp(i,1:plot_lstp(i)));
-  end
-  plot(data_load(1:lstp),data_disp(1:lstp));
+  %title("Load-displacement graph")
+  %cla;
+  %hold on;
+  %for i = 1:(refine_count-1)
+  %  plot(plot_data_load(i,1:plot_lstp(i)),plot_data_disp(i,1:plot_lstp(i)));
+  %end
+  %plot(data_load(1:lstp),data_disp(1:lstp));
   
   while (fErr > tol) && (NRit < NRitMax) || (NRit < 2)                      % global equilibrium loop
     if refine_count > 1 && use_cache && NRit == 0 && lstp < last_lstp
@@ -127,7 +131,8 @@ lp = [mpData.lp];
       frct = frct_cache;
       [fint,Kt,mpData] = detMPs(uvw,mpData);                                  % global stiffness & internal force
       oobf = (fext-fint+frct);                                                % out-of-balance force
-      fErr = norm(oobf)/norm(fext+frct+eps);                                  % normalised oobf error
+      fErr = norm(oobf)/norm(fext+frct+eps); 
+      fprintf(1,'Cached error norm %8.3e\n',fErr);                                 % normalised oobf error
       if (fErr < 1e-10)
         fprintf(1,'Cached value acceped\n');
         fprintf(1,'Cached error norm %8.3e\n',fErr);
@@ -167,14 +172,14 @@ lp = [mpData.lp];
   %    fprintf(1,'Given up cached values\n');
   %    use_cache = false;
   %end
-  if ~use_cache || NRit > 3
+  %if ~use_cache || NRit > 3
   writematrix(uvw,sprintf("cached_nodes/uvw_%d.csv",lstp))
   writematrix(frct,sprintf("cached_nodes/frct_%d.csv",lstp))
-  end
+  %end
   %writematrix(duvw,sprintf("cached_nodes/duvw_%d.csv",lstp))
   %writematrix(drct,sprintf("cached_nodes/drct_%d.csv",lstp))
   mpData = updateMPs(uvw,mpData,mesh);                                           % update material points
-  too_long_crit = split_critera(mesh,mpData,1);
+  too_long_crit = split_critera(mesh,mpData,0.8);
   if(any(too_long_crit))
     max([mpData.lp])/mesh.h(2)
     throw(MException("AMPLE:domain_size","MP domain too long"));
@@ -187,15 +192,17 @@ catch e %e is an MException struct
   fprintf(1,'The identifier was:\n%s',e.identifier);
   fprintf(1,'There was an error! The message was:\n%s',e.message);
   refine = true;
-  new_split = split_critera(mesh,mpData,0.6);
+  new_split = split_critera(mesh,mpData,crit);
   refine_mats{refine_count} = new_split;  
   refine_count = refine_count + 1;
   last_lstp = lstp;
   if all(new_split == 0)
       refine = false;
       fprintf(1,'Simulation stopped, but due to a non-length scale issue\n');
+      throw(e);
   end
 end
+run postPro; 
 time = toc;
 fprintf(1,'Average throughput: %8.3e\n',time/lstp);
 data_load = data_load(1:lstp-1);
