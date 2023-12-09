@@ -60,49 +60,49 @@ for mp=1:nmp
         throw(MException("AMPLE:negative_volume","MP volume is negative\n"));
     end
     if mpData(mp).mpType == 2                                               % GIMPM only (update domain lengths)   
-        corner_tracking = false;
+        corner_tracking = true;
         if corner_tracking == false
-        [V,D] = eig(F.'*F);                                                 % eigen values and vectors F'F
-        U     = V*sqrt(D)*V.';                                              % material stretch matrix        
-        mpData(mp).lp = (mpData(mp).lp0).*U(t(1:nD));                       % update domain lengths
+            [V,D] = eig(F.'*F);                                                 % eigen values and vectors F'F
+            U     = V*sqrt(D)*V.';                                              % material stretch matrix        
+            mpData(mp).lp = (mpData(mp).lp0).*U(t(1:nD));                       % update domain lengths
         else
-        for c = 1:4
-            N = mpData(mp).CSvp(c).Svp;
-            nIN = mpData(mp).CNodes(c).N;
-            nn  = length(nIN);
-            ed  = repmat((nIN.'-1)*nD,1,nD)+repmat((1:nD),nn,1);                    % nodal degrees of freedom
-            mpU = N*uvw(ed);
-            mpData(mp).C(c,:) = mpData(mp).C(c,:) + mpU;
-        end
-        lp = [0.5*(max(mpData(mp).C(:,1)) - min(mpData(mp).C(:,1)));
-              0.5*(max(mpData(mp).C(:,2)) - min(mpData(mp).C(:,2)))];
-        nom = det(F(1:nD,1:nD))*mpData(mp).lp0(1)*mpData(mp).lp0(2);
-        den = lp(1)*lp(2);
-        mpData(mp).lp(1) = lp(1)*(nom/den).^(1/2);
-        mpData(mp).lp(2) = lp(2)*(nom/den).^(1/2);
-        x = mpData(mp).lp(1);
-        y = mpData(mp).lp(2);
-
-        % 
-        if ((-x + mpData(mp).mpC(1))<=0)
-            x = mpData(mp).mpC(1)-10^-7;
-        end
-        max_X = mesh.size(1);
-        if ((x + mpData(mp).mpC(1))>max_X)
-            x = (max_X - mpData(mp).mpC(1))-10^-7;
-        end
-        mpData(mp).lp(1) = x;
-
-
-        if ((-y + mpData(mp).mpC(2))<=0)
-            y = mpData(mp).mpC(2)-10^-7;
-        end
-        max_Y = mesh.size(2);
-        if ((y + mpData(mp).mpC(2))>max_Y)
-            y = (max_Y - mpData(mp).mpC(2))-10^-7;
-        end
-        mpData(mp).lp(2) = y;
-        mpData(mp).C = mpCorners(x,y) + repmat(mpData(mp).mpC,4,1);
+            for c = 1:4
+                N = mpData(mp).CSvp(c).Svp;
+                nIN = mpData(mp).CNodes(c).N;
+                nn  = length(nIN);
+                ed  = repmat((nIN.'-1)*nD,1,nD)+repmat((1:nD),nn,1);                    % nodal degrees of freedom
+                mpU = N*uvw(ed);
+                mpData(mp).C(c,:) = mpData(mp).C(c,:) + mpU;
+            end
+            lp = [0.5*(max(mpData(mp).C(:,1)) - min(mpData(mp).C(:,1)));
+                  0.5*(max(mpData(mp).C(:,2)) - min(mpData(mp).C(:,2)))];
+            nom = det(F(1:nD,1:nD))*mpData(mp).lp0(1)*mpData(mp).lp0(2);
+            den = lp(1)*lp(2);
+            mpData(mp).lp(1) = lp(1)*(nom/den).^(1/2);
+            mpData(mp).lp(2) = lp(2)*(nom/den).^(1/2);
+            x = mpData(mp).lp(1);
+            y = mpData(mp).lp(2);
+    
+            % 
+            if ((-x + mpData(mp).mpC(1))<=0)
+                x = mpData(mp).mpC(1)-10^-7;
+            end
+            %max_X = mesh.size(1);
+            %if ((x + mpData(mp).mpC(1))>max_X)
+            %    x = (max_X - mpData(mp).mpC(1))-10^-7;
+            %end
+            mpData(mp).lp(1) = x;
+    
+    
+            if ((-y + mpData(mp).mpC(2))<=0)
+                y = mpData(mp).mpC(2)-10^-7;
+            end
+            %max_Y = mesh.size(2);
+            %if ((y + mpData(mp).mpC(2))>max_Y)
+            %    y = (max_Y - mpData(mp).mpC(2))-10^-7;
+            %end
+            mpData(mp).lp(2) = y;
+            mpData(mp).C = mpCorners(x,y) + repmat(mpData(mp).mpC,4,1);
         end
     end
 end

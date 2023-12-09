@@ -1,4 +1,4 @@
-function makeVtkMP(mpC,sig,uvw,lp,plastic,mpFileName)
+function makeVtkMP(mpC,sig,uvw,lp,plastic,shear,mpFileName)
 
 %VTK output file generation: material point data
 %--------------------------------------------------------------------------
@@ -83,6 +83,12 @@ fprintf(fid,'SCALARS plastic FLOAT %i\n',1);
 fprintf(fid,'LOOKUP_TABLE default\n');
 fprintf(fid,'%f\n',plastic(:));
 fprintf(fid,'\n');
+
+fprintf(fid,'SCALARS shear FLOAT %i\n',1);
+fprintf(fid,'LOOKUP_TABLE default\n');
+fprintf(fid,'%f\n',shear(:));
+fprintf(fid,'\n');
+
 
 
 %% displacement output

@@ -54,17 +54,20 @@ function [lstps,g,mpData,mesh] = setupGrid(mps_per_cell)
 %--------------------------------------------------------------------------
 
 %% Analysis parameters
-E      = 1e4;   v = 0;                                                      % Young's modulus, Poisson's ratio   
-mCst   = [E v 1e0];                                                             % material constants
+E      = 1e4;   v = 0.2;                                                      % Young's modulus, Poisson's ratio   
+mCst   = [E v 1e1];                                                             % material constants
 g      = -10;                                                                % gravity
-rho    = 20;                                                                % material density
-lstps  = 100;                                                                % number of loadsteps
+rho    = 50;                                                                % material density
+lstps  = 50;                                                                % number of loadsteps
 nelsx  = 1;                                                                 % number of elements in the x direction
 height_scale = 32;
-nelsy  = 2^4 * height_scale;                                                               % number of elements in the y direction
+nelsy  = 2^5 * height_scale;                                                               % number of elements in the y direction
 ly_mps     = 16;
-ly     = ly_mps*height_scale;  lx = ly/nelsy;                                                % domain dimensions
-lx_mps = lx;                                                % domain dimensions
+ly     = ly_mps*height_scale; 
+lx = ly/nelsy;                                                % domain dimensions
+%nelsx_mp  = 2;
+%lx_mps = round(nelsx_mp*ly/nelsy);
+lx_mps = lx;% domain dimensions
 mp     = mps_per_cell;                                                                 % number of material points in each direction per element
 mpType = 2;                                                                 % material point type: 1 = MPM, 2 = GIMP
 cmType = 1;                                                                 % constitutive model: 1 = elastic, 2 = vM plasticity
@@ -82,6 +85,7 @@ for node=1:nodes                                                            % lo
     bc(node*2-1,:)=[node*2-1 0];    
   end
   if coord(node,2)==0 || coord(node,2)==ly                                                          % roller base
+    bc(node*2  ,:)=[node*2   0];
     bc(node*2  ,:)=[node*2   0];
   end
 end
