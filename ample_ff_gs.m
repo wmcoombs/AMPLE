@@ -21,7 +21,7 @@
 clear;
 addpath('constitutive','functions','plotting','setup','splitting');        
 split_count = 1;
-
+ghost_type = 0;%0 - no ghost; 1 - surface ghost; 2 - bulk ghost
 crit = 0.5;
 crit_stop = 0.6;
 refine = true;
@@ -31,6 +31,12 @@ refine_mats = {};
 [lstps,g,mpData,mesh] = setupGrid_collapse_ghost(1); 
 plot_data_disp = zeros(max_refines,lstps);
 plot_data_load = zeros(max_refines,lstps);
+plot_data_error = zeros(max_refines,lstps);
+[nodes,nD] = size(mesh.coord);                                              % number of nodes and dimensions
+[nels,nen] = size(mesh.etpl);                                               % number of elements and nodes/element
+nDoF = nodes*nD;   
+cache_frct = zeros(lstps,nDoF);
+cache_uvw  = zeros(lstps,nDoF);
 plot_lstp = zeros(max_refines,1);
 last_lstp = 1;
 delete('cached_nodes\*.csv')
@@ -75,11 +81,16 @@ lstp = 0;                                                                   % ze
 uvw  = zeros(nDoF,1);                                                       % zeros displacements (for plotting function)
 run postPro;                                                                % plotting initial state & mesh
 disp(nmp)
-%parpool("threads")
+%pool = 1;
+pool = gcp('nocreate');
+if isempty(pool)
+    pool = parpool("threads");
+end
 %mpData_a = mpData
 %mpData_b = mpData
 data_load = zeros(lstps,1);
 data_disp = zeros(lstps,1);
+data_error = zeros(lstps,1);
 data_split = zeros(lstps,nmp);
 tic;
 try
@@ -87,6 +98,10 @@ for lstp=1:lstps                                                            % lo
   fprintf(1,'\n%s %4i %s %4i\n','loadstep ',lstp,' of ',lstps);             % text output to screen (loadstep)
   [mesh,mpData] = elemMPinfo(mesh,mpData);                                  % material point - element information
   Ks   = mesh.ks*ghostPenalty(mesh);                                        % Ghost stabilisation matrix
+  if ~enable_ghost
+    Ks = Ks * 0;
+  end
+
   fext = detExtForce(nodes,nD,g,mpData);                                    % external force calculation (total)
   fext = fext*lstp/lstps;                                                   % current external force value
   oobf = fext;                                                              % initial out-of-balance force
@@ -96,62 +111,15 @@ for lstp=1:lstps                                                            % lo
   fd   = detFDoFs(mesh);                                                    % free degrees of freedom
   NRit = 0;                                                                 % zero the iteration counter
   Kt   = 0;                                                                 % zero global stiffness matrix
-pos = [mpData.mpC];
-lp = [mpData.lp];
-  pos_x = pos(1:2:end);
-  pos_y = pos(2:2:end);
-  lp_x = lp(1:2:end)*2;
-  lp_y = lp(2:2:end)*2;
-  %pos_y = pos_y(pos_x==pos_x(1));
-  %pos_x = pos_x(pos_x==pos_x(1));
-  %data_split_m = split_critera(mesh,mpData,crit*0.25);
-  data_split_l = split_critera(mesh,mpData,crit);
-  data_split_l(data_split_l==1) = 1;
-  data_split_l(data_split_l==2) = 1;
-  data_split_l(data_split_l==3) = 1;
-  data_split = data_split_l;
-  %data_split = (0.5*(data_split_m.*(1-data_split_l))) + data_split_l;
-  data_load(lstp) = lstp;
-  data_disp(lstp) = max(pos_x+(0.5*lp_x));
-  plot_data_disp(refine_count,lstp) = data_disp(lstp);
-  plot_data_load(refine_count,lstp) = data_load(lstp);
-  plot_lstp(refine_count) = lstp;
-  %scatter(pos_x,pos_y,[],data_split);#
-  if true
-      if true
-      colours = zeros(nmp,3);
-      positions = [(pos_x-lp_x*0.5)', (pos_y-lp_y*0.5)', lp_x',lp_y'];
-      colours(:,1) = data_split;
-      colours(:,2) = data_split==0;
-      cla;
-      for i=1:nmp
-        rectangle('Position', positions(i,:), 'FaceColor', colours(i,:));
-      end
-      colormap(colours);
-      xlim([0,mesh.h(1)]);
-      caxis([0,1]);
-      xlim([0,32]);
-      ylim([0,16]);
-      %ylim([0, 50]);
-      drawnow;
-      pause(0.5)
-      else
-      %ylim([0, max(pos_y)* 1.1]);%figure(2)
-      title("Load-displacement graph")
-      cla;
-      hold on;
-      for i = 1:(refine_count-1)
-        plot(plot_data_load(i,1:plot_lstp(i)),plot_data_disp(i,1:plot_lstp(i)));
-      end
-      plot(data_load(1:lstp),data_disp(1:lstp));
-      end
-  end
-  has_used_cache = false;
+    has_used_cache = false;
   while (fErr > tol) && (NRit < NRitMax) || (NRit < 2)                      % global equilibrium loop
     if refine_count > 1 && use_cache && NRit == 0 && lstp < last_lstp
       has_used_cache = true;
-      uvw_cache = readmatrix(sprintf("cached_nodes/uvw_%d.csv",lstp));
-      frct_cache = readmatrix(sprintf("cached_nodes/frct_%d.csv",lstp));
+      %uvw_cache = readmatrix(sprintf("cached_nodes/uvw_%d.csv",lstp));
+      %frct_cache = readmatrix(sprintf("cached_nodes/frct_%d.csv",lstp));
+
+      uvw_cache=cache_uvw(lstp,:)';
+      frct_cache=cache_frct(lstp,:)';
       %Kt = readmatrix(sprintf("cached_nodes/kt_%d.csv",lstp));
       uvw = uvw_cache;
       frct = frct_cache;
@@ -201,25 +169,103 @@ lp = [mpData.lp];
     stats_total_nr_steps = stats_total_nr_steps + NRit;
     stats_total_lstp_uncached = stats_total_lstp_uncached + 1;
   end
+
   %if NRit > 2 && use_cache
   %    fprintf(1,'Given up cached values\n');
   %    use_cache = false;
   %end
+  error = 0;
   if has_used_cache
       x = mesh.coord(:,1);
       y = mesh.coord(:,2);
       derr = (uvw_cache - uvw);
       %derr = derr/max(derr);
+      scale = 100;
       dx = derr(1:nD:end);
       dy = derr(2:nD:end);
-      hold on;
-      quiver(x,y,dx,dy);
+      error = sqrt(sum(dx.*dx + dy.*dy));
   end
+  pos = [mpData.mpC];
+  lp = [mpData.lp];
+  pos_x = pos(1:2:end);
+  pos_y = pos(2:2:end);
+  lp_x = lp(1:2:end)*2;
+  lp_y = lp(2:2:end)*2;
+  %pos_y = pos_y(pos_x==pos_x(1));
+  %pos_x = pos_x(pos_x==pos_x(1));
+  %data_split_m = split_critera(mesh,mpData,crit*0.25);
+  data_split_l = split_critera(mesh,mpData,crit);
+  data_split_l(data_split_l==1) = 1;
+  data_split_l(data_split_l==2) = 1;
+  data_split_l(data_split_l==3) = 1;
+  data_split = data_split_l;
+  %data_split = (0.5*(data_split_m.*(1-data_split_l))) + data_split_l;
+  data_load(lstp) = lstp;
+  data_disp(lstp) = max(pos_x+(0.5*lp_x));
+  data_error(lstp) = error;
+  plot_data_disp(refine_count,lstp) = data_disp(lstp);
+  plot_data_load(refine_count,lstp) = data_load(lstp);
+  plot_data_error(refine_count,lstp) = error;
+  plot_lstp(refine_count) = lstp;
+  %scatter(pos_x,pos_y,[],data_split);#
+  if true
+      if true
+      colours = zeros(nmp,3);
+      positions = [(pos_x-lp_x*0.5)', (pos_y-lp_y*0.5)', lp_x',lp_y'];
+      colours(:,1) = data_split;
+      colours(:,2) = data_split==0;
+      cla;
+      for i=1:nmp
+        rectangle('Position', positions(i,:), 'FaceColor', colours(i,:));
+      end
+      colormap(colours);
+      xlim([0,mesh.h(1)]);
+      caxis([0,1]);
+      xlim([0,32]);
+      ylim([0,16]);
+      %ylim([0, 50]);
+    
+      error = 0;
+      if has_used_cache
+          x = mesh.coord(:,1);
+          y = mesh.coord(:,2);
+          derr = (uvw_cache - uvw);
+          %derr = derr/max(derr);
+          scale = 100;
+          dx = derr(1:nD:end);
+          dy = derr(2:nD:end);
+          error = sqrt(sum(dx.*dx + dy.*dy));
+          fprintf(1,'Cache error norm: %8.3e\n',error);
+    
+          hold on;
+          quiver(x,y,dx*scale,dy*scale,'AutoScale','off');
+      end
+      else
+      %ylim([0, max(pos_y)* 1.1]);%figure(2)
+      figure(2);
+      title("Load-displacement graph")
+      cla;
+      hold on;
+      for i = 1:(refine_count-1)
+        plot(plot_data_load(i,1:plot_lstp(i)),plot_data_error(i,1:plot_lstp(i)));
+      end
+      plot(data_load(1:lstp),data_error(1:lstp));
+      end
+      drawnow;
+      pause(0.5)
+  end
+
+  %if NRit > 2 && use_cache
+  %    fprintf(1,'Given up cached values\n');
+  %    use_cache = false;
+  %end
   if ~use_cache || NRit > 3
     fprintf(1,"Cache updated\n");
     stats_total_cache_updates = stats_total_cache_updates+1;
-    writematrix(uvw,sprintf("cached_nodes/uvw_%d.csv",lstp))
-    writematrix(frct,sprintf("cached_nodes/frct_%d.csv",lstp))
+    cache_uvw(lstp,:) = uvw;
+    cache_frct(lstp,:) = frct;
+    %writematrix(uvw,sprintf("cached_nodes/uvw_%d.csv",lstp))
+    %writematrix(frct,sprintf("cached_nodes/frct_%d.csv",lstp))
   end
   %writematrix(duvw,sprintf("cached_nodes/duvw_%d.csv",lstp))
   %writematrix(drct,sprintf("cached_nodes/drct_%d.csv",lstp))
@@ -230,7 +276,7 @@ lp = [mpData.lp];
     throw(MException("AMPLE:domain_size","MP domain too long"));
   end
   drawnow;
-  title(sprintf("Refine count: %d - Loadstep: %d - MP count: %d",refine_count,lstp,nmp))
+  title(sprintf("Refine count: %d - Loadstep: %d - MP count: %d - Cache error: %8.3e",refine_count,lstp,nmp,error))
   %saveas(gcf,(sprintf("outframes/frame_05%d.png",framecount)));
   print(gcf,sprintf("outframes/frame_%05d.png",framecount),'-dpng','-r300');
   framecount =  framecount + 1;

@@ -5,3 +5,4 @@ load_disp_refine/
 split_output/
 AMPLE_GS_clean/
 outframes/
+*.asv
