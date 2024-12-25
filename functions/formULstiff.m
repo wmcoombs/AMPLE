@@ -50,6 +50,7 @@ T = [2*B(1) 0      0      2*B(4) 0      0      2*B(7) 0      0   ;          % ma
      0      B(6)   B(8)   0      B(3)   B(9)   B(5)   B(2)   0   ;
      B(3)   0      B(7)   B(6)   0      0      B(4)   B(1)   B(9);
      B(3)   0      B(7)   B(6)   0      0      B(4)   B(1)   B(9)];                                                         
+T(1,9) = T(1,7); T(1,7) = 0;
 A = D(t,t)*L(t,t)*T/(2*J)-S;                                                % consistent tangent stiffness matrix
 end
 
