@@ -1,5 +1,5 @@
-# GsAMPLE
-GsAMPLE - Ghost stabilised AMPLE (A Material Point Learning Environment)
+# AMPLE
+AMPLE - A Material Point Learning Environment
 
 AMPLE is a quasi-static implicit implementation of the material point method in MATLAB.  
 More informatio about AMPLE can be obtained from the project webapges:
