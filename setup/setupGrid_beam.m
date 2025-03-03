@@ -42,6 +42,11 @@ function [lstps,g,mpData,mesh] = setupGrid_beam
 %           - etpl  : element topology (nels,nen)
 %           - bc    : boundary conditions (*,2)
 %           - h     : background mesh size (nD,1)
+%           - ftpl  : face-element interactions
+%           - fntpl : face topology (node numbers)
+%           - eMin  : element lower coordinate limit 
+%           - eMax  : element upper coordainte limit 
+%           - ks    : Ghost stabilisation parameter
 %--------------------------------------------------------------------------
 % See also:
 % FORMCOORD2D - background mesh generation
@@ -56,18 +61,19 @@ g=10;                                                                       % gr
 rho=0;                                                                      % material density
 P=-100e3;                                                                   % applied end load
 lstps=50;                                                                   % number of loadsteps
-a = 1;                                                                      % element multiplier
+a = 2;                                                                      % element multiplier
 nelsx=22*a;                                                                 % number of elements in the x direction
-nelsy=20*a;                                                                 % number of elements in the y direction
-ly=10;  lx=11;                                                              % domain dimensions
+nelsy=22*a;                                                                 % number of elements in the y direction
+ly=11;  lx=11;                                                              % domain dimensions
 d=1;  l=10;                                                                 % beam dimensions
-mp=6;                                                                       % number of material points in each direction per element
+mp=3;                                                                       % number of material points in each direction per element
 mpType = 2;                                                                 % material point type: 1 = MPM, 2 = GIMP
 cmType = 1;                                                                 % constitutive model: 1 = elastic, 2 = vM plasticity
+ks = E;                                                                     % Ghost stabilisation parameter
 
 %% Mesh generation
-[etpl,coord] = formCoord2D(nelsx,nelsy,lx,ly);                              % background mesh generation
-[~,nen]      = size(etpl);                                                  % number of element nodes
+[etpl,coord,ftpl,fntpl] = formCoord2D(nelsx,nelsy,lx,ly);                   % background mesh generation
+[nels,nen]   = size(etpl);                                                  % number of elements and element nodes
 [nodes,nD]   = size(coord);                                                 % number of nodes and dimensions
 h            = [lx ly]./[nelsx nelsy];                                      % element lengths in each direction
 
@@ -77,24 +83,39 @@ for node=1:nodes                                                            % lo
   if coord(node,1)==0                                                       % roller (x=0)
     bc(node*2-1,:)=[node*2-1 0];    
   end
-  if coord(node,1)==0 && coord(node,2)==(ly-d/2)                            % mid-depth pin
+  if coord(node,1)==0 && coord(node,2)==(ly-3*d/2)                          % mid-depth pin
     bc(node*2  ,:)=[node*2   0];
   end
 end
 bc = bc(bc(:,1)>0,:);                                                       % remove empty part of bc
+
+%% Element limits for MP-element searching
+eMin = zeros(nels,nD);                                                      % element lower coordinate limit
+eMax = zeros(nels,nD);                                                      % element upper coordainte limit 
+for i = 1:nD
+    ci = coord(:,i);                                                        % nodal coordinates in current i direction
+    c  = ci(etpl);                                                          % reshaped element coordinates in current i direction
+    eMin(:,i) = min(c,[],2);                                                % element lower coordinate limit 
+    eMax(:,i) = max(c,[],2);                                                % element upper coordainte limit 
+end
 
 %% Mesh data structure generation
 mesh.etpl  = etpl;                                                          % element topology
 mesh.coord = coord;                                                         % nodal coordinates
 mesh.bc    = bc;                                                            % boundary conditions
 mesh.h     = h;                                                             % mesh size
+mesh.ftpl  = ftpl;                                                          % face-element interactions
+mesh.fntpl = fntpl;                                                         % face topology (node numbers)
+mesh.eMin  = eMin;                                                          % element lower coordinate limit 
+mesh.eMax  = eMax;                                                          % element upper coordainte limit 
+mesh.ks    = ks;                                                            % Ghost stabilisation parameter
 
 %% Material point generation
 ngp    = mp^nD;                                                             % number of material points per element
 GpLoc  = detMpPos(mp,nD);                                                   % local MP locations
-N      = shapefunc(nen,GpLoc,nD);                                         % basis functions for the material points
+N      = shapefunc(nen,GpLoc,nD);                                           % basis functions for the material points
 [etplmp,coordmp] = formCoord2D(20*a,2*a,l,d);                               % mesh for MP generation
-coordmp(:,2)=coordmp(:,2)+(ly-d);                                           % adjust MP locations (vertical)
+coordmp(:,2)=coordmp(:,2)+(ly-2*d);                                         % adjust MP locations (vertical)
 nelsmp = size(etplmp,1);                                                    % no. elements populated with material points
 nmp    = ngp*nelsmp;                                                        % total number of mterial points
 
@@ -128,7 +149,7 @@ for mp = nmp:-1:1                                                           % lo
   mpData(mp).epsEn  = zeros(6,1);                                           % previous elastic strain (logarithmic)
   mpData(mp).epsE   = zeros(6,1);                                           % elastic strain (logarithmic)
   mpData(mp).mCst   = mCst;                                                 % material constants (or internal variables) for constitutive model
-  if abs(mpC(mp,1)-(l-lp(mp,1)))<1e-3/a && abs(mpC(mp,2)-(ly-d/2))<(lp(mp,2)+1e-3/a)
+  if abs(mpC(mp,1)-(l-lp(mp,1)))<1e-3/a && abs(mpC(mp,2)-(ly-3*d/2))<(lp(mp,2)+1e-3/a)
     mpData(mp).fp   = [0 P/2].';                                            % point forces at material points (end load)  
   else
     mpData(mp).fp   = zeros(nD,1);                                          % point forces at material points
