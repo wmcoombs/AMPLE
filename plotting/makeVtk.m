@@ -121,20 +121,5 @@ elseif nD==1
     fprintf(fid,'%f\n',uvw);
     fprintf(fid,'\n');
 end
-
-%% displacement in vector form
-uvwAll = zeros(nodes*3,1);
-if nD==1
-    uvwAll(1:3:end) = uvw;
-elseif nD==2
-    uvwAll(1:3:end) = uvw(1:2:end);
-    uvwAll(2:3:end) = uvw(2:2:end);
-elseif nD==3
-    uvwAll = uvw;
-end
-fprintf(fid,'VECTORS u_vector FLOAT\n');
-fprintf(fid,'%f %f %f\n',uvwAll);
-fprintf(fid,'\n');
-
 fclose('all');
 end
