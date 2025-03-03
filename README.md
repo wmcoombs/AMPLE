@@ -20,3 +20,5 @@ Version history:
 AMPLE     - original AMPLE release
 
 AMPLE_1.1 - version 1.1, released August 2020 - focused on runtime improvement
+
+AMPLE GS  - updated to include Ghost Stabilisation (GS) from https://doi.org/10.1002/nme.7332
