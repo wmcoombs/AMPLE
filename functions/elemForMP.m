@@ -1,4 +1,4 @@
-function [eIN] = elemForMP(coord,etpl,mpC,lp)
+function [eIN] = elemForMP(mesh,mpC,lp)
 
 %Find elements associated with the material point
 %--------------------------------------------------------------------------
@@ -13,7 +13,10 @@ function [eIN] = elemForMP(coord,etpl,mpC,lp)
 % [eIN] = ELEMFORMP(coord,etpl,mpC,lp)
 %--------------------------------------------------------------------------
 % Input(s):
-% coord - element coordinates (nen,nD)
+% mesh   - mesh structured array. Function requires
+%           - etpl  : element topology (nels,nen) 
+%           - eMin  : element lower coordinate limit (nels,nD)
+%           - eMax  : element upper coordinate limit (nels,nD)
 % etpl  - element topology (nels,nen)
 % mpC   - material point coordinates (1,nD)
 % lp    - domain half width
@@ -25,18 +28,16 @@ function [eIN] = elemForMP(coord,etpl,mpC,lp)
 %
 %--------------------------------------------------------------------------
 
-nD   = size(coord,2);                                                       % number of dimensions
+Cmin = mesh.eMin;                                                           % element lower coordinate limit 
+Cmax = mesh.eMax;                                                           % element upper coordinate limit 
+etpl = mesh.etpl;                                                           % element topology
+nD   = size(Cmin,2);                                                        % number of dimensions
 nels = size(etpl,1);                                                        % number of elements
 Pmin = mpC-lp;                                                              % particle domain extents (lower)
 Pmax = mpC+lp;                                                              % particle domain extents (upper)
 a    = true(nels,1);                                                        % initialise logical array
-for i=1:nD
-  ci = coord(:,i);                                                          % nodal coordinates in current i direction
-  c  = ci(etpl);                                                            % reshaped element coordinates in current i direction
-  Cmin = min(c,[],2);                                                       % element lower coordinate limit 
-  Cmax = max(c,[],2);                                                       % element upper coordainte limit  
-  a = a.*((Cmin<Pmax(i)).*(Cmax>Pmin(i)));                                  % element overlap with mp domain
+for i=1:nD 
+    a = a.*((Cmin(:,i)<Pmax(i)).*(Cmax(:,i)>Pmin(i)));                      % element overlap with mp domain
 end
-eIN = (1:nels).';                                                           % list of all elements
-eIN = eIN(a>0);                                                             % remove those elements not in the domain
+eIN = find(a);                                                              % elements overlaps by the domain
 end                                                                        
