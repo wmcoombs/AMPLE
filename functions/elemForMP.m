@@ -10,7 +10,7 @@ function [eIN] = elemForMP(mesh,mpC,lp)
 % particle position.
 %
 %--------------------------------------------------------------------------
-% [eIN] = ELEMFORMP(coord,etpl,mpC,lp)
+% [eIN] = ELEMFORMP(mesh,mpC,lp)
 %--------------------------------------------------------------------------
 % Input(s):
 % mesh   - mesh structured array. Function requires
