@@ -27,8 +27,9 @@ function [eIN] = elemForMP(coord,etpl,mpC,lp)
 
 nD   = size(coord,2);                                                       % number of dimensions
 nels = size(etpl,1);                                                        % number of elements
-Pmin = mpC-lp;                                                              % particle domain extents (lower)
-Pmax = mpC+lp;                                                              % particle domain extents (upper)
+d    = sqrt(eps)*lp;                                                        % tolerance on the search (avoids zero overlap detection with GIMPM)
+Pmin = mpC-lp+d;                                                            % particle domain extents (lower)
+Pmax = mpC+lp-d;                                                            % particle domain extents (upper)
 a    = true(nels,1);                                                        % initialise logical array
 for i=1:nD
   ci = coord(:,i);                                                          % nodal coordinates in current i direction
