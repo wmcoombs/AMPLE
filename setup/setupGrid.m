@@ -68,7 +68,7 @@ cmType = 1;                                                                 % co
 
 %% Mesh generation
 [etpl,coord] = formCoord2D(nelsx,nelsy,lx,ly);                              % background mesh generation
-[~,nen]      = size(etpl);                                                  % number of element nodes
+[nels,nen]   = size(etpl);                                                  % number of elements and nodes per element
 [nodes,nD]   = size(coord);                                                 % number of nodes and dimensions
 h            = [lx ly]./[nelsx nelsy];                                      % element lengths in each direction
 
@@ -84,11 +84,23 @@ for node=1:nodes                                                            % lo
 end
 bc = bc(bc(:,1)>0,:);                                                       % remove empty part of bc
 
+%% Element limits for MP-element searching
+eMin = zeros(nels,nD);                                                      % element lower coordinate limit
+eMax = zeros(nels,nD);                                                      % element upper coordainte limit 
+for i = 1:nD
+    ci = coord(:,i);                                                        % nodal coordinates in current i direction
+    c  = ci(etpl);                                                          % reshaped element coordinates in current i direction
+    eMin(:,i) = min(c,[],2);                                                % element lower coordinate limit 
+    eMax(:,i) = max(c,[],2);                                                % element upper coordainte limit 
+end
+
 %% Mesh data structure generation
 mesh.etpl  = etpl;                                                          % element topology
 mesh.coord = coord;                                                         % nodal coordinates
 mesh.bc    = bc;                                                            % boundary conditions
 mesh.h     = h;                                                             % mesh size
+mesh.eMin  = eMin;                                                          % element lower coordinate limit 
+mesh.eMax  = eMax;                                                          % element upper coordainte limit 
 
 %% Material point generation
 ngp    = mp^nD;                                                             % number of material points per element

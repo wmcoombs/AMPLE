@@ -40,7 +40,7 @@ for lstp=1:lstps                                                            % lo
   uvw  = zeros(nDoF,1);                                                     % zero the displacements
   fd   = detFDoFs(mesh);                                                    % free degrees of freedom
   NRit = 0;                                                                 % zero the iteration counter
-  Kt   = 0;                                                                 % zero global stiffness matrix
+  Kt   = sparse(nDoF,nDoF);                                                 % zero global stiffness matrix
   while (fErr > tol) && (NRit < NRitMax) || (NRit < 2)                      % global equilibrium loop
     [duvw,drct] = linSolve(mesh.bc,Kt,oobf,NRit,fd);                        % linear solver
     uvw  = uvw+duvw;                                                        % update displacements
