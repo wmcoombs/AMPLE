@@ -4,16 +4,17 @@
 
 <html lang="en">
 <head>
+	<base href="https://wmcoombs.github.io/AMPLE/" />
 	<meta charset="utf-8">
 	<title>Code Structure - AMPLE - A Material Point Learning Environment</title>
 	<meta name="description" content="You’ll find this post in your `_posts` directory. Go ahead and edit it and re-build the site to see your changes.">
 	<meta http-equiv="X-UA-Compatible" content="IE=edge">
 	<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
 	<meta property="og:image" content="">
-	<link rel="shortcut icon" href="/assets/img/favicon/favicon.ico" type="image/x-icon">
-	<link rel="apple-touch-icon" href="/assets/img/favicon/apple-touch-icon.png">
-	<link rel="apple-touch-icon" sizes="72x72" href="/assets/img/favicon/apple-touch-icon-72x72.png">
-	<link rel="apple-touch-icon" sizes="114x114" href="/assets/img/favicon/apple-touch-icon-114x114.png">
+	<link rel="shortcut icon" href="assets/img/favicon/favicon.ico" type="image/x-icon">
+	<link rel="apple-touch-icon" href="assets/img/favicon/apple-touch-icon.png">
+	<link rel="apple-touch-icon" sizes="72x72" href="assets/img/favicon/apple-touch-icon-72x72.png">
+	<link rel="apple-touch-icon" sizes="114x114" href="assets/img/favicon/apple-touch-icon-114x114.png">
 	<!-- Chrome, Firefox OS and Opera -->
 	<meta name="theme-color" content="#311e3e">
 	<!-- Windows Phone -->
@@ -24,9 +25,9 @@
 	<link href="https://fonts.googleapis.com/css?family=Montserrat:300,400,700" rel="stylesheet">
 	<link href="https://fonts.googleapis.com/css?family=Lato:300,400,700" rel="stylesheet">
 	<!-- Font Awesome -->
-	<link rel="stylesheet" href="/assets/fonts/font-awesome/css/font-awesome.min.css">
+	<link rel="stylesheet" href="assets/fonts/font-awesome/css/font-awesome.min.css">
 	<!-- Styles -->
-	<link rel="stylesheet" href="/assets/css/main.css">
+	<link rel="stylesheet" href="assets/css/main.css">
 </head>
 
 <body>
@@ -40,21 +41,21 @@
       <nav class="main-nav">
         <span class="menu-icon-close"><i class="fa fa-times" aria-hidden="true"></i></span>
         <ul>
-          <li><a href="/">Homepage</a></li>
-          <li><a href="/mpm">MPM</a></li>
-          <li><a href="/principles">Development</a></li>
-          <li><a href="/formulation">Formulation</a></li>
-          <li><a href="/structure">Code Structure</a></li>
-          <li><a href="/tests">Test Cases</a></li>
-          <li><a href="/publications">Publications</a></li>
-          <li><a href="/versions">Versions</a></li>
-          <li><a href="/acknowledgements">acknowledgements</a></li>
-          <li><a href="/download">Download</a></li>
+          <li><a href=" ">Homepage</a></li>
+          <li><a href="mpm">MPM</a></li>
+          <li><a href="principles">Development</a></li>
+          <li><a href="formulation">Formulation</a></li>
+          <li><a href="structure">Code Structure</a></li>
+          <li><a href="tests">Test Cases</a></li>
+          <li><a href="publications">Publications</a></li>
+          <li><a href="versions">Versions</a></li>
+          <li><a href="acknowledgements">acknowledgements</a></li>
+          <li><a href="download">Download</a></li>
           <!--<li><a href="/other">Other pages</a></li>-->
-          <li><a href="/about">About</a></li>
+          <li><a href="about">About</a></li>
         </ul>
       </nav>
-      <p class="logo"><a href="/">AMPLE&#58;  A Material Point Learning Environment</a></p>
+      <p class="logo"><a href=" ">AMPLE&#58;  A Material Point Learning Environment</a></p>
       <div class="search-icon-container">
         <span class="search-icon"><a><i class="fa fa-search" aria-hidden="true"></i></a></span>
       </div>
@@ -64,7 +65,7 @@
 
   <article class="article-page">
     <div class="page-image">
-      <div class="cover-image" style="background: url(/assets/img/code.jpg) center no-repeat; background-size: cover;"></div>
+      <div class="cover-image" style="background: url(assets/img/code.jpg) center no-repeat; background-size: cover;"></div>
     </div>
     <div class="wrapper">
       <div class="page-content">
@@ -86,12 +87,12 @@
   </li>
 </ul>
 
-<p><img src="/assets/img/alg.jpg" alt="AMPLE algorithm" /></p>
+<p><img src="assets/img/alg.jpg" alt="AMPLE algorithm" /></p>
 
 <p>AMPLE’s main script, <code class="highlighter-rouge">ample.m</code>, is shown in its entirety below.  The format of the code aligns with the algorithm shown above.  Comments are shown in green and have been truncated on the right hand side for clarity of the executed code.  Only two of the three loops described above can be seen in the main <code class="highlighter-rouge">ample.m</code> file: (1) a loadstep <strong>for</strong> loop spanning lines 9 through 33 and
 (2) a Newton-Raphson <strong>while</strong> loop over lines 21 through 30.  The material point loop is contained within the  <code class="highlighter-rouge">detMPs.m</code> function on line 25.</p>
 
-<p><img src="/assets/img/ampleMain.jpg" alt="AMPLE main code" /></p>
+<p><img src="assets/img/ampleMain.jpg" alt="AMPLE main code" /></p>
 
 <p>The main <code class="highlighter-rouge">ample.m</code> script calls eight functions, the purpose of each of these functions is explained below:</p>
 <ul>
@@ -123,7 +124,7 @@
 
 <p>The structure of these functions is shown diagrammatically below, where the solid and dashed lines around the function boxes indicate that the function does or does not calls other functions, respectively.  The black arrows indicate the function calls and the locations of the loops in the code are indicated by the grey lines.  For example, <code class="highlighter-rouge">Hook3d.m</code> is called by <code class="highlighter-rouge">detMPs.m</code>; and <code class="highlighter-rouge">linSolve.m</code> and <code class="highlighter-rouge">detMPs.m</code> are called within the equilibrium, or N-R, loop.</p>
 
-<p><img src="/assets/img/codeStructure.jpg" alt="AMPLE code structure" /></p>
+<p><img src="assets/img/codeStructure.jpg" alt="AMPLE code structure" /></p>
 
 <p>The majority of AMPLE’s functions do not depend on: (i) the form of the background mesh, (ii) the type of material point methods adopted or (iii) the number of physical dimensions (1D, 2D plane strain or 3D).  The exceptions to this are: <code class="highlighter-rouge">elemMPinfo.m</code> which depends on the background mesh type and the material point variant and <code class="highlighter-rouge">updateMPs.m</code> which depends on the material point variant as different updating procedures are required for different material point methods.  Obviously <code class="highlighter-rouge">setupGrid.m</code> depends on all three of the above points as it contains the analysis-specific information that will change depending on the user’s requirements.</p>
 
@@ -133,7 +134,7 @@
 
 <p>All of AMPLE’s functions share a common file format.  An example AMPLE function is shown below, specifically the function to determine the external forces on the background mesh based on body and point forces at material points, <code class="highlighter-rouge">detExtForce.m</code>, which is called on line 12 of <code class="highlighter-rouge">ample.m</code>. The function starts with a common comment block that includes the following information: (i) brief description/title; (ii) author and date information with a more detailed description of the function’s purpose; (iii) function call format; (iv) required input information; (v) the function’s output; and (vi) a <em>see also</em> section detailing the functions that are called by the function (in the case of <code class="highlighter-rouge">detExtForce.m</code>, none).</p>
 
-<p><img src="/assets/img/extForceExample.jpg" alt="AMPLE function format" /></p>
+<p><img src="assets/img/extForceExample.jpg" alt="AMPLE function format" /></p>
 
 <h2 id="data-structures">Data Structures</h2>
 
@@ -163,7 +164,7 @@
           </div><!-- End Share -->
         </div>
         <section class="author-box">
-  <img src="/assets/img/plate.jpg" alt="AMPLE&#58;  A Material Point Learning Environment" class="author-img">
+  <img src="assets/img/plate.jpg" alt="AMPLE&#58;  A Material Point Learning Environment" class="author-img">
   <div class="author-desc">
     <h2>AMPLE&#58;  A Material Point Learning Environment</h2>
     <p>AMPLE was developed to address the sevre learning curve for researchers wishing to understand, and start using, the material point method. The software was developed at Durham University between 2014 and 2018 by Dr Will Coombs as a platform to test our new research ideas and understand the impact of adopting different material point variants. AMPLE was first released in January 2019 at the 2nd International Conference on the Material Point Method held at Cambridge University, UK.
@@ -306,19 +307,19 @@
   <div class="recent-list">
     
       
-        <a href="/mpm/" class="recent-item" style="background: url(/assets/img/collapse1.jpg) center no-repeat; background-size: cover;"><span>Material Point Method</span></a>
+        <a href="/mpm/" class="recent-item" style="background: url(assets/img/collapse1.jpg) center no-repeat; background-size: cover;"><span>Material Point Method</span></a>
       
     
       
-        <a href="/principles/" class="recent-item" style="background: url(/assets/img/curve.jpg) center no-repeat; background-size: cover;"><span>Development Principles</span></a>
+        <a href="/principles/" class="recent-item" style="background: url(assets/img/curve.jpg) center no-repeat; background-size: cover;"><span>Development Principles</span></a>
       
     
       
-        <a href="/formulation/" class="recent-item" style="background: url(/assets/img/mechanics.jpg) center no-repeat; background-size: cover;"><span>Formulation</span></a>
+        <a href="/formulation/" class="recent-item" style="background: url(assets/img/mechanics.jpg) center no-repeat; background-size: cover;"><span>Formulation</span></a>
       
     
       
-        <a href="/structure/" class="recent-item" style="background: url(/assets/img/code.jpg) center no-repeat; background-size: cover;"><span>Code Structure</span></a>
+        <a href="/structure/" class="recent-item" style="background: url(assets/img/code.jpg) center no-repeat; background-size: cover;"><span>Code Structure</span></a>
       
     
   </div>
@@ -326,8 +327,8 @@
 -->
 
   <!-- JS -->
-<script src="/assets/js/jquery-3.2.1.min.js"></script>
-<script src="/assets/js/jekyll-search.js"></script>
+<script src="assets/js/jquery-3.2.1.min.js"></script>
+<script src="assets/js/jekyll-search.js"></script>
 <script>
   SimpleJekyllSearch({
     searchInput: document.getElementById('search-input'),
@@ -339,7 +340,7 @@
     exclude: ['Welcome']
   });
 </script>
-<script src="/assets/js/main.js"></script>
+<script src="assets/js/main.js"></script>
 
   <script>
   (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
