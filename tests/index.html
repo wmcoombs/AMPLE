@@ -4,16 +4,17 @@
 
 <html lang="en">
 <head>
+	<base href="https://wmcoombs.github.io/AMPLE/" />
 	<meta charset="utf-8">
 	<title>Test cases - AMPLE - A Material Point Learning Environment</title>
 	<meta name="description" content="You’ll find this post in your `_posts` directory. Go ahead and edit it and re-build the site to see your changes.">
 	<meta http-equiv="X-UA-Compatible" content="IE=edge">
 	<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
 	<meta property="og:image" content="">
-	<link rel="shortcut icon" href="/assets/img/favicon/favicon.ico" type="image/x-icon">
-	<link rel="apple-touch-icon" href="/assets/img/favicon/apple-touch-icon.png">
-	<link rel="apple-touch-icon" sizes="72x72" href="/assets/img/favicon/apple-touch-icon-72x72.png">
-	<link rel="apple-touch-icon" sizes="114x114" href="/assets/img/favicon/apple-touch-icon-114x114.png">
+	<link rel="shortcut icon" href="assets/img/favicon/favicon.ico" type="image/x-icon">
+	<link rel="apple-touch-icon" href="assets/img/favicon/apple-touch-icon.png">
+	<link rel="apple-touch-icon" sizes="72x72" href="assets/img/favicon/apple-touch-icon-72x72.png">
+	<link rel="apple-touch-icon" sizes="114x114" href="assets/img/favicon/apple-touch-icon-114x114.png">
 	<!-- Chrome, Firefox OS and Opera -->
 	<meta name="theme-color" content="#311e3e">
 	<!-- Windows Phone -->
@@ -24,9 +25,9 @@
 	<link href="https://fonts.googleapis.com/css?family=Montserrat:300,400,700" rel="stylesheet">
 	<link href="https://fonts.googleapis.com/css?family=Lato:300,400,700" rel="stylesheet">
 	<!-- Font Awesome -->
-	<link rel="stylesheet" href="/assets/fonts/font-awesome/css/font-awesome.min.css">
+	<link rel="stylesheet" href="assets/fonts/font-awesome/css/font-awesome.min.css">
 	<!-- Styles -->
-	<link rel="stylesheet" href="/assets/css/main.css">
+	<link rel="stylesheet" href="assets/css/main.css">
 </head>
 
 <body>
@@ -40,21 +41,21 @@
       <nav class="main-nav">
         <span class="menu-icon-close"><i class="fa fa-times" aria-hidden="true"></i></span>
         <ul>
-          <li><a href="/">Homepage</a></li>
-          <li><a href="/mpm">MPM</a></li>
-          <li><a href="/principles">Development</a></li>
-          <li><a href="/formulation">Formulation</a></li>
-          <li><a href="/structure">Code Structure</a></li>
-          <li><a href="/tests">Test Cases</a></li>
-          <li><a href="/publications">Publications</a></li>
-          <li><a href="/versions">Versions</a></li>
-          <li><a href="/acknowledgements">acknowledgements</a></li>
-          <li><a href="/download">Download</a></li>
+          <li><a href=" ">Homepage</a></li>
+          <li><a href="mpm">MPM</a></li>
+          <li><a href="principles">Development</a></li>
+          <li><a href="formulation">Formulation</a></li>
+          <li><a href="structure">Code Structure</a></li>
+          <li><a href="tests">Test Cases</a></li>
+          <li><a href="publications">Publications</a></li>
+          <li><a href="versions">Versions</a></li>
+          <li><a href="acknowledgements">acknowledgements</a></li>
+          <li><a href="download">Download</a></li>
           <!--<li><a href="/other">Other pages</a></li>-->
-          <li><a href="/about">About</a></li>
+          <li><a href="about">About</a></li>
         </ul>
       </nav>
-      <p class="logo"><a href="/">AMPLE&#58;  A Material Point Learning Environment</a></p>
+      <p class="logo"><a href=" ">AMPLE&#58;  A Material Point Learning Environment</a></p>
       <div class="search-icon-container">
         <span class="search-icon"><a><i class="fa fa-search" aria-hidden="true"></i></a></span>
       </div>
@@ -64,7 +65,7 @@
 
   <article class="article-page">
     <div class="page-image">
-      <div class="cover-image" style="background: url(/assets/img/collapse2.jpg) center no-repeat; background-size: cover;"></div>
+      <div class="cover-image" style="background: url(assets/img/collapse2.jpg) center no-repeat; background-size: cover;"></div>
     </div>
     <div class="wrapper">
       <div class="page-content">
@@ -80,7 +81,7 @@
 
 <p>The basic setup information for this analysis, as contained on lines 57 through 67 of <code class="highlighter-rouge">setupGrid</code>, is shown below.  The figure shows the setup information for an analysis with 64 elements in the <script type="math/tex">y</script>-direction (nelsy) and a single element in the <script type="math/tex">x</script>-direction (nelsx).  The physical body is discretised by generalised interpolation material points (mpType=2), with linear-elastic material behaviour (cmType=1).</p>
 
-<p><img src="/assets/img/compactionSetup.jpg" alt="Compaction setup" /></p>
+<p><img src="assets/img/compactionSetup.jpg" alt="Compaction setup" /></p>
 
 <p>The analytical solution for the vertical Cauchy stress is</p>
 
@@ -90,7 +91,7 @@
 
 <p>The below figure shows the convergence of the standard and generalised interpolation material point methods with background mesh and material point refinement.  It is clear that the standard material point method does not converge due to cell crossing errors whereas the generalised interpolation material point method converges at an approximately linear rate.  The figure also shows AMPLE’s run time with progressive background mesh refinement.  For most of the analyses, the run time scales approximately linearly with the number of material points.  However, when the number of elements in the <script type="math/tex">y</script>-direction exceeds <script type="math/tex">2^{12}</script> the time spent in the linear solver starts to dominate, with a corresponding increase in the gradient of the run time.</p>
 
-<p><img src="/assets/img/convergence.jpg" alt="Compaction convergence" /></p>
+<p><img src="assets/img/convergence.jpg" alt="Compaction convergence" /></p>
 
 <h2 id="visualisation-large-deformation-elastic-beam">Visualisation: large deformation elastic beam</h2>
 
@@ -101,7 +102,7 @@
 
 <p>The second demonstration case is a plane strain analysis of an elastic beam subjected to a vertical end load of <script type="math/tex">100</script>kN applied over 50 equal loadsteps.  The beam had an initial length <script type="math/tex">l_0=10</script>m and depth <script type="math/tex">d_0=1</script>m and the material has a Young’s modulus of <script type="math/tex">12</script>MPa and a Poisson’s ratio of <script type="math/tex">0.2</script>.  The geometry and boundary conditions with <script type="math/tex">h=0.5</script>m and <script type="math/tex">2^2</script> material points per initially active background elements are shown below.  The force is split across the two material points closest to the neutral axis at the end of the beam (the black-filled circles).  The neutral axis of the beam is pinned at its left hand edge and roller boundary conditions are imposed on the other background grid nodes at the root of the beam, as shown below.</p>
 
-<p><img src="/assets/img/beamSetup.jpg" alt="Beam setup" /></p>
+<p><img src="assets/img/beamSetup.jpg" alt="Beam setup" /></p>
 
 <p>In AMPLE it is suggested that users use the included scripts to generate VTK files and visualise the deformation of the material points using a VTK view (such as <a href="https://wci.llnl.gov/simulation/computer-codes/visit/" target="_blank">VisIt</a> or <a href="https://www.paraview.org/" target="_blank">ParaView</a>).  The VTK files are generated by the following two functions:</p>
 
@@ -111,7 +112,7 @@ makeVtkOutputMaterialPoint.m        % generates the material points
 
 <p>The normalised global force versus displacement response for two different background mesh sizes with <script type="math/tex">6^2</script> generalised interpolation material points (mpType=2) per initially populated background grid cell are shown below.  The analytical solution, as detailed in the thesis of [1], is shown by the discrete points.  The global response of both analyses show good agreement with the analytical solution.</p>
 
-<p><img src="/assets/img/beamForceDisp.jpg" alt="Beam force versus displacement" /></p>
+<p><img src="assets/img/beamForceDisp.jpg" alt="Beam force versus displacement" /></p>
 
 <p>The above figure also shows the deformed material point positions at the end of the <script type="math/tex">h=0.125</script>m analysis that have been coloured according to the normal stress in the <script type="math/tex">y</script>-direction, <script type="math/tex">\sigma_{yy}</script>.  The figure was produced from the VTK output files that are generated on line 32 of the main <code class="highlighter-rouge">ample.m</code> script via <code class="highlighter-rouge">postPro.m</code> and saved into the <strong>output</strong> folder</p>
 
@@ -124,13 +125,13 @@ makeVtkOutputMaterialPoint.m        % generates the material points
 
 <p>The final demonstration example is the elasto-plastic collapse of a rectangular body of material subject to a gravitational body force.  Due to symmetry only half of the body is modelled and the initial discretisation of the problem is shown in below with <script type="math/tex">l_0=8</script>m,  <script type="math/tex">h=1</script>m and <script type="math/tex">2^2</script> material points per initially filled background cell (the grey-shaded region).  Roller boundary conditions are imposed on the base and the left hand edge of the background mesh.    The material is modelled using a linear-elastic, perfectly-plastic von Mises constitutive formulation.</p>
 
-<p><img src="/assets/img/collapseSetup.jpg" alt="Collapse setup" /></p>
+<p><img src="assets/img/collapseSetup.jpg" alt="Collapse setup" /></p>
 
 <p>For this analysis, the yield strength of the material is <script type="math/tex">\rho_y=20</script>kPa, the Young’s modulus is <script type="math/tex">1</script>MPa and Poisson’s ratio is <script type="math/tex">0.3</script>.  A body force of <script type="math/tex">10</script>kN/m<script type="math/tex">^3</script> (density of <script type="math/tex">1000</script>kg/m<script type="math/tex">^3</script> and gravitational acceleration of <script type="math/tex">10</script>m/s<script type="math/tex">^2</script>) is applied over 40 equal loadsteps.</p>
 
 <p>The deformed material point positions at the end of the analysis for <script type="math/tex">h=0.5</script>m and <script type="math/tex">h=0.25</script>m with <script type="math/tex">6^2</script> material points per initially populated background grid cell are shown below.  The material points are coloured according to <script type="math/tex">\sigma_{xx}</script>, <script type="math/tex">\sigma_{yy}</script> and <script type="math/tex">\sigma_{xy}</script>, where the blue and red regions show areas of low and high stress, respectively.   There is very little deformation for the first 20 loadsteps (up to <script type="math/tex">5</script>kN/m<script type="math/tex">^3</script>) but beyond this value the material rapidly collapses and achieves the final deformed state shown below.</p>
 
-<p><img src="/assets/img/collapse.jpg" alt="Collapse" /></p>
+<p><img src="assets/img/collapse.jpg" alt="Collapse" /></p>
 
 <hr />
 
@@ -150,7 +151,7 @@ makeVtkOutputMaterialPoint.m        % generates the material points
           </div><!-- End Share -->
         </div>
         <section class="author-box">
-  <img src="/assets/img/plate.jpg" alt="AMPLE&#58;  A Material Point Learning Environment" class="author-img">
+  <img src="assets/img/plate.jpg" alt="AMPLE&#58;  A Material Point Learning Environment" class="author-img">
   <div class="author-desc">
     <h2>AMPLE&#58;  A Material Point Learning Environment</h2>
     <p>AMPLE was developed to address the sevre learning curve for researchers wishing to understand, and start using, the material point method. The software was developed at Durham University between 2014 and 2018 by Dr Will Coombs as a platform to test our new research ideas and understand the impact of adopting different material point variants. AMPLE was first released in January 2019 at the 2nd International Conference on the Material Point Method held at Cambridge University, UK.
@@ -293,19 +294,19 @@ makeVtkOutputMaterialPoint.m        % generates the material points
   <div class="recent-list">
     
       
-        <a href="/mpm/" class="recent-item" style="background: url(/assets/img/collapse1.jpg) center no-repeat; background-size: cover;"><span>Material Point Method</span></a>
+        <a href="/mpm/" class="recent-item" style="background: url(assets/img/collapse1.jpg) center no-repeat; background-size: cover;"><span>Material Point Method</span></a>
       
     
       
-        <a href="/principles/" class="recent-item" style="background: url(/assets/img/curve.jpg) center no-repeat; background-size: cover;"><span>Development Principles</span></a>
+        <a href="/principles/" class="recent-item" style="background: url(assets/img/curve.jpg) center no-repeat; background-size: cover;"><span>Development Principles</span></a>
       
     
       
-        <a href="/formulation/" class="recent-item" style="background: url(/assets/img/mechanics.jpg) center no-repeat; background-size: cover;"><span>Formulation</span></a>
+        <a href="/formulation/" class="recent-item" style="background: url(assets/img/mechanics.jpg) center no-repeat; background-size: cover;"><span>Formulation</span></a>
       
     
       
-        <a href="/structure/" class="recent-item" style="background: url(/assets/img/code.jpg) center no-repeat; background-size: cover;"><span>Code Structure</span></a>
+        <a href="/structure/" class="recent-item" style="background: url(assets/img/code.jpg) center no-repeat; background-size: cover;"><span>Code Structure</span></a>
       
     
   </div>
@@ -313,8 +314,8 @@ makeVtkOutputMaterialPoint.m        % generates the material points
 -->
 
   <!-- JS -->
-<script src="/assets/js/jquery-3.2.1.min.js"></script>
-<script src="/assets/js/jekyll-search.js"></script>
+<script src="assets/js/jquery-3.2.1.min.js"></script>
+<script src="assets/js/jekyll-search.js"></script>
 <script>
   SimpleJekyllSearch({
     searchInput: document.getElementById('search-input'),
@@ -326,7 +327,7 @@ makeVtkOutputMaterialPoint.m        % generates the material points
     exclude: ['Welcome']
   });
 </script>
-<script src="/assets/js/main.js"></script>
+<script src="assets/js/main.js"></script>
 
   <script>
   (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
